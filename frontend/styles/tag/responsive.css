@@ -1,0 +1,73 @@
+/**
+ * Tag Page - Responsive Styles
+ * Media queries for all tag page components
+ */
+
+/* Tablet - Featured + Sidebar */
+@media (max-width: 992px) {
+  .featured-with-sidebar {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .related-tags-sidebar {
+    order: -1;
+  }
+  .sidebar-tags-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .sidebar-tag-item {
+    flex: 0 0 auto;
+  }
+}
+
+/* Tablet - Featured Article */
+@media (max-width: 992px) {
+  .featured-article {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .featured-article .featured-image {
+    order: -1;
+  }
+  .featured-title {
+    font-size: 1.5rem;
+  }
+  .articles-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .related-tags-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .tag-title {
+    font-size: 1.8rem;
+  }
+  .tag-title i {
+    font-size: 1.5rem;
+  }
+  .article-card-thumb {
+    width: 100px;
+    height: 120px;
+  }
+  .related-tags-grid {
+    grid-template-columns: 1fr;
+  }
+  .tag-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tag-info-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tag-info-stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+

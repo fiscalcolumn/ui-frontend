@@ -1,0 +1,142 @@
+/**
+ * Category Page - Tags Styles
+ * Article tags, category tags section
+ */
+
+/* Article Tags */
+.article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.article-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #f0f7ff;
+  color: #14bdee;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.article-tag:hover {
+  background: #14bdee;
+  color: #fff;
+  text-decoration: none;
+}
+.article-tags-more {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #e9ecef;
+  color: #666;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border-radius: 12px;
+}
+
+/* Category Tags Section */
+.category-tags-section {
+  padding: 10px 0;
+  background: #f5f5f5;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+.category-tags-header {
+  margin-bottom: 12px;
+}
+.category-tags-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: 0.5px;
+}
+.category-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.category-tag-pill {
+  display: inline-block;
+  padding: 6px 14px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #444;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.category-tag-pill:hover {
+  background: #fff;
+  border-color: #14bdee;
+  color: #14bdee;
+  text-decoration: none;
+}
+
+/* Popular Tags Section (below first article) */
+.popular-tags-section {
+  margin: 20px 0;
+  padding: 0 0 20px 0;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline;
+  gap: 15px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.popular-tags-header {
+  display: inline-flex !important;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #161616;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.popular-tags-header i {
+  color: #14bdee;
+  font-size: 1.0rem;
+}
+
+.popular-tag-link {
+  display: inline !important;
+  color: #111111;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  line-height: 1.2;
+  vertical-align: baseline;
+}
+
+.popular-tag-link:hover {
+  color: #14bdee;
+  text-decoration: underline;
+}
+
+/* Dark mode styles for popular tags */
+@media (prefers-color-scheme: dark) {
+  .popular-tags-header {
+    color: #ccc;
+  }
+  
+  .popular-tag-link {
+    color: #ccc;
+  }
+  
+  .popular-tag-link:hover {
+    color: #14bdee;
+  }
+}

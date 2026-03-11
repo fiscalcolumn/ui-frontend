@@ -1,0 +1,155 @@
+/**
+ * Tag Page - Dark Mode Styles
+ * All dark mode overrides for tag page components
+ */
+
+/* CSS Variables for Dark Mode */
+:root {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3a3a3a;
+  --text-primary: #eee;
+  --text-secondary: #aaa;
+  --text-muted: #888;
+  --border-color: #404040;
+  --primary-color: #14bdee;
+}
+
+
+/* Tag Info Bar */
+.dark-mode .tag-info-bar {
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .tag-info-title {
+  color: var(--text-primary);
+}
+.dark-mode .tag-info-stat {
+  color: var(--text-secondary);
+}
+
+/* Tags Section */
+.dark-mode .tags-section {
+  background: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .tags-section-title {
+  color: var(--text-secondary);
+}
+
+/* Tag Pills */
+.dark-mode .tag-pill {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+.dark-mode .tag-pill i {
+  color: var(--text-secondary);
+}
+.dark-mode .tag-pill.similar {
+  background: rgba(20, 189, 238, 0.15);
+  border-color: rgba(20, 189, 238, 0.3);
+  color: #14bdee;
+}
+
+/* Featured with Sidebar */
+.dark-mode .featured-with-sidebar {
+  border-bottom-color: var(--border-color);
+}
+
+/* Related Tags Sidebar */
+.dark-mode .related-tags-sidebar {
+  background: var(--bg-secondary);
+}
+.dark-mode .sidebar-title {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .sidebar-tag-item {
+  background: var(--bg-secondary);
+  border-color: var(--bg-secondary);
+}
+.dark-mode .sidebar-tag-item:hover {
+  border-color: #14bdee;
+  background: var(--bg-secondary);
+}
+.dark-mode .sidebar-tag-name {
+  color: var(--text-primary);
+}
+.dark-mode .sidebar-tag-arrow {
+  color: var(--text-muted);
+}
+.dark-mode .sidebar-tag-item:hover .sidebar-tag-arrow {
+  color: #14bdee;
+}
+.dark-mode .sidebar-tags-list::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+.dark-mode .sidebar-tags-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+.dark-mode .sidebar-tags-list::-webkit-scrollbar-thumb:hover {
+  background: #14bdee;
+}
+
+/* Main Container */
+.dark-mode .articles-main-container {
+  background: var(--bg-primary);
+}
+
+/* Featured Article */
+.dark-mode .featured-article {
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .featured-title a {
+  color: var(--text-primary);
+}
+.dark-mode .featured-excerpt {
+  color: var(--text-secondary);
+}
+
+/* Article Cards */
+.dark-mode .article-card-thumb {
+  background: var(--bg-secondary);
+}
+.dark-mode .article-card-thumb-placeholder {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+}
+.dark-mode .article-card-title a {
+  color: var(--text-primary);
+}
+.dark-mode .article-card-excerpt {
+  color: var(--text-secondary);
+}
+.dark-mode .article-card-meta {
+  color: var(--text-secondary);
+}
+
+/* Pagination */
+.dark-mode .pagination-container {
+  background: var(--bg-primary);
+}
+.dark-mode .page-link {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+.dark-mode .page-link:hover {
+  background: var(--bg-primary);
+  border-color: #14bdee;
+}
+.dark-mode .page-item.active .page-link {
+  background: #14bdee;
+  border-color: #14bdee;
+}
+
+/* No Articles */
+.dark-mode .no-articles {
+  background: var(--bg-secondary);
+}
+.dark-mode .no-articles h3 {
+  color: var(--text-primary);
+}
+.dark-mode .no-articles p {
+  color: var(--text-secondary);
+}
+

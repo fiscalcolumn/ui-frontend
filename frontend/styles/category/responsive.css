@@ -1,0 +1,104 @@
+/**
+ * Category Page - Responsive Styles
+ * Media queries for all category page components
+ */
+
+/* Tablet and below */
+@media (max-width: 992px) {
+  .featured-article {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .featured-article .featured-image {
+    order: -1;
+  }
+  .featured-title {
+    font-size: 1.5rem;
+  }
+  .articles-cards-grid,
+  .articles-extra-section {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .articles-split-section {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .split-list-column {
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+  }
+}
+
+/* Error Page - Tablet */
+@media (max-width: 991px) {
+  .error-page-split {
+    flex-direction: column;
+  }
+  .error-left-section,
+  .error-right-section {
+    flex: 1 1 100%;
+  }
+  .error-articles-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .error-horizontal-card {
+    flex-direction: column;
+  }
+  .error-card-image {
+    width: 100%;
+    height: 160px;
+  }
+  .error-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .error-carousel-card {
+    flex: 0 0 240px;
+  }
+  .error-carousel-nav {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 576px) {
+  .featured-title {
+    font-size: 1.3rem;
+  }
+  .card-thumb {
+    width: 110px;
+    height: 130px;
+  }
+  /* Carousel responsive */
+  .carousel-card {
+    flex: 0 0 calc(50% - 10px);
+    min-width: 200px;
+  }
+  .carousel-nav {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+  .related-category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .error-page-actions {
+    flex-direction: column;
+  }
+  .error-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

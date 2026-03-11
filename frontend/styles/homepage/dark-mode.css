@@ -1,0 +1,98 @@
+/**
+ * Homepage - Dark Mode Styles
+ * All dark mode overrides for homepage components
+ */
+
+/* Section Background */
+.dark-mode .section-alt-bg {
+  background-color: var(--bg-secondary);
+}
+
+/* Grid Cards - Placeholders */
+.dark-mode .grid-card-placeholder {
+  background: var(--bg-secondary);
+}
+
+/* Grid Cards - Title */
+.dark-mode .grid-card-title {
+  color: var(--text-primary);
+}
+
+.dark-mode .grid-card-title a {
+  color: var(--text-primary);
+}
+
+/* Grid Cards - Excerpt */
+.dark-mode .grid-card-excerpt {
+  color: var(--text-secondary);
+}
+
+/* Grid Cards - Meta */
+.dark-mode .grid-card-meta {
+  color: var(--text-secondary);
+}
+
+/* Grid Cards - Vertical */
+.dark-mode .grid-card-vertical {
+  background: var(--bg-secondary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* No Articles */
+.dark-mode .no-articles {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+/* Loading Sections */
+.dark-mode .loading-sections {
+  color: var(--text-secondary);
+}
+
+.dark-mode .loading-sections .spinner {
+  border-color: var(--bg-secondary);
+  border-top-color: #14bdee;
+}
+
+/* Carousel (same as category page) */
+.dark-mode .related-category-section:nth-child(odd) {
+  background: var(--bg-primary);
+}
+.dark-mode .related-category-section:nth-child(even) {
+  background: var(--bg-secondary);
+}
+.dark-mode .related-category-title {
+  color: var(--text-primary);
+}
+.dark-mode .related-category-link {
+  color: #14bdee;
+}
+.dark-mode .carousel-card {
+  background: var(--bg-primary);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.dark-mode .carousel-card-image {
+  background: var(--bg-secondary);
+}
+.dark-mode .carousel-card-placeholder {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+}
+.dark-mode .carousel-card-title a {
+  color: var(--text-primary);
+}
+.dark-mode .carousel-card-excerpt {
+  color: var(--text-secondary);
+}
+.dark-mode .carousel-card-meta {
+  color: var(--text-secondary);
+}
+.dark-mode .carousel-nav {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.dark-mode .carousel-nav:hover {
+  background: #14bdee;
+  color: #fff;
+}
+

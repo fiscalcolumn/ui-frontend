@@ -1,0 +1,61 @@
+/**
+ * Homepage - Base Styles
+ * Section containers, layouts, spacing
+ */
+
+/* Dynamic Sections Styles */
+.section-alt-bg {
+  background-color: #f9f9f9;
+}
+
+.content-section {
+  padding: 35px 0;
+}
+
+/* Add spacing between section title and content */
+.content-section .section_title_container {
+  margin-bottom: 20px;
+}
+
+.content-section .news_row,
+.content-section .courses_row,
+.content-section .events_row {
+  margin-top: 10px;
+}
+
+/* Grid card columns - tight spacing */
+.grid_card_col {
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-bottom: 10px;
+}
+
+.courses_row {
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+/* Event card spacing */
+.events_row {
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.event_col {
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-bottom: 16px;
+}
+
+.event_body {
+  padding: 12px 15px;
+}
+
+.event_title {
+  margin-bottom: 6px;
+}
+
+.event_info {
+  margin-bottom: 8px;
+}
+

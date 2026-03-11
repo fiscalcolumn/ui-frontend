@@ -1,0 +1,150 @@
+/**
+ * Homepage - Grid Cards Styles
+ * Horizontal and vertical grid card layouts
+ */
+
+/* ===== HORIZONTAL GRID CARD ===== */
+.grid-card-horizontal {
+  display: flex;
+  gap: 12px;
+  padding: 0;
+}
+
+.grid-card-horizontal .grid-card-image {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.grid-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.grid-card-placeholder {
+  background: linear-gradient(135deg, #e8e8e8 0%, #f5f5f5 100%);
+}
+
+.grid-card-horizontal .grid-card-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.grid-card-category {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #14bdee;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.grid-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.35;
+  margin: 0 0 6px 0;
+}
+
+.grid-card-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.grid-card-title a:hover {
+  color: #14bdee;
+}
+
+.grid-card-excerpt {
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.45;
+  margin: 0 0 16px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.grid-card-meta {
+  font-size: 0.7rem;
+  color: #999;
+  margin-top: auto;
+}
+
+.grid-card-meta .separator {
+  margin: 0 4px;
+  color: #ddd;
+}
+
+/* ===== VERTICAL GRID CARD ===== */
+.grid-card-vertical {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.grid-card-vertical .grid-card-image {
+  width: 100%;
+  height: 140px;
+  background: #f5f5f5;
+}
+
+.grid-card-vertical .grid-card-content {
+  padding: 14px 16px 16px;
+}
+
+.grid-card-vertical .grid-card-title {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.grid-card-vertical .grid-card-excerpt {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* ===== VERTICAL CARD WITH DATE BADGE ===== */
+.grid-card-image-wrapper {
+  position: relative;
+}
+
+.grid-card-date-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #14bdee;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  text-align: center;
+  line-height: 1;
+}
+
+.grid-card-date-badge .date-day {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.grid-card-date-badge .date-month {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 2px;
+}
+

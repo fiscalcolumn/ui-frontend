@@ -1,0 +1,284 @@
+/**
+ * Static Page Styles
+ * For About Us, Privacy Policy, Terms of Use, Contact Us, etc.
+ */
+
+/* Breadcrumb styles moved to main_styles.css */
+
+/* Page Container */
+.static-page-container {
+  padding: 0 0 10px;
+  min-height: 30vh;
+  background: #fff;
+}
+
+/* Page Content */
+.static-page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Page Title */
+.static-page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #5a6673;
+  line-height: 1.0;
+  margin: 0 0 10px 0;
+  padding-top: 5px;
+  text-align: left;
+}
+
+/* Separator */
+.static-page-separator {
+  width: 100%;
+  height: 1px;
+  background: rgba(20, 189, 238, 0.2);
+  margin: 0 0 35px;
+  border-radius: 0;
+}
+
+/* Featured Image */
+.static-page-image {
+  margin-bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.static-page-image img {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+/* Page Body */
+.static-page-body {
+  font-size: 1.0rem;
+  color: #333;
+  line-height: 1.85;
+}
+.static-page-body p {
+  margin-bottom: 1.0em;
+}
+.static-page-body h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 2em 0 1em;
+}
+.static-page-body h3 {
+  font-size: 1.0rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 1.5em 0 0.8em;
+}
+.static-page-body ul, 
+.static-page-body ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+.static-page-body li {
+  margin-bottom: 0.5em;
+}
+.static-page-body a {
+  color: #14bdee;
+  text-decoration: none;
+}
+.static-page-body a:hover {
+  text-decoration: underline;
+}
+.static-page-body blockquote {
+  margin: 1.5em 0;
+  padding: 15px 20px;
+  border-left: 4px solid #14bdee;
+  background: #f8f9fa;
+  font-style: italic;
+  color: #555;
+}
+.static-page-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+}
+.static-page-body th,
+.static-page-body td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: left;
+}
+.static-page-body th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+/* Contact Section */
+.contact-info-section {
+  margin-top: 5px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+.contact-info-section h2 {
+  font-size: 1.0rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 25px;
+}
+.contact-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 5px;
+}
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+.contact-info-item i {
+  font-size: 0.75rem;
+  color: #14bdee;
+  width: 50px;
+  text-align: center;
+}
+.contact-info-item strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1px;
+}
+.contact-info-item a {
+  color: #333;
+  text-decoration: none;
+  font-size: 1rem;
+}
+.contact-info-item a:hover {
+  color: #14bdee;
+}
+.contact-info-item p {
+  margin: 0;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Error State */
+.static-page-error {
+  text-align: center;
+  padding: 80px 20px;
+}
+.static-page-error h1 {
+  font-size: 2rem;
+  color: #1a1a2e;
+  margin-bottom: 15px;
+}
+.static-page-error p {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 25px;
+  background: #14bdee;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.btn-home:hover {
+  background: #0ea5d3;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Loading */
+.loading-container {
+  text-align: center;
+  padding: 80px 20px;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #14bdee;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Dark Mode */
+/* Breadcrumb dark mode styles moved to main_styles.css */
+.dark-mode .static-page-container {
+  background: var(--bg-primary);
+}
+.dark-mode .static-page-title {
+  color: #8a95a3;
+}
+.dark-mode .static-page-separator {
+  background: rgba(20, 189, 238, 0.15);
+}
+.dark-mode .static-page-body {
+  color: var(--text-secondary);
+}
+.dark-mode .static-page-body h2,
+.dark-mode .static-page-body h3 {
+  color: var(--text-primary);
+}
+.dark-mode .static-page-body blockquote {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+.dark-mode .static-page-body th,
+.dark-mode .static-page-body td {
+  border-color: var(--border-color);
+}
+.dark-mode .static-page-body th {
+  background: var(--bg-secondary);
+}
+.dark-mode .contact-info-section {
+  border-top-color: var(--border-color);
+}
+.dark-mode .contact-info-section h2 {
+  color: var(--text-primary);
+}
+.dark-mode .contact-info-item {
+  background: var(--bg-secondary);
+}
+.dark-mode .contact-info-item a,
+.dark-mode .contact-info-item p {
+  color: var(--text-secondary);
+}
+.dark-mode .static-page-error h1 {
+  color: var(--text-primary);
+}
+.dark-mode .static-page-error p {
+  color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .static-page-container {
+    padding: 30px 0 50px;
+  }
+  .static-page-title {
+    font-size: 1.75rem;
+  }
+  .static-page-body {
+    font-size: 1rem;
+  }
+  .contact-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

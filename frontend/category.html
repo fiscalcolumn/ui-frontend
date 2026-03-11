@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title id="page-title">FiscalColumn</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="Finance project" id="meta-description">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="" id="canonical-url">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="" id="og-url">
+<meta property="og:title" content="" id="og-title">
+<meta property="og:description" content="" id="og-description">
+<meta property="og:image" content="/images/og-category.jpg" id="og-image">
+<meta name="twitter:image" content="/images/og-category.jpg" id="twitter-image">
+<meta property="og:site_name" content="FiscalColumn">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="" id="twitter-title">
+<meta name="twitter:description" content="" id="twitter-description">
+
+<!-- JSON-LD Schema -->
+<script type="application/ld+json" id="schema-breadcrumb"></script>
+
+<!-- Core Styles -->
+<link rel="stylesheet" type="text/css" href="/styles/bootstrap4/bootstrap.min.css">
+<link href="/plugins/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/owl.carousel.css">
+<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/owl.theme.default.css">
+<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/animate.css">
+
+<!-- Main Styles -->
+<link rel="stylesheet" type="text/css" href="/styles/main_styles.css">
+<link rel="stylesheet" type="text/css" href="/styles/responsive.css">
+
+<!-- Category Page Styles -->
+<link rel="stylesheet" type="text/css" href="/styles/category/base.css">
+<link rel="stylesheet" type="text/css" href="/styles/category/articles.css">
+<link rel="stylesheet" type="text/css" href="/styles/category/tags.css">
+<link rel="stylesheet" type="text/css" href="/styles/category/carousel.css">
+<link rel="stylesheet" type="text/css" href="/styles/category/error-page.css">
+<link rel="stylesheet" type="text/css" href="/styles/category/calculators.css">
+<link rel="stylesheet" type="text/css" href="/styles/category/responsive.css">
+<link rel="stylesheet" type="text/css" href="/styles/category/dark-mode.css">
+
+</head>
+<body>
+
+<div class="super_container">
+
+	<!-- Header -->
+	<header class="header">
+		<!-- Header Content -->
+		<div class="header_container">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<div class="header_content d-flex flex-row align-items-center justify-content-start">
+							<div class="logo_container">
+								<a href="/">
+									<div class="logo_text">Loading...</div>
+								</a>
+							</div>
+							<nav class="main_nav_contaner ml-auto">
+								<ul class="main_nav">
+									<li><a href="/">Loading...</a></li>
+								</ul>
+								<div class="search_button"><i class="fa fa-search" aria-hidden="true"></i></div>
+								
+								<!-- Dark Mode Toggle -->
+								<div class="dark_mode_toggle">
+									<input type="checkbox" id="darkModeSwitch" class="dark_mode_switch">
+									<label for="darkModeSwitch" class="dark_mode_label">
+										<i class="fa fa-moon-o" aria-hidden="true"></i>
+										<i class="fa fa-sun-o" aria-hidden="true"></i>
+										<span class="dark_mode_slider"></span>
+									</label>
+								</div>
+
+								<!-- Hamburger -->
+								<div class="hamburger menu_mm">
+									<i class="fa fa-bars menu_mm" aria-hidden="true"></i>
+								</div>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Header Search Panel -->
+		<div class="header_search_container">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<div class="header_search_content d-flex flex-row align-items-center justify-content-end">
+							<form action="#" class="header_search_form">
+								<input type="search" class="search_input" placeholder="Search" required="required">
+								<button class="header_search_button d-flex flex-column align-items-center justify-content-center">
+									<i class="fa fa-search" aria-hidden="true"></i>
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>			
+		</div>			
+	</header>
+
+	<!-- Menu -->
+	<div class="menu d-flex flex-column align-items-end justify-content-start text-right menu_mm trans_400">
+		<div class="menu_close_container"><div class="menu_close"><div></div><div></div></div></div>
+		<div class="search">
+			<form action="#" class="header_search_form menu_mm">
+				<input type="search" class="search_input menu_mm" placeholder="Search" required="required">
+				<button class="header_search_button d-flex flex-column align-items-center justify-content-center menu_mm">
+					<i class="fa fa-search menu_mm" aria-hidden="true"></i>
+				</button>
+			</form>
+		</div>
+		<nav class="menu_nav">
+			<ul class="menu_mm">
+				<li class="menu_mm"><a href="/">Loading...</a></li>
+			</ul>
+		</nav>
+	</div>
+
+	<!-- Breadcrumb -->
+	<div class="breadcrumb-container">
+		<div class="container">
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="/">Home</a></li>
+					<li class="breadcrumb-item active" id="breadcrumb-category">Loading...</li>
+				</ol>
+			</nav>
+		</div>
+	</div>
+
+	<!-- Articles Container -->
+	<div class="articles-main-container">
+		<div class="container">
+			<div id="articles-container">
+				<!-- Loading State -->
+				<div class="loading-container">
+					<div class="spinner"></div>
+					<p>Loading articles...</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Pagination -->
+	<div class="pagination-container" id="pagination-container" style="display: none;">
+		<div class="container">
+			<nav aria-label="Page navigation">
+				<ul class="pagination" id="pagination">
+				</ul>
+			</nav>
+		</div>
+	</div>
+
+	<!-- Category Tags -->
+	<div class="category-tags-section" id="category-tags-container" style="display: none;">
+	</div>
+
+	<!-- Related Categories -->
+	<div class="related-categories-wrapper" id="related-categories-container">
+	</div>
+
+	<!-- Footer -->
+	<footer class="footer">
+		<div class="footer_background" style="background-image:url(/images/footer_background.png)"></div>
+		<div class="container">
+			<div class="row footer_row">
+				<div class="col">
+					<div class="footer_content">
+						<div class="row">
+							<div class="col-lg-3 footer_col">
+								<div class="footer_section footer_about">
+									<div class="footer_logo_container">
+										<a href="/">
+											<div class="footer_logo_text">Loading...</div>
+										</a>
+									</div>
+									<div class="footer_about_text">
+										<p>Loading...</p>
+									</div>
+									<div class="footer_social">
+										<ul></ul>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-3 footer_col">
+								<div class="footer_section footer_contact">
+									<div class="footer_title">Contact Us</div>
+									<div class="footer_contact_info">
+										<ul><li>Loading...</li></ul>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-3 footer_col">
+								<div class="footer_section footer_links">
+									<div class="footer_title">Quick Links</div>
+									<div class="footer_links_container">
+										<ul><li>Loading...</li></ul>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-3 footer_col clearfix">
+								<div class="footer_section footer_mobile">
+									<div class="footer_title">Mobile</div>
+									<div class="footer_mobile_content"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row copyright_row">
+				<div class="col">
+					<div class="copyright d-flex flex-lg-row flex-column align-items-center justify-content-start">
+						<div class="cr_text">Loading...</div>
+						<div class="ml-lg-auto cr_links">
+							<ul class="cr_list"></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+</div>
+
+<!-- Core Scripts -->
+<script src="/js/jquery-3.2.1.min.js"></script>
+<script src="/styles/bootstrap4/popper.js"></script>
+<script src="/styles/bootstrap4/bootstrap.min.js"></script>
+<script src="/plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
+
+<!-- Strapi API Integration -->
+<script src="/config.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/site-data.js"></script>
+<script src="/js/header.js"></script>
+<script src="/js/footer.js"></script>
+<script src="/js/category.js"></script>
+<script src="/js/dark-mode.js"></script>
+<script src="/js/seo-preview.js"></script>
+<script src="/js/custom.js"></script>
+
+</body>
+</html>

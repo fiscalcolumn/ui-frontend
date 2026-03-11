@@ -1,0 +1,334 @@
+/**
+ * Category Page - Dark Mode Styles
+ * All dark mode overrides for category page components
+ */
+
+/* Breadcrumb dark mode styles moved to main_styles.css */
+
+/* Main Container */
+.dark-mode .articles-main-container {
+  background: var(--bg-primary);
+}
+
+/* Featured */
+.dark-mode .featured-article {
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .featured-image img {
+  opacity: 0.65;
+}
+.dark-mode .featured-image:hover img {
+  opacity: 1;
+}
+.dark-mode .featured-title {
+  color: var(--text-primary);
+}
+.dark-mode .featured-title a {
+  color: var(--text-primary);
+}
+.dark-mode .featured-excerpt {
+  color: var(--text-secondary);
+}
+.dark-mode .featured-meta {
+  color: var(--text-secondary);
+}
+
+/* Cards */
+.dark-mode .card-thumb-placeholder {
+  background: var(--bg-secondary);
+}
+.dark-mode .card-title {
+  color: var(--text-primary);
+}
+.dark-mode .card-title a {
+  color: var(--text-primary);
+}
+.dark-mode .card-excerpt {
+  color: var(--text-secondary);
+}
+.dark-mode .card-meta {
+  color: var(--text-secondary);
+}
+
+/* Tags */
+.dark-mode .article-tag {
+  background: rgba(20, 189, 238, 0.15);
+  color: #14bdee;
+}
+.dark-mode .article-tag:hover {
+  background: #14bdee;
+  color: #fff;
+}
+.dark-mode .article-tags-more {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+/* No Articles */
+.dark-mode .no-articles {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+/* Split & Extra Sections */
+.dark-mode .articles-split-section,
+.dark-mode .articles-extra-section {
+  border-top-color: var(--border-color);
+}
+.dark-mode .split-list-column {
+  border-right-color: var(--border-color);
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .article-list-item {
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .article-list-title {
+  color: var(--text-primary);
+}
+.dark-mode .article-list-title a {
+  color: var(--text-primary);
+}
+.dark-mode .article-list-meta {
+  color: var(--text-secondary);
+}
+
+/* Mini Cards */
+.dark-mode .mini-card-placeholder {
+  background: var(--bg-secondary);
+}
+.dark-mode .mini-card-title {
+  color: var(--text-primary);
+}
+.dark-mode .mini-card-title a {
+  color: var(--text-primary);
+}
+.dark-mode .mini-card-excerpt {
+  color: var(--text-secondary);
+}
+.dark-mode .mini-card-meta {
+  color: var(--text-secondary);
+}
+
+/* Error Page */
+.dark-mode .error-left-section {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.dark-mode .error-page-title {
+  color: var(--text-primary);
+}
+.dark-mode .error-page-message {
+  color: var(--text-secondary);
+}
+.dark-mode .error-btn.primary {
+  background: #14bdee;
+  border-color: #14bdee;
+  color: #fff;
+}
+.dark-mode .error-btn.primary:hover {
+  background: #0ea5d3;
+  border-color: #0ea5d3;
+}
+.dark-mode .error-btn.secondary {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+.dark-mode .error-btn.secondary:hover {
+  background: var(--bg-secondary);
+}
+
+/* Popular Tags Sidebar */
+.dark-mode .popular-tags-sidebar {
+  background: var(--bg-secondary);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+.dark-mode .popular-tags-header {
+  color: #14bdee;
+}
+.dark-mode .popular-tags-divider {
+  background: var(--border-color);
+}
+.dark-mode .popular-tag-item {
+  background: transparent;
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .popular-tag-item:hover {
+  background: transparent;
+}
+.dark-mode .popular-tag-name {
+  color: var(--text-primary);
+}
+.dark-mode .popular-tag-arrow {
+  color: var(--text-secondary);
+}
+
+/* Error Category Sections */
+.dark-mode .error-category-section {
+  border-top-color: var(--border-color);
+}
+.dark-mode .error-category-section.alt-bg {
+  background: var(--bg-secondary);
+}
+.dark-mode .error-section-title {
+  color: var(--text-primary);
+}
+.dark-mode .error-section-link {
+  color: #14bdee;
+}
+
+/* Error Horizontal Cards */
+.dark-mode .error-horizontal-card {
+  background: transparent;
+}
+.dark-mode .error-card-image {
+  background: var(--bg-secondary);
+}
+.dark-mode .error-card-placeholder {
+  background: var(--bg-secondary);
+}
+.dark-mode .error-card-title a {
+  color: var(--text-primary);
+}
+.dark-mode .error-card-title a:hover {
+  color: #14bdee;
+}
+.dark-mode .error-card-excerpt {
+  color: var(--text-secondary);
+}
+.dark-mode .error-card-meta {
+  color: var(--text-secondary);
+}
+.dark-mode .error-container-simple {
+  color: var(--text-primary);
+}
+
+/* Error Carousel */
+.dark-mode .error-carousel-section {
+  border-top-color: var(--border-color);
+}
+.dark-mode .error-carousel-section.alt-bg {
+  background: var(--bg-secondary);
+}
+.dark-mode .error-carousel-nav {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.dark-mode .error-carousel-nav:hover {
+  background: #14bdee;
+  color: #fff;
+}
+.dark-mode .error-carousel-card {
+  background: var(--bg-secondary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.dark-mode .error-carousel-card-image {
+  background: var(--bg-primary);
+}
+.dark-mode .error-carousel-card-image .no-image {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+}
+.dark-mode .error-carousel-card-title a {
+  color: var(--text-primary);
+}
+.dark-mode .error-carousel-card-title a:hover {
+  color: #14bdee;
+}
+.dark-mode .error-carousel-card-excerpt {
+  color: var(--text-secondary);
+}
+.dark-mode .error-carousel-card-meta {
+  color: var(--text-secondary);
+}
+
+/* Related Categories */
+.dark-mode .related-category-section:nth-child(odd) {
+  background: var(--bg-secondary);
+}
+.dark-mode .related-category-section:nth-child(even) {
+  background: var(--bg-primary);
+}
+.dark-mode .related-category-title {
+  color: var(--text-primary);
+}
+.dark-mode .related-category-link {
+  color: #14bdee;
+}
+.dark-mode .carousel-card {
+  background: var(--bg-primary);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.dark-mode .carousel-card-image {
+  background: var(--bg-secondary);
+}
+.dark-mode .carousel-card-placeholder {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+}
+.dark-mode .carousel-card-title a {
+  color: var(--text-primary);
+}
+.dark-mode .carousel-card-excerpt {
+  color: var(--text-secondary);
+}
+.dark-mode .carousel-card-meta {
+  color: var(--text-secondary);
+}
+.dark-mode .carousel-nav {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.dark-mode .carousel-nav:hover {
+  background: #14bdee;
+  color: #fff;
+}
+
+/* Category Tags */
+.dark-mode .category-tags-section {
+  background: var(--bg-secondary);
+  border-top-color: var(--border-color);
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .category-tags-title {
+  color: var(--text-secondary);
+}
+.dark-mode .category-tag-pill {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+.dark-mode .category-tag-pill:hover {
+  background: var(--bg-primary);
+  border-color: #14bdee;
+  color: #14bdee;
+}
+
+/* Pagination */
+.dark-mode .pagination-container {
+  background: var(--bg-primary);
+}
+.dark-mode .pagination .page-link {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+.dark-mode .pagination .page-link:hover {
+  background: #14bdee;
+  border-color: #14bdee;
+  color: #fff;
+}
+.dark-mode .pagination .page-item.active .page-link {
+  background: #14bdee;
+  border-color: #14bdee;
+  color: #fff;
+}
+.dark-mode .pagination .page-item.disabled .page-link {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+/* Loading */
+.dark-mode .loading-container p {
+  color: var(--text-secondary);
+}
+

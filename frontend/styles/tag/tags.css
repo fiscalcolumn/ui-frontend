@@ -1,0 +1,164 @@
+/**
+ * Tag Page - Tags Styles
+ * Tag pills, similar tags section, related tags sidebar
+ */
+
+/* Similar & Related Tags Section */
+.tags-section {
+  padding: 30px 0;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+.tags-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 15px;
+}
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  color: #333;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.tag-pill:hover {
+  background: #14bdee;
+  border-color: #14bdee;
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(20,189,238,0.3);
+}
+.tag-pill i {
+  font-size: 0.75rem;
+  color: #999;
+}
+.tag-pill:hover i {
+  color: #fff;
+}
+.tag-pill.similar {
+  background: #f0f7ff;
+  border-color: #d0e3ff;
+  color: #0066cc;
+}
+.tag-pill.similar:hover {
+  background: #0066cc;
+  border-color: #0066cc;
+  color: #fff;
+}
+
+/* Featured + Sidebar Layout */
+.featured-with-sidebar {
+  display: grid;
+  grid-template-columns: 70% 30%;
+  gap: 30px;
+  margin-bottom: 40px;
+  padding-bottom: 35px;
+  border-bottom: 1px solid #eee;
+}
+.featured-article-wrapper {
+  min-width: 0;
+}
+
+/* Related Tags Sidebar */
+.related-tags-sidebar {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  height: fit-content;
+}
+.sidebar-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.sidebar-title i {
+  color: #14bdee;
+  margin-right: 8px;
+}
+.sidebar-tags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+.sidebar-tags-list::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-tags-list::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 2px;
+}
+.sidebar-tags-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 2px;
+}
+.sidebar-tags-list::-webkit-scrollbar-thumb:hover {
+  background: #14bdee;
+}
+.sidebar-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border: 1px solid #f8f9fa;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.sidebar-tag-item:hover {
+  border-color: #14bdee;
+  background: #f8f9fa;
+  text-decoration: none;
+  transform: translateX(3px);
+}
+.sidebar-tag-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #14bdee 0%, #0a9ec8 100%);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.sidebar-tag-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-tag-arrow {
+  color: #ccc;
+  font-size: 0.7rem;
+  transition: color 0.2s;
+}
+.sidebar-tag-item:hover .sidebar-tag-arrow {
+  color: #14bdee;
+}
+

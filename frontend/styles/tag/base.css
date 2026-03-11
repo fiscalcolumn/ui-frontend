@@ -1,0 +1,120 @@
+/**
+ * Tag Page - Base Styles
+ * Breadcrumb, tag header, main container, loading, pagination
+ */
+
+/* Breadcrumb styles moved to main_styles.css */
+
+/* Tag Info Bar - Simple */
+.tag-info-bar {
+  padding: 5px 0;
+  margin-top: 25px;
+  background: transparent;
+  border-bottom: 1px solid #eee;
+}
+.tag-info-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.tag-info-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+.tag-info-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.tag-info-stat {
+  font-size: 0.85rem;
+  color: #666;
+}
+.tag-info-stat i {
+  color: #14bdee;
+  margin-right: 4px;
+}
+
+/* Articles Main Container */
+.articles-main-container {
+  padding: 40px 0;
+  background: #fff;
+}
+
+/* Loading State */
+.loading-container {
+  padding: 80px 0;
+  text-align: center;
+}
+.loading-container .spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid #e9ecef;
+  border-top: 3px solid #14bdee;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* No Articles */
+.no-articles {
+  grid-column: 1 / -1;
+  padding: 60px 20px;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+.no-articles h3 {
+  color: #666;
+  margin-bottom: 10px;
+}
+.no-articles p {
+  color: #999;
+}
+
+/* Pagination */
+.pagination-container {
+  padding: 30px 0 60px;
+}
+.pagination-container nav {
+  display: flex;
+  justify-content: flex-end;
+}
+.pagination {
+  display: flex;
+  gap: 5px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.page-item.active .page-link {
+  background: #14bdee;
+  border-color: #14bdee;
+  color: #fff;
+}
+.page-link {
+  padding: 8px 14px;
+  color: #333;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.page-link:hover {
+  background: #f8f9fa;
+  border-color: #14bdee;
+  color: #14bdee;
+}
+.page-item.disabled .page-link {
+  color: #ccc;
+  pointer-events: none;
+}
+

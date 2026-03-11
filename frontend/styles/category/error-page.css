@@ -1,0 +1,317 @@
+/**
+ * Category Page - Error Page Styles
+ * 404 page layout, buttons, popular tags sidebar, trending articles
+ */
+
+/* Error Page Layout */
+.error-page-wrapper {
+  padding: 40px 0;
+}
+.error-page-split {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 50px;
+}
+.error-left-section {
+  flex: 0 0 70%;
+  text-align: center;
+  padding: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  position: relative;
+}
+.error-right-section {
+  flex: 0 0 calc(30% - 40px);
+}
+.error-image-container {
+  margin-bottom: 12px;
+}
+.error-image {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}
+.error-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+.error-page-message {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.error-page-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 30px;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, transparent 100%);
+  width: 100%;
+}
+.error-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.error-btn.primary {
+  background: #1a1a5e;
+  color: #fff;
+  border: 2px solid #1a1a5e;
+}
+.error-btn.primary:hover {
+  background: #2a2a7e;
+  border-color: #2a2a7e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26, 26, 94, 0.3);
+}
+.error-btn.secondary {
+  background: #fff;
+  color: #1a1a5e;
+  border: 2px solid #1a1a5e;
+}
+.error-btn.secondary:hover {
+  background: #f5f5ff;
+  transform: translateY(-2px);
+}
+
+/* Popular Tags Sidebar (Error Page) */
+.popular-tags-sidebar {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  height: 100%;
+}
+.popular-tags-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #14bdee;
+  margin-bottom: 12px;
+}
+.popular-tags-header i {
+  font-size: 1rem;
+}
+.popular-tags-divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin-bottom: 8px;
+}
+.popular-tags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.popular-tags-list::-webkit-scrollbar {
+  width: 3px;
+}
+.popular-tags-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.popular-tags-list::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+}
+.popular-tags-list:hover::-webkit-scrollbar-thumb {
+  background: rgba(150,150,150,0.3);
+}
+.popular-tags-list:hover {
+  scrollbar-color: rgba(150,150,150,0.3) transparent;
+}
+.popular-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  background: transparent;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #e8e8e8;
+}
+.popular-tag-item:last-child {
+  border-bottom: none;
+}
+.popular-tag-item:hover {
+  transform: translateX(4px);
+}
+.popular-tag-icon {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #14bdee, #0ea5d3);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.8rem;
+}
+.popular-tag-name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+.popular-tag-arrow {
+  color: #ccc;
+  font-size: 0.8rem;
+  transition: color 0.2s ease;
+}
+.popular-tag-item:hover .popular-tag-arrow {
+  color: #14bdee;
+}
+
+/* Error Page Category Sections */
+.error-category-section {
+  padding: 40px 0;
+  border-top: 1px solid #eee;
+}
+.error-category-section.alt-bg {
+  background: #f8f9fa;
+}
+.error-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.error-section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  padding-left: 12px;
+  border-left: 3px solid #14bdee;
+}
+.error-section-link {
+  font-size: 0.9rem;
+  color: #14bdee;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+.error-section-link:hover {
+  color: #0ea5d3;
+}
+.error-section-link i {
+  margin-left: 4px;
+  font-size: 0.8rem;
+}
+
+/* Error Page 2-Column Grid (Horizontal Cards) */
+.error-articles-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* Error Page Horizontal Card */
+.error-horizontal-card {
+  display: flex;
+  gap: 16px;
+  background: transparent;
+  padding: 0;
+}
+.error-horizontal-card:hover {
+  /* No hover effect for the card container */
+}
+.error-card-image {
+  flex-shrink: 0;
+  width: 140px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+.error-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.error-horizontal-card:hover .error-card-image img {
+  transform: scale(1.05);
+}
+.error-card-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #f0f0f0;
+}
+.error-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.error-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.error-card-title a {
+  color: #333;
+  text-decoration: none;
+}
+.error-card-title a:hover {
+  color: #14bdee;
+}
+.error-card-excerpt {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.error-card-meta {
+  display: flex;
+  gap: 14px;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: auto;
+}
+.error-card-meta i {
+  margin-right: 4px;
+}
+
+/* Fallback simple error */
+.error-container-simple {
+  text-align: center;
+  padding: 60px 20px;
+  max-width: 400px;
+  margin: 60px auto;
+}
+

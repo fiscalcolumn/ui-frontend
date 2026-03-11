@@ -1,0 +1,88 @@
+/**
+ * Article Page - Base Styles
+ * Breadcrumb, container, loading, error states
+ */
+
+/* Breadcrumb styles moved to main_styles.css */
+
+/* Article Container */
+.article-container {
+  padding: 5px 0;
+  background: #fff;
+}
+
+/* Loading State */
+.loading-container {
+  padding: 80px 0;
+  text-align: center;
+}
+.loading-container .spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid #e9ecef;
+  border-top: 3px solid #14bdee;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.article-error {
+  text-align: center;
+  padding: 80px 20px;
+}
+.article-error i {
+  font-size: 4rem;
+  color: #e74c3c;
+  margin-bottom: 20px;
+}
+.article-error h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+.article-error p {
+  color: #666;
+  margin-bottom: 25px;
+}
+.error-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+.error-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.error-btn.primary {
+  background: #14bdee;
+  color: #fff;
+}
+.error-btn.primary:hover {
+  background: #0ea5d3;
+}
+.error-btn.secondary {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+.error-btn.secondary:hover {
+  background: #eee;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .error-actions {
+    flex-direction: column;
+  }
+}

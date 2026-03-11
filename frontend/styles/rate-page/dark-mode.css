@@ -1,0 +1,126 @@
+/**
+ * Rate Page Dark Mode Styles
+ */
+
+/* Breadcrumb dark mode styles moved to main_styles.css */
+
+.dark-mode .rate-page-container {
+  background: var(--bg-primary);
+}
+
+.dark-mode .rate-header {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .rate-title {
+  color: var(--text-primary);
+}
+
+.dark-mode .rate-date {
+  color: var(--text-secondary);
+}
+
+.dark-mode .rate-display-card {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-color: #14bdee;
+}
+
+.dark-mode .rate-label,
+.dark-mode .rate-unit {
+  color: var(--text-secondary);
+}
+
+.dark-mode .rate-amount {
+  color: #14bdee;
+}
+
+.dark-mode .rate-mcx {
+  border-top-color: var(--border-color);
+}
+
+.dark-mode .mcx-label {
+  color: var(--text-secondary);
+}
+
+.dark-mode .mcx-value {
+  color: var(--text-primary);
+}
+
+.dark-mode .purity-item {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .purity-label {
+  color: var(--text-secondary);
+}
+
+.dark-mode .purity-value {
+  color: #14bdee;
+}
+
+.dark-mode .rate-chart-section,
+.dark-mode .rate-info-section,
+.dark-mode .sidebar-section {
+  background: var(--bg-secondary);
+}
+
+.dark-mode .section-title {
+  color: var(--text-primary);
+}
+
+.dark-mode .rate-info-content {
+  color: var(--text-secondary);
+}
+
+.dark-mode .rate-info-content strong {
+  color: #5ecef5;
+}
+
+.dark-mode .sidebar-title {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .city-rate-item {
+  background: var(--bg-tertiary);
+}
+
+.dark-mode .city-rate-item:hover {
+  background: rgba(20, 189, 238, 0.1);
+}
+
+.dark-mode .city-name {
+  color: var(--text-primary);
+}
+
+.dark-mode .city-rate {
+  color: #14bdee;
+}
+
+.dark-mode .quick-link {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.dark-mode .quick-link:hover {
+  background: #14bdee;
+  color: #fff;
+}
+
+.dark-mode .rate-error {
+  background: var(--bg-secondary);
+}
+
+.dark-mode .rate-error h2 {
+  color: var(--text-primary);
+}
+
+.dark-mode .rate-error p {
+  color: var(--text-secondary);
+}
+
+.dark-mode .no-data {
+  color: var(--text-muted);
+}
+

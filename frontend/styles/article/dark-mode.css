@@ -1,0 +1,204 @@
+/**
+ * Article Page - Dark Mode Styles
+ * All dark mode overrides for article page
+ */
+
+/* Breadcrumb dark mode styles moved to main_styles.css */
+
+/* Container */
+.dark-mode .article-container {
+  background: var(--bg-primary);
+}
+
+/* Article Title & Meta */
+.dark-mode .article-title {
+  color: var(--text-primary);
+}
+.dark-mode .article-meta {
+  color: var(--text-secondary);
+}
+.dark-mode .meta-separator {
+  color: var(--border-color);
+}
+
+/* Article Excerpt Quote */
+.dark-mode .article-excerpt-quote .excerpt-text {
+  color: var(--text-secondary);
+}
+
+/* Article Body */
+.dark-mode .article-body {
+  color: var(--text-secondary);
+}
+.dark-mode .article-body h2,
+.dark-mode .article-body h3,
+.dark-mode .article-body .article-subtitle {
+  color: var(--text-primary);
+}
+.dark-mode .article-quote .quote-text,
+.dark-mode .article-body blockquote p {
+  color: var(--text-secondary);
+}
+
+/* Markdown Code Blocks - Dark Mode */
+.dark-mode .article-body code {
+  background: var(--bg-tertiary);
+  color: #e06c75;
+}
+.dark-mode .article-body pre {
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+/* Markdown Tables - Dark Mode */
+.dark-mode .article-body th, 
+.dark-mode .article-body td {
+  border-color: var(--border-color);
+}
+.dark-mode .article-body th {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.dark-mode .article-body tr:nth-child(even) {
+  background: var(--bg-secondary);
+}
+
+/* Markdown Horizontal Rule - Dark Mode */
+.dark-mode .article-body hr {
+  border-top-color: var(--border-color);
+}
+
+/* Markdown Links - Dark Mode */
+.dark-mode .article-body a {
+  color: #14bdee;
+}
+
+/* Footer */
+.dark-mode .article-footer {
+  border-top-color: var(--border-color);
+}
+.dark-mode .tags-label,
+.dark-mode .share-label {
+  color: var(--text-primary);
+}
+.dark-mode .article-tags-footer a {
+  color: var(--text-secondary);
+}
+.dark-mode .article-tags-footer a:hover {
+  color: #14bdee;
+}
+.dark-mode .share-btn {
+  color: var(--text-secondary);
+}
+.dark-mode .share-btn:hover {
+  color: #14bdee;
+}
+
+/* Sidebar */
+.dark-mode .article-sidebar {
+  border-top-color: var(--border-color);
+}
+.dark-mode .sidebar-section-title {
+  color: var(--text-primary);
+}
+.dark-mode .categories-list li {
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .categories-list a {
+  color: var(--text-secondary);
+}
+.dark-mode .categories-list a:hover {
+  color: #14bdee;
+}
+.dark-mode .categories-list a span {
+  color: var(--text-muted);
+}
+
+/* Sidebar Section Header */
+.dark-mode .sidebar-section-header {
+  border-bottom-color: #14bdee;
+}
+.dark-mode .view-all-link {
+  color: #14bdee;
+}
+.dark-mode .view-all-link:hover {
+  color: #17d4ff;
+}
+
+/* Ad Placeholder */
+.dark-mode .ad-placeholder-box {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+/* Latest Articles */
+.dark-mode .latest-articles-scrollable::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+.dark-mode .latest-articles-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.dark-mode .latest-article-image {
+  background: var(--bg-secondary);
+}
+.dark-mode .latest-article-image-placeholder {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+}
+.dark-mode .latest-article-title a {
+  color: var(--text-primary);
+}
+.dark-mode .latest-article-title a:hover {
+  color: #14bdee;
+}
+.dark-mode .latest-article-meta {
+  color: var(--text-muted);
+}
+.dark-mode .latest-article-date {
+  color: var(--text-muted);
+}
+.dark-mode .latest-article-views {
+  color: var(--text-muted);
+}
+
+/* Sidebar Tags */
+.dark-mode .sidebar-tag {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+.dark-mode .sidebar-tag:hover {
+  background: #14bdee;
+  border-color: #14bdee;
+  color: #fff;
+}
+
+/* Error */
+.dark-mode .article-error h2 {
+  color: var(--text-primary);
+}
+.dark-mode .article-error p {
+  color: var(--text-secondary);
+}
+.dark-mode .error-btn.secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+.dark-mode .error-btn.secondary:hover {
+  background: var(--bg-tertiary);
+}
+
+/* Article Ad Placeholder */
+.dark-mode .article-ad-box {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+/* Inline Ad Placeholder (Between Paragraphs) */
+.dark-mode .inline-ad-box {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
