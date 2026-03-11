@@ -111,24 +111,14 @@
 @media only screen and (max-width: 991px)
 {
 	.main_nav,
+	.main_nav_contaner,
 	.search_button
 	{
 		display: none;
 	}
-	.top_bar_contact_list li i,
-	.top_bar_contact_list li > div,
-	.login_button a
-	{
-		font-size: 12px;
-	}
-	.login_button
-	{
-		width: 140px;
-	}
 	.hamburger
 	{
 		display: inline-block;
-		margin-left: 33px;
 	}
 	.home_slider_form_container
 	{
@@ -285,9 +275,9 @@
 
 @media only screen and (max-width: 767px)
 {
-	.top_bar
+	.header_brand_bar .logo_text
 	{
-		display: none;
+		font-size: 20px;
 	}
 	.home_slider_nav
 	{

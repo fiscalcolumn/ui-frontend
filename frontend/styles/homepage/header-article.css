@@ -1,10 +1,14 @@
 /* Header Article Section Styles */
 
 .header-article-section {
+  display: none;
   background: #1a1a2e;
   padding: 40px 0;
-  margin-top: 75px;
+  margin-top: 104px;
   margin-bottom: 0;
+}
+.header-article-section.loaded {
+  display: block;
 }
 
 .header-article-wrapper {

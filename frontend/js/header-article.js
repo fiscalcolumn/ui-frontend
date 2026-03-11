@@ -66,6 +66,8 @@ async function renderHeaderArticle() {
   const formattedDate = formatHeaderArticleDate(article.publishedDate || article.createdAt);
   const readingTime = Utils.calculateReadingTimeString(article.content || article.excerpt);
 
+  container.classList.add('loaded');
+
   // Render the header article
   container.innerHTML = `
     <div class="container">

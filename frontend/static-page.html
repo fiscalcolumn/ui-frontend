@@ -45,44 +45,45 @@
 
 	<!-- Header -->
 	<header class="header">
-		<div class="header_container">
+		<!-- Brand Bar -->
+		<div class="header_brand_bar">
 			<div class="container">
-				<div class="row">
-					<div class="col">
-						<div class="header_content d-flex flex-row align-items-center justify-content-start">
-							<div class="logo_container">
-								<a href="/">
-									<div class="logo_text">Loading...</div>
-								</a>
-							</div>
-							<nav class="main_nav_contaner ml-auto">
-								<ul class="main_nav">
-									<li><a href="/">Loading...</a></li>
-								</ul>
-								<div class="search_button"><i class="fa fa-search" aria-hidden="true"></i></div>
-								
-								<!-- Dark Mode Toggle -->
-								<div class="dark_mode_toggle">
-									<input type="checkbox" id="darkModeSwitch" class="dark_mode_switch">
-									<label for="darkModeSwitch" class="dark_mode_label">
-										<i class="fa fa-moon-o" aria-hidden="true"></i>
-										<i class="fa fa-sun-o" aria-hidden="true"></i>
-										<span class="dark_mode_slider"></span>
-									</label>
-								</div>
+				<div class="header_brand_content d-flex flex-row align-items-center justify-content-between">
+					<div class="logo_container">
+						<a href="/">
+							<div class="logo_text"></div>
+						</a>
+					</div>
+					<div class="header_brand_actions d-flex align-items-center">
+						<a href="/gold-rate-today" class="brand-rate-btn gold">Gold Rates</a>
+						<a href="/silver-rate-today" class="brand-rate-btn silver">Silver Rates</a>
+						<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+							<i class="fa fa-moon-o" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-								<!-- Hamburger -->
-								<div class="hamburger menu_mm">
-									<i class="fa fa-bars menu_mm" aria-hidden="true"></i>
-								</div>
-							</nav>
+		<!-- Nav Bar -->
+		<div class="header_nav_bar">
+			<div class="container">
+				<div class="header_nav_content d-flex flex-row align-items-center">
+					<nav class="main_nav_contaner">
+						<ul class="main_nav">
+						</ul>
+					</nav>
+					<div class="header_nav_right d-flex align-items-center ml-auto">
+						<div class="search_button"><i class="fa fa-search" aria-hidden="true"></i></div>
+						<div class="hamburger menu_mm">
+							<i class="fa fa-bars menu_mm" aria-hidden="true"></i>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Header Search Panel -->
+		<!-- Search Panel -->
 		<div class="header_search_container">
 			<div class="container">
 				<div class="row">
@@ -97,8 +98,8 @@
 						</div>
 					</div>
 				</div>
-			</div>			
-		</div>			
+			</div>
+		</div>
 	</header>
 
 	<!-- Menu -->

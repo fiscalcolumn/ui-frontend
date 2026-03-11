@@ -95,7 +95,7 @@ async function fetchCategories() {
   
   const cachedCategories = getCachedData(HEADER_CACHE_KEYS.CATEGORIES);
   if (cachedCategories) {
-    categoriesCache = cachedCategories;
+    categoriesCache = cachedCategories.filter(c => c.enabled !== false);
     return categoriesCache;
   }
   
@@ -106,7 +106,7 @@ async function fetchCategories() {
         throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
-      categoriesCache = data.data || [];
+      categoriesCache = (data.data || []).filter(c => c.enabled !== false);
       
       if (categoriesCache && categoriesCache.length > 0) {
         setCachedData(HEADER_CACHE_KEYS.CATEGORIES, categoriesCache);
@@ -130,13 +130,11 @@ function renderNavigationLinks(categories, currentPage = '') {
     return '<li><a href="/">Home</a></li>';
   }
 
-
-    const mainCategories = categories.slice(0, 5);
-  const dropdownCategories = categories.slice(5);
-
+  const mainCategories = categories.slice(0, 6);
+  const dropdownCategories = categories.slice(6);
 
   let html = '';
-    mainCategories.forEach(category => {
+  mainCategories.forEach(category => {
     const url = `/${category.slug}`;
     const isActive = currentPage === url ? 'class="active"' : '';
     html += `<li ${isActive}><a href="${url}">${category.name || ''}</a></li>`;
@@ -145,7 +143,7 @@ function renderNavigationLinks(categories, currentPage = '') {
   if (dropdownCategories.length > 0) {
     html += `<li class="dropdown">
       <a href="#" class="dropdown-toggle">
-        More <i class="fa fa-chevron-down" aria-hidden="true"></i>
+        <i class="fa fa-chevron-down" aria-hidden="true"></i>
       </a>
       <ul class="dropdown-menu">
         ${dropdownCategories.map(category => {
@@ -176,19 +174,18 @@ function renderMobileMenuLinks(categories) {
   return html;
 }
 
-// Render logo - shows both image and text side by side
+// Render logo - shows image and/or text side by side
 function renderLogo(logoText, logoImage) {
   let logoHTML = '<a href="/" class="d-flex flex-row align-items-center">';
   
   if (logoImage && logoImage.url) {
-    const imageUrl = logoImage.url.startsWith('http') ? logoImage.url : logoImage.url;
-    logoHTML += `<img src="${imageUrl}" alt="${logoImage.alternativeText || logoText || 'Logo'}" class="logo_image" style="max-height: 50px; margin-right: 10px;">`;
+    logoHTML += `<img src="${logoImage.url}" alt="${logoImage.alternativeText || logoText || 'Logo'}" class="logo_image">`;
   }
   
   if (logoText) {
     logoHTML += `<div class="logo_text">${logoText}</div>`;
   } else if (!logoImage || !logoImage.url) {
-    logoHTML += '<div class="logo_text">FiscalColumn</div>';
+    logoHTML += '<div class="logo_text">THE FISCAL COLUMN</div>';
   }
   
   logoHTML += '</a>';
