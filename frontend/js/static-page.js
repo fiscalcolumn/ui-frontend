@@ -114,7 +114,7 @@ class StaticPageManager {
 
     // Update visible breadcrumb
     const breadcrumbPage = document.getElementById('breadcrumb-page');
-    if (breadcrumbPage) breadcrumbPage.textContent = this.page.title;
+    if (breadcrumbPage) breadcrumbPage.textContent = this.page.title || this.slugToTitle(this.getSlugFromUrl());
   }
 
   /**
@@ -242,11 +242,27 @@ class StaticPageManager {
   }
 
   /**
+   * Derive a human-readable title from a URL slug (e.g. "about-us" → "About Us")
+   */
+  slugToTitle(slug) {
+    return slug
+      .split('-')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  /**
    * Show error state
    */
   showError(message) {
-    document.title = 'Page Not Found | FiscalColumn';
-    
+    const slug  = this.getSlugFromUrl() || '';
+    const title = this.slugToTitle(slug) || 'Page Not Found';
+
+    document.title = `${title} | FiscalColumn`;
+
+    const breadcrumbPage = document.getElementById('breadcrumb-page');
+    if (breadcrumbPage) breadcrumbPage.textContent = title;
+
     this.pageContainer.innerHTML = `
       <div class="static-page-error">
         <h1>Page Not Found</h1>

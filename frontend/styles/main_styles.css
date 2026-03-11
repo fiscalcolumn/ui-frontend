@@ -2086,7 +2086,7 @@ section
 /* Dark info bar — top section */
 .footer-info-bar
 {
-	background: #1a2332;
+	background: #e2cfd9;
 	padding: 56px 0 48px;
 }
 .footer-info-grid
@@ -2102,18 +2102,18 @@ section
 .footer-brand-text
 {
 	font-family: 'Playfair Display', serif;
-	font-size: 28px;
-	font-weight: 700;
-	color: #ffffff;
+	font-size: 25px;
+	font-weight: 400;
+	color: #4c4a4a;
 	line-height: 1;
 }
 .footer-brand-desc
 {
-	font-family: 'Inter', sans-serif;
-	font-size: 14px;
-	line-height: 1.7;
-	color: #8b95a8;
-	max-width: 280px;
+	font-family: 'Playfair Display', serif;
+	font-size: 15px;
+	line-height: 1;
+	color: #010d22;
+	max-width: 400px;
 }
 
 /* Social icons */
@@ -2130,12 +2130,12 @@ section
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	background: #2e3f58;
+	width: 50px;
+	height: 50px;
+	border-radius: 10%;
+	background: #3d5170;
 	color: #ffffff;
-	font-size: 15px;
+	font-size: 25px;
 	transition: background 200ms ease;
 }
 .footer-social-list li a:hover { background: #14bdee; }
@@ -2143,12 +2143,15 @@ section
 /* Column titles */
 .footer-col-title
 {
-	font-family: 'Inter', sans-serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 15px;
-	font-weight: 700;
-	color: #ffffff;
-	letter-spacing: 0.3px;
+	font-weight: 500;
+	color: #444343;
+	text-transform: uppercase;
+	letter-spacing: 1px;
 	margin-bottom: 4px;
+	font-style: bold;
+	
 }
 
 /* Contact column */
@@ -2157,21 +2160,22 @@ section
 {
 	display: flex;
 	align-items: flex-start;
-	gap: 10px;
-	font-family: 'Inter', sans-serif;
-	font-size: 13px;
-	color: #8b95a8;
+	gap: 15px;
+	font-family: 'Playfair Display', serif;
+	font-size: 16px;
+	color: #03112b;
 	line-height: 1.5;
 }
 .footer-contact-line i
 {
 	color: #14bdee;
-	font-size: 13px;
-	margin-top: 2px;
+	font-size: 20px;
+	margin-top: 1px;
+	line-height: 1.5;
 	flex-shrink: 0;
 }
 .footer-contact-line a { color: #8b95a8; transition: color 150ms ease; }
-.footer-contact-line a:hover { color: #ffffff; }
+.footer-contact-line a:hover { color: #406f8f; }
 
 /* Mobile / App badges column */
 .footer-app-badges
@@ -2188,8 +2192,8 @@ section
 .footer-badge-link:hover { opacity: 0.85; }
 .footer-badge-img
 {
-	height: 48px;
-	width: auto;
+	width: 150px;
+	height: 50px;
 	display: block;
 	border-radius: 8px;
 	background: #000;
@@ -2227,8 +2231,8 @@ section
 {
 	display: inline-block;
 	font-family: 'Inter', sans-serif;
-	font-size: 11px;
-	font-weight: 600;
+	font-size: 13px;
+	font-weight: 500;
 	letter-spacing: 1.2px;
 	text-transform: uppercase;
 	color: #3a3a4a;
@@ -2253,7 +2257,7 @@ section
 .cr_text
 {
 	font-family: 'Inter', sans-serif;
-	font-size: 12px;
+	font-size: 13px;
 	color: #888;
 }
 
@@ -2506,7 +2510,7 @@ section
 
 .footer_links_container ul li a
 {
-	font-size: 14px;
+	font-size: 18px;
 	color: #b5b8be;
 	white-space: nowrap;
 	-webkit-transition: all 200ms ease;
