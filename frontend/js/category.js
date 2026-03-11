@@ -83,16 +83,12 @@ class CategoryPageManager {
     const url = getApiUrl(
       `/calculators?populate[category]=true&populate[featuredImage]=true&populate[calculatorcategory]=true&filters[enableCalculator][$ne]=false&sort=order:asc`
     );
-    console.log('🔢 Fetching calculators from:', url);
     const response = await fetch(url);
-    console.log('🔢 Calculators API response status:', response.status);
     const data = await response.json();
-    console.log('🔢 Number of calculators:', data.data?.length || 0);
     
     // Debug: Check if calculatorcategory is populated
     if (data.data && data.data.length > 0) {
-      console.log('🔢 First calculator structure:', data.data[0]);
-      console.log('🔢 First calculator calculatorcategory:', data.data[0].calculatorcategory);
+
     }
     
     return data.data || [];
@@ -126,7 +122,6 @@ class CategoryPageManager {
 
     // Group calculators by calculatorcategory relation
     // Each calculator has calculatorcategory (oneToOne relation) with calculatorcategory (string) and order (integer)
-    console.log('🔢 Grouping calculators. Total:', calculators.length);
     const categoryGroups = {};
     
     calculators.forEach((calc, index) => {
@@ -140,7 +135,6 @@ class CategoryPageManager {
       const categoryType = calc.calculatorcategory;
       
       if (!categoryType) {
-        console.warn(`⚠️ Calculator "${calc.title}" has no calculatorcategory relation`);
         // Put calculators without category type in "Other" group
         const catKey = 'other';
         if (!categoryGroups[catKey]) {
@@ -158,7 +152,6 @@ class CategoryPageManager {
       
       // Use the calculatorcategory string field as the key
       const catKey = categoryType.calculatorcategory || 'other';
-      console.log(`🔢 Grouping "${calc.title}" under category: "${catKey}"`);
       
       if (!categoryGroups[catKey]) {
         categoryGroups[catKey] = {
@@ -168,11 +161,8 @@ class CategoryPageManager {
       }
       categoryGroups[catKey].calculators.push(calc);
     });
-    
-    console.log('🔢 Category groups created:', Object.keys(categoryGroups));
-    console.log('🔢 Category groups details:', categoryGroups);
 
-    // Sort calculators within each group by order field
+
     Object.keys(categoryGroups).forEach(catKey => {
       categoryGroups[catKey].calculators.sort((a, b) => {
         const orderA = a.order || 0;
@@ -181,14 +171,12 @@ class CategoryPageManager {
       });
     });
 
-    // Sort category groups by the order field in calculatorcategory
     const sortedCategoryKeys = Object.keys(categoryGroups).sort((a, b) => {
       const orderA = categoryGroups[a].categoryType.order || 0;
       const orderB = categoryGroups[b].categoryType.order || 0;
       return orderA - orderB;
     });
 
-    // Default config for categories
     const defaultConfig = {
       icon: 'fa-calculator',
       desc: 'Useful calculators for your daily needs'
@@ -249,7 +237,6 @@ class CategoryPageManager {
     this.articlesContainer.innerHTML = html;
     this.paginationContainer.style.display = 'none';
     
-    // Grid scrolling is now handled by native browser scroll (no navigation buttons)
     } catch (error) {
       console.error('❌ Error loading calculators:', error);
       this.articlesContainer.innerHTML = `
@@ -845,14 +832,6 @@ class CategoryPageManager {
   }
 
   /**
-   * Get read time from article
-   */
-
-  /**
-   * Format date to readable string
-   */
-
-  /**
    * Render article list item (no image, for split section left)
    */
   renderArticleListItem(article) {
@@ -985,10 +964,6 @@ class CategoryPageManager {
       });
     });
   }
-
-  /**
-   * Truncate text and strip HTML
-   */
 
   /**
    * Show error message

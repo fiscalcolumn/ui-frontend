@@ -3,10 +3,9 @@
  * Uses static site data for footer configuration
  */
 
-// Get footer data from static site data
 function getFooterData() {
   return window.SITE_DATA?.footer || {
-    logoText: "Fin24x",
+    logoText: "FiscalColumn",
     logo: null,
     description: "",
     socialLinks: [],
@@ -16,7 +15,7 @@ function getFooterData() {
     quickLinksColumn2: [],
     mobileTitle: "Download Our App",
     appDownloads: [],
-    copyrightText: "© 2024 Fin24x. All rights reserved.",
+    copyrightText: "©2026 FiscalColumn.com All rights reserved.",
     bottomLinks: []
   };
 }
@@ -53,7 +52,6 @@ function renderFooterLinks(links) {
   return links.map(link => {
     let url = link.url || '#';
     
-    // Ensure internal links start with /
     if (url !== '#' && !url.startsWith('http') && !url.startsWith('/')) {
       url = '/' + url;
     }
@@ -115,20 +113,15 @@ function renderContactInfo(contactInfo) {
 // Render footer logo
 function renderFooterLogo(logoText, logoImage) {
   if (logoImage && logoImage.url) {
-    // Use relative path directly (no API URL needed for static assets)
     const imageUrl = logoImage.url.startsWith('http') ? logoImage.url : logoImage.url;
     return `<a href="/"><img src="${imageUrl}" alt="${logoImage.alternativeText || logoText || 'Logo'}" style="max-height: 50px;"></a>`;
   }
   
   if (logoText) {
-    const parts = logoText.split(/(\d+)/);
-    if (parts.length > 1) {
-      return `<a href="/"><div class="footer_logo_text">${parts[0]}<span>${parts[1]}</span></div></a>`;
-    }
     return `<a href="/"><div class="footer_logo_text">${logoText}</div></a>`;
   }
   
-  return '<a href="/"><div class="footer_logo_text">Fin<span>24x</span></div></a>';
+  return '<a href="/"><div class="footer_logo_text">FiscalColumn</div></a>';
 }
 
 // Render footer component
@@ -139,11 +132,9 @@ async function renderFooter() {
     return;
   }
 
-  // Hide footer initially to prevent "Loading..." flash
   footerContainer.style.opacity = '0';
   footerContainer.style.visibility = 'hidden';
   
-  // Get footer data from static site data
   const footerData = getFooterData();
   
   if (!footerData) {
@@ -154,12 +145,10 @@ async function renderFooter() {
     return;
   }
 
-  // Get containers
   const footerAbout = footerContainer.querySelector('.footer_about');
   const logoContainer = footerAbout ? footerAbout.querySelector('.footer_logo_container') : null;
   const aboutText = footerAbout ? footerAbout.querySelector('.footer_about_text') : null;
 
-  // Render logo and description
   if (footerAbout) {
     if (logoContainer) {
       logoContainer.innerHTML = renderFooterLogo(footerData.logoText, footerData.logo);
@@ -175,7 +164,6 @@ async function renderFooter() {
     }
   }
 
-  // Render contact info
   const footerContact = footerContainer.querySelector('.footer_contact');
   if (footerContact && footerData.contactInfo) {
     const contactInfoContainer = footerContact.querySelector('.footer_contact_info');
@@ -184,7 +172,6 @@ async function renderFooter() {
     }
   }
 
-  // Render quick links column 1
   const footerLinks = footerContainer.querySelector('.footer_links');
   if (footerLinks) {
     const linksTitle = footerLinks.querySelector('.footer_title');
@@ -194,8 +181,7 @@ async function renderFooter() {
 
     const linksContainer = footerLinks.querySelector('.footer_links_container ul');
     if (linksContainer) {
-      // Combine both columns if they exist
-      const allLinks = [
+          const allLinks = [
         ...(footerData.quickLinksColumn1 || []),
         ...(footerData.quickLinksColumn2 || [])
       ];
@@ -203,7 +189,6 @@ async function renderFooter() {
     }
   }
 
-  // Render app downloads
   const footerMobile = footerContainer.querySelector('.footer_mobile');
   if (footerMobile) {
     const mobileTitle = footerMobile.querySelector('.footer_title');
@@ -227,7 +212,6 @@ async function renderFooter() {
     console.error('Footer Mobile section not found in DOM');
   }
 
-  // Render bottom links
   const copyrightRow = footerContainer.querySelector('.copyright_row');
   if (copyrightRow && footerData.bottomLinks) {
     const crLinks = copyrightRow.querySelector('.cr_list');
@@ -236,7 +220,6 @@ async function renderFooter() {
     }
   }
 
-  // Render copyright text
   if (footerData.copyrightText) {
     const crText = footerContainer.querySelector('.cr_text');
     if (crText) {
@@ -244,13 +227,11 @@ async function renderFooter() {
     }
   }
 
-  // Show footer after content is loaded
   footerContainer.style.opacity = '1';
   footerContainer.style.visibility = 'visible';
   footerContainer.style.transition = 'opacity 0.2s ease-in-out';
 }
 
-// Initialize footer when DOM is ready
 function initFooter() {
   renderFooter();
 }
@@ -258,7 +239,6 @@ function initFooter() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initFooter);
 } else {
-  // DOM is already ready
   initFooter();
 }
 

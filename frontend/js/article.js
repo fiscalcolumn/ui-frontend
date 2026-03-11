@@ -315,7 +315,6 @@ class ArticlePageManager {
       </div>
       ` : ''}
 
-      <!-- First Ad: Below Excerpt -->
       <div class="article-inline-ad">
         <div class="inline-ad-box">
           <span>Advertisement</span>
@@ -356,7 +355,6 @@ class ArticlePageManager {
         </div>
       </div>
 
-      <!-- Article Ad Space (Below Share) -->
       <div class="article-ad-placeholder">
         <div class="article-ad-box">
           <span>Advertisement</span>
@@ -508,9 +506,6 @@ class ArticlePageManager {
     `;
   }
 
-  /**
-   * Format views count (e.g., 1500 -> 1.5K)
-   */
   /**
    * Show error message
    */

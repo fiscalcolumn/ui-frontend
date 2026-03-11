@@ -15,8 +15,7 @@
         ? seoData.defaultImage 
         : `${siteUrl}${seoData.defaultImage}`;
       
-      // Update OG image
-      let ogImage = document.querySelector('meta[property="og:image"]');
+        let ogImage = document.querySelector('meta[property="og:image"]');
       if (!ogImage) {
         ogImage = document.createElement('meta');
         ogImage.setAttribute('property', 'og:image');
@@ -24,8 +23,7 @@
       }
       ogImage.setAttribute('content', ogImageUrl);
       
-      // Update Twitter image
-      let twitterImage = document.querySelector('meta[name="twitter:image"]');
+        let twitterImage = document.querySelector('meta[name="twitter:image"]');
       if (!twitterImage) {
         twitterImage = document.createElement('meta');
         twitterImage.setAttribute('name', 'twitter:image');
@@ -34,7 +32,6 @@
       twitterImage.setAttribute('content', ogImageUrl);
     }
 
-    // Update site name
     if (seoData.siteName) {
       let ogSiteName = document.querySelector('meta[property="og:site_name"]');
       if (!ogSiteName) {
@@ -45,12 +42,10 @@
       ogSiteName.setAttribute('content', seoData.siteName);
     }
 
-    // Update default title if not already set
     if (seoData.defaultTitle && !document.title) {
       document.title = seoData.defaultTitle;
     }
 
-    // Update default description if not already set
     if (seoData.defaultDescription) {
       let metaDescription = document.querySelector('meta[name="description"]');
       if (!metaDescription) {
@@ -63,7 +58,6 @@
       }
     }
 
-    // Update Twitter card
     if (seoData.twitterHandle) {
       let twitterCard = document.querySelector('meta[name="twitter:card"]');
       if (!twitterCard) {

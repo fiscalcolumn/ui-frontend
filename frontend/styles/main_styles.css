@@ -33,7 +33,7 @@
 1. Fonts
 ***********/
 
-@import url('https://fonts.googleapis.com/css?family=Roboto+Slab:400,700|Roboto:300,400,500,700,900');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
 
 /*********************************
 2. Body and some general stuff
@@ -49,7 +49,7 @@
 }
 body
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px;
 	font-weight: 400;
 	background: #FFFFFF;
@@ -70,7 +70,7 @@ ul
 }
 p
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px;
 	line-height: 1.85;
 	font-weight: 400;
@@ -131,7 +131,7 @@ h4{font-size: 18px;}
 h5{font-size: 14px;}
 h1, h2, h3, h4, h5, h6
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-weight: 700;
 	-webkit-font-smoothing: antialiased;
 	-webkit-text-shadow: rgba(0,0,0,.01) 0 0 1px;
@@ -294,7 +294,7 @@ section
 }
 .question
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 10px;
 	color: #FFFFFF;
 	margin-left: 0px;
@@ -381,7 +381,7 @@ section
 }
 .logo_text
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 24px;
 	font-weight: 700;
 	line-height: 0.75;
@@ -886,7 +886,7 @@ section
 }
 .menu_nav ul li a
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px;
 	text-transform: uppercase;
 	color: rgba(0,0,0,1);
@@ -938,35 +938,35 @@ section
 }
 .menu .search_input::-webkit-input-placeholder
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: rgba(0,0,0,0.4) !important;
 }
 .menu .search_input:-moz-placeholder
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: rgba(0,0,0,0.4) !important;
 }
 .menu .search_input::-moz-placeholder
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: rgba(0,0,0,0.4) !important;
 } 
 .menu .search_input:-ms-input-placeholder
 { 
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: rgba(0,0,0,0.4) !important;
 }
 .menu .search_input::input-placeholder
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: rgba(0,0,0,0.4) !important;
@@ -1097,7 +1097,7 @@ section
 }
 .home_slider_title
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 60px;
 	font-weight: 700;
 	line-height: 1.2;
@@ -1136,35 +1136,35 @@ section
 }
 .home_search_input::-webkit-input-placeholder
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: #b5b8be !important;
 }
 .home_search_input:-moz-placeholder
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: #b5b8be !important;
 }
 .home_search_input::-moz-placeholder
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: #b5b8be !important;
 } 
 .home_search_input:-ms-input-placeholder
 { 
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: #b5b8be !important;
 }
 .home_search_input::input-placeholder
 {
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Inter', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: #b5b8be !important;
@@ -1319,7 +1319,7 @@ section
 }
 .course_title a
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 18px; /* Reduced from 20px */
 	color: #384158;
 	-webkit-transition: all 200ms ease;
@@ -1373,14 +1373,14 @@ section
 }
 .course_price
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 20px;
 	font-weight: 700;
 	color: #14bdee;
 }
 .course_price span
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 14px;
 	font-weight: 400;
 	text-decoration: line-through;
@@ -1459,7 +1459,7 @@ section
 }
 .counter_title
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	color: #FFFFFF;
 	font-weight: 700;
 }
@@ -1532,7 +1532,7 @@ section
 }
 .counter_form_title
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 24px;
 	font-weight: 700;
 	color: #384158;
@@ -1679,7 +1679,7 @@ section
 }
 .event_day
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 20px; /* Reduced from 24px */
 	color: #14bdee;
 	font-weight: 700;
@@ -1687,7 +1687,7 @@ section
 }
 .event_month
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 12px; /* Reduced from 14px */
 	color: #14bdee;
 	font-weight: 400;
@@ -1709,7 +1709,7 @@ section
 }
 .event_title a
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 16px; /* Further reduced */
 	font-weight: 700;
 	line-height: 1.25; /* Tighter line height */
@@ -1814,7 +1814,7 @@ section
 }
 .team_title a
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 20px;
 	font-weight: 700;
 	color: #384158;
@@ -1941,7 +1941,7 @@ section
 }
 .news_post_large_title a
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 15px; /* Further reduced */
 	font-weight: 700;
 	color: #384158;
@@ -2031,7 +2031,7 @@ section
 }
 .news_post_small_title a
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 16px; /* Increased from 14px */
 	font-weight: 700;
 	line-height: 1.35; /* Slightly increased for better readability */
@@ -2078,7 +2078,7 @@ section
 }
 .newsletter_title
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 20px;
 	font-weight: 700;
 	text-transform: uppercase;
@@ -2189,7 +2189,7 @@ section
 }
 .footer_logo_text
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 36px;
 	font-weight: 700;
 	line-height: 0.75;
@@ -2206,7 +2206,7 @@ section
 }
 .footer_title
 {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Playfair Display', serif;
 	font-size: 18px;
 	font-weight: 700;
 	color: #FFFFFF;

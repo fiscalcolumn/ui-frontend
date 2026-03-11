@@ -21,7 +21,7 @@ class HomepageSectionsManager {
         this.renderNoSectionsMessage();
       }
     } catch (error) {
-      console.error('❌ Error loading sections:', error);
+      console.error('Error loading sections:', error);
       this.renderErrorMessage();
     }
   }
@@ -72,10 +72,8 @@ class HomepageSectionsManager {
       // Fetch articles for this category
       const articles = await this.fetchArticlesByCategory(category.documentId, limit);
       
-      // Determine background class (alternate grey/white)
       const bgClass = i % 2 === 0 ? '' : 'section-alt-bg';
       
-      // Render based on section type
       let sectionHtml = '';
       switch (sectionType) {
         case 'news':
@@ -393,10 +391,6 @@ class HomepageSectionsManager {
       </div>
     `;
   }
-
-  /**
-   * Format date to readable string
-   */
 
   /**
    * Render no sections message

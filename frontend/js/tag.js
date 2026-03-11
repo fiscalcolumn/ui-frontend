@@ -183,7 +183,6 @@ class TagPageManager {
 
     const articles = await this.fetchArticles(this.currentPage);
     
-    // Update article count
     document.getElementById('tag-article-count').innerHTML = `
       <i class="fa fa-newspaper-o"></i> ${this.totalArticles} article${this.totalArticles !== 1 ? 's' : ''}
     `;
@@ -204,7 +203,6 @@ class TagPageManager {
       return;
     }
 
-    // Render featured article in sidebar layout
     const featuredArticle = articles[0];
     const gridArticles = articles.slice(1);
     
@@ -214,7 +212,6 @@ class TagPageManager {
       featuredWrapper.innerHTML = this.renderFeaturedArticle(featuredArticle);
     }
     
-    // Articles grid (below)
     if (gridArticles.length > 0) {
       this.articlesContainer.innerHTML = `<div class="articles-grid">
         ${gridArticles.map(article => this.renderArticleCard(article)).join('')}
@@ -223,7 +220,6 @@ class TagPageManager {
       this.articlesContainer.innerHTML = '';
     }
     
-    // Render pagination
     this.renderPagination();
   }
 
@@ -291,9 +287,6 @@ class TagPageManager {
     `;
   }
 
-  /**
-   * Format date to readable string
-   */
   /**
    * Render pagination
    */
@@ -369,10 +362,6 @@ class TagPageManager {
       });
     });
   }
-
-  /**
-   * Truncate text and strip HTML
-   */
 
   /**
    * Show error message

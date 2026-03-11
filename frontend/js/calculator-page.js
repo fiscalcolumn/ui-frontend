@@ -279,7 +279,7 @@ class CalculatorPageManager {
   /**
    * Get script filename from calculator slug
    * Maps URL slug to actual JavaScript filename
-   * Location: fin24x-frontend/frontend/js/calculator-page.js (line ~234)
+   * Location: FiscalColumn-frontend/frontend/js/calculator-page.js (line ~234)
    */
   getCalculatorScriptPath(slug) {
     if (!slug) return null;
