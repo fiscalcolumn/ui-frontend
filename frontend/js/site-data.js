@@ -15,88 +15,22 @@ const SITE_DATA = {
 
   // Footer Configuration
   footer: {
-    logoText: "FiscalColumn",
-    logo: {
-      url: "/images/logo.png",
-      alternativeText: "FiscalColumn Logo"
-    },
-    description: "Your trusted source for gold & silver rates, financial news, investment insights, and calculators. Stay informed with the latest updates from the business and economy world.",
-    socialLinks: [
-      {
-        platform: "facebook",
-        url: "https://facebook.com/fiscalcolumn"
-      },
-      {
-        platform: "twitter",
-        url: "https://twitter.com/fiscalcolumn"
-      },
-      {
-        platform: "linkedin",
-        url: "https://linkedin.com/company/fiscalcolumn"
-      },
-      {
-        platform: "instagram",
-        url: "https://instagram.com/fiscalcolumn"
-      }
+    leftLinks: [
+      { label: "About Us",          url: "/about-us" },
+      { label: "Newsletter",        url: "/newsletter" },
+      { label: "Advertise",         url: "/advertise" },
+      { label: "Editorial Process", url: "/editorial-process" }
     ],
-    contactInfo: {
-      email: "contact@fiscalcolumn.com",
-      phone: "",
-      address: ""
-    },
-    quickLinksTitle: "Quick Links",
-    quickLinksColumn1: [
-      {
-        label: "About Us",
-        url: "/about-us"
-      },
-      {
-        label: "Contact Us",
-        url: "/contact-us"
-      },
-      {
-        label: "Privacy Policy",
-        url: "/privacy-policy"
-      },
-      {
-        label: "Terms of Use",
-        url: "/terms-of-use"
-      }
+    rightLinks: [
+      { label: "Privacy Policy", url: "/privacy-policy" },
+      { label: "Terms of Use",   url: "/terms-of-use" },
+      { label: "Disclaimer",     url: "/disclaimer" },
+      { label: "Contact Us",     url: "/contact-us" }
     ],
-    quickLinksColumn2: [
-      {
-        label: "Disclaimer",
-        url: "/disclaimer"
-      },
-      {
-        label: "Copyright",
-        url: "/copyright-notification"
-      },
-      {
-        label: "Gold Rate Today",
-        url: "/gold-rates/gold-rate-today"
-      },
-      {
-        label: "Silver Rate Today",
-        url: "/silver-rates/silver-rate-today"
-      }
-    ],
-    mobileTitle: "Download Our App",
-    appDownloads: [],
     copyrightText: `© ${new Date().getFullYear()} FiscalColumn. All rights reserved.`,
-    bottomLinks: [
-      {
-        label: "Privacy Policy",
-        url: "/privacy-policy"
-      },
-      {
-        label: "Terms of Use",
-        url: "/terms-of-use"
-      },
-      {
-        label: "Disclaimer",
-        url: "/disclaimer"
-      }
+    appDownloads: [
+      { platform: "google-play", url: "https://play.google.com" },
+      { platform: "app-store",   url: "https://apps.apple.com" }
     ]
   },
 

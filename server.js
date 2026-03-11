@@ -350,21 +350,10 @@ app.get('/tag/:slug', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'tag.html'));
 });
 
-// Static Pages - explicit routes for legal/info pages
-const STATIC_PAGE_SLUGS = [
-  'copyright-notification',
-  'terms-of-use',
-  'privacy-policy',
-  'contact-us',
-  'about-us',
-  'disclaimer'
-];
-
-STATIC_PAGE_SLUGS.forEach(slug => {
-  app.get(`/${slug}`, (req, res) => {
-    sendVersionedHtml(res, path.join(__dirname, 'frontend', 'static-page.html'));
-  });
-});
+// Static Pages - registered dynamically from Strapi (see startServer below)
+// Placeholder so route ordering relative to /:slug catch-all is preserved
+const staticPageRouter = express.Router();
+app.use(staticPageRouter);
 
 // Calculator pages - /calculators/:slug
 app.get('/calculators/:slug', (req, res) => {
@@ -429,7 +418,43 @@ app.use((req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-  // Server started successfully
-});
+// Baseline slugs always served as static pages (regardless of CMS)
+const BASELINE_STATIC_SLUGS = [
+  'copyright-notification',
+  'terms-of-use',
+  'privacy-policy',
+  'contact-us',
+  'about-us',
+  'disclaimer'
+];
+
+async function registerStaticPageRoutes() {
+  let slugs = [...BASELINE_STATIC_SLUGS];
+
+  try {
+    const pages = await fetchAllItems('/static-pages?fields[0]=slug', 100);
+    if (pages.length > 0) {
+      const apiSlugs = pages.map(p => p.slug).filter(Boolean);
+      slugs = [...new Set([...slugs, ...apiSlugs])];
+    }
+  } catch (err) {
+    console.warn('Could not fetch static-page slugs from Strapi, using baseline list:', err.message);
+  }
+
+  slugs.forEach(slug => {
+    staticPageRouter.get(`/${slug}`, (req, res) => {
+      sendVersionedHtml(res, path.join(__dirname, 'frontend', 'static-page.html'));
+    });
+  });
+
+  console.log(`Registered ${slugs.length} static page routes: ${slugs.join(', ')}`);
+}
+
+async function startServer() {
+  await registerStaticPageRoutes();
+  app.listen(PORT, () => {
+    console.log(`Frontend server running on port ${PORT}`);
+  });
+}
+
+startServer();

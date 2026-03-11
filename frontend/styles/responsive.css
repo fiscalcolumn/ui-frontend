@@ -279,6 +279,19 @@
 	{
 		font-size: 20px;
 	}
+	.footer-nav-bar
+	{
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+	.footer-info-grid
+	{
+		grid-template-columns: 1fr;
+		gap: 36px;
+	}
+	.footer-badge-img { height: 38px; }
+	.footer-nav-bar { flex-direction: column; align-items: flex-start; }
 	.home_slider_nav
 	{
 		display: none;

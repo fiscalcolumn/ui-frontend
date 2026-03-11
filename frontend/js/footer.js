@@ -1,244 +1,204 @@
 /**
- * Footer Component
- * Uses static site data for footer configuration
+ * Footer Component — fetches all content from Strapi Footer API
  */
 
-function getFooterData() {
-  return window.SITE_DATA?.footer || {
-    logoText: "FiscalColumn",
-    logo: null,
-    description: "",
-    socialLinks: [],
-    contactInfo: null,
-    quickLinksTitle: "Quick Links",
-    quickLinksColumn1: [],
-    quickLinksColumn2: [],
-    mobileTitle: "Download Our App",
-    appDownloads: [],
-    copyrightText: "©2026 FiscalColumn.com All rights reserved.",
-    bottomLinks: []
+const FOOTER_CACHE_KEY = 'fc_footer_data';
+const FOOTER_CACHE_TTL = 5 * 60 * 1000;
+
+function getCachedFooter() {
+  try {
+    const raw = sessionStorage.getItem(FOOTER_CACHE_KEY);
+    if (!raw) return null;
+    const { data, ts } = JSON.parse(raw);
+    if (Date.now() - ts > FOOTER_CACHE_TTL) { sessionStorage.removeItem(FOOTER_CACHE_KEY); return null; }
+    return data;
+  } catch { return null; }
+}
+
+function setCachedFooter(data) {
+  try { sessionStorage.setItem(FOOTER_CACHE_KEY, JSON.stringify({ data, ts: Date.now() })); } catch {}
+}
+
+function getStaticFallback() {
+  const s = window.SITE_DATA?.footer || {};
+  return {
+    logoText:      s.logoText      || 'FiscalColumn',
+    description:   s.description   || '',
+    socialLinks:   s.socialLinks   || [],
+    contactInfo:   null,
+    mobileTitle:   'Download Our App',
+    appDownloads:  s.appDownloads  || [],
+    leftLinks:     s.leftLinks     || [],
+    rightLinks:    s.rightLinks    || [],
+    copyrightText: s.copyrightText || `© ${new Date().getFullYear()} FiscalColumn. All rights reserved.`
   };
 }
 
+async function fetchFooterData() {
+  const cached = getCachedFooter();
+  if (cached) return cached;
 
-// Render social links
-function renderSocialLinks(socialLinks) {
-  if (!socialLinks || socialLinks.length === 0) {
-    return '';
+  try {
+    if (typeof getApiUrl !== 'function') return getStaticFallback();
+
+    const url = getApiUrl(
+      '/footer' +
+      '?populate[socialLinks]=true' +
+      '&populate[contactInfo]=true' +
+      '&populate[appDownloads]=true' +
+      '&populate[quickLinksColumn1]=true' +
+      '&populate[quickLinksColumn2]=true'
+    );
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Footer API ${res.status}`);
+
+    const json = await res.json();
+    const d    = json.data || {};
+
+    const toLinks = arr =>
+      Array.isArray(arr)
+        ? arr.filter(l => l.label && l.url).map(l => ({ label: l.label, url: l.url }))
+        : [];
+
+    const toAppDownloads = arr =>
+      Array.isArray(arr)
+        ? arr.map(a => ({
+            platform: a.platform,
+            url:      a.url || '#',
+            image:    BADGE_IMAGES[a.platform] || null,
+            label:    a.platform === 'google-play' ? 'Get it on Google Play' : 'Download on the App Store'
+          })).filter(a => a.image)
+        : [];
+
+    const data = {
+      logoText:      d.logoText      || getStaticFallback().logoText,
+      description:   d.description   || '',
+      socialLinks:   Array.isArray(d.socialLinks) ? d.socialLinks : [],
+      contactInfo:   d.contactInfo   || null,
+      mobileTitle:   d.mobileTitle   || 'Download Our App',
+      appDownloads:  toAppDownloads(d.appDownloads),
+      leftLinks:     toLinks(d.quickLinksColumn1),
+      rightLinks:    toLinks(d.quickLinksColumn2),
+      copyrightText: d.copyrightText || getStaticFallback().copyrightText
+    };
+
+    setCachedFooter(data);
+    return data;
+
+  } catch (err) {
+    console.warn('Footer API failed, using static fallback:', err.message);
+    return getStaticFallback();
   }
+}
 
-  const iconMap = {
-    'facebook': 'fa-facebook',
-    'twitter': 'fa-twitter',
-    'instagram': 'fa-instagram',
-    'linkedin': 'fa-linkedin',
-    'youtube': 'fa-youtube',
-    'tiktok': 'fa-tiktok',
-    'google': 'fa-google-plus'
-  };
+// --- Render helpers ---
 
-  return socialLinks.map(link => {
-    const iconClass = iconMap[link.platform] || 'fa-link';
-    return `<li><a href="${link.url || '#'}" target="_blank" rel="noopener noreferrer"><i class="fa ${iconClass}" aria-hidden="true"></i></a></li>`;
+const SOCIAL_ICONS = {
+  facebook:  'fa-facebook',
+  twitter:   'fa-twitter',
+  instagram: 'fa-instagram',
+  linkedin:  'fa-linkedin',
+  youtube:   'fa-youtube-play',
+  tiktok:    'fa-tiktok',
+  google:    'fa-google-plus'
+};
+
+function renderSocialLinks(links) {
+  if (!links || links.length === 0) return '';
+  return links.map(l => {
+    const icon = SOCIAL_ICONS[l.platform] || 'fa-link';
+    return `<li>
+      <a href="${l.url || '#'}" target="_blank" rel="noopener noreferrer" aria-label="${l.platform}">
+        <i class="fa ${icon}" aria-hidden="true"></i>
+      </a>
+    </li>`;
   }).join('');
 }
 
-// Render footer links
-function renderFooterLinks(links) {
-  if (!links || links.length === 0) {
-    return '';
-  }
+function renderContactInfo(info) {
+  if (!info) return '';
+  const lines = [];
+  if (info.email)   lines.push(`<div class="footer-contact-line"><i class="fa fa-envelope-o"></i><a href="mailto:${info.email}">${info.email}</a></div>`);
+  if (info.phone)   lines.push(`<div class="footer-contact-line"><i class="fa fa-phone"></i><a href="tel:${info.phone}">${info.phone}</a></div>`);
+  if (info.address) lines.push(`<div class="footer-contact-line"><i class="fa fa-map-marker"></i><span>${info.address}</span></div>`);
+  return lines.join('');
+}
 
+const BADGE_IMAGES = {
+  'google-play': 'https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg',
+  'app-store':   'https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg'
+};
+
+function renderAppBadges(appDownloads) {
+  if (!appDownloads || appDownloads.length === 0) return '';
+  return appDownloads.map(app => {
+    const img = app.image || BADGE_IMAGES[app.platform];
+    if (!img) return '';
+    const label = app.label || (app.platform === 'google-play' ? 'Get it on Google Play' : 'Download on the App Store');
+    return `<a href="${app.url || '#'}" target="_blank" rel="noopener noreferrer" class="footer-badge-link">
+      <img src="${img}" alt="${label}" class="footer-badge-img">
+    </a>`;
+  }).join('');
+}
+
+function renderNavLinks(links) {
+  if (!links || links.length === 0) return '';
   return links.map(link => {
     let url = link.url || '#';
-    
-    if (url !== '#' && !url.startsWith('http') && !url.startsWith('/')) {
-      url = '/' + url;
-    }
-    
-    return `<li><a href="${url}">${link.label || ''}</a></li>`;
+    if (url !== '#' && !url.startsWith('http') && !url.startsWith('/')) url = '/' + url;
+    return `<li><a href="${url}">${link.label}</a></li>`;
   }).join('');
 }
 
-// Render app download buttons
-function renderAppDownloads(appDownloads) {
-  if (!appDownloads || appDownloads.length === 0) {
-    console.warn('No app downloads provided');
-    return '';
-  }
+// --- Main render ---
 
-  return appDownloads.map((app) => {
-    let imageUrl = '';
-    let imageAlt = app.platform || 'App Download';
-    
-    // Get image URL from static data
-    if (app.badgeImage) {
-      if (app.badgeImage.url) {
-        imageUrl = app.badgeImage.url;
-      } else if (typeof app.badgeImage === 'string') {
-        imageUrl = app.badgeImage;
-      }
-    }
-    
-    // Render image tag if URL exists
-    if (imageUrl) {
-      return `<div class="footer_image"><a href="${app.url || '#'}" target="_blank" rel="noopener noreferrer"><img src="${imageUrl}" alt="${imageAlt}" style="max-width: 150px; height: auto; display: block;"></a></div>`;
-    } else {
-      console.warn('No image URL resolved for app:', app.platform);
-      return '';
-    }
-  }).join('');
-}
-
-// Render contact info
-function renderContactInfo(contactInfo) {
-  if (!contactInfo) {
-    return '';
-  }
-
-  let html = '<ul>';
-  if (contactInfo.email) {
-    html += `<li>Email: ${contactInfo.email}</li>`;
-  }
-  if (contactInfo.phone) {
-    html += `<li>Phone: ${contactInfo.phone}</li>`;
-  }
-  if (contactInfo.address) {
-    html += `<li>${contactInfo.address}</li>`;
-  }
-  html += '</ul>';
-  return html;
-}
-
-// Render footer logo
-function renderFooterLogo(logoText, logoImage) {
-  if (logoImage && logoImage.url) {
-    const imageUrl = logoImage.url.startsWith('http') ? logoImage.url : logoImage.url;
-    return `<a href="/"><img src="${imageUrl}" alt="${logoImage.alternativeText || logoText || 'Logo'}" style="max-height: 50px;"></a>`;
-  }
-  
-  if (logoText) {
-    return `<a href="/"><div class="footer_logo_text">${logoText}</div></a>`;
-  }
-  
-  return '<a href="/"><div class="footer_logo_text">FiscalColumn</div></a>';
-}
-
-// Render footer component
 async function renderFooter() {
-  const footerContainer = document.querySelector('.footer');
-  if (!footerContainer) {
-    console.error('Footer container (.footer) not found in DOM');
-    return;
-  }
+  const footer = document.querySelector('.footer');
+  if (!footer) return;
 
-  footerContainer.style.opacity = '0';
-  footerContainer.style.visibility = 'hidden';
-  
-  const footerData = getFooterData();
-  
-  if (!footerData) {
-    console.warn('Footer data not available, using fallback');
-    // Show footer even if data is not available
-    footerContainer.style.opacity = '1';
-    footerContainer.style.visibility = 'visible';
-    return;
-  }
+  footer.style.opacity = '0';
 
-  const footerAbout = footerContainer.querySelector('.footer_about');
-  const logoContainer = footerAbout ? footerAbout.querySelector('.footer_logo_container') : null;
-  const aboutText = footerAbout ? footerAbout.querySelector('.footer_about_text') : null;
+  const data = await fetchFooterData();
 
-  if (footerAbout) {
-    if (logoContainer) {
-      logoContainer.innerHTML = renderFooterLogo(footerData.logoText, footerData.logo);
-    }
+  // Info bar — col 1
+  const brandTextEl  = footer.querySelector('.footer-brand-text');
+  const brandDescEl  = footer.querySelector('.footer-brand-desc');
+  const socialListEl = footer.querySelector('.footer-social-list');
 
-    if (aboutText && footerData.description) {
-      aboutText.innerHTML = `<p>${footerData.description}</p>`;
-    }
+  if (brandTextEl)  brandTextEl.textContent  = data.logoText;
+  if (brandDescEl)  brandDescEl.textContent  = data.description;
+  if (socialListEl) socialListEl.innerHTML   = renderSocialLinks(data.socialLinks);
 
-    const socialContainer = footerAbout.querySelector('.footer_social ul');
-    if (socialContainer && footerData.socialLinks) {
-      socialContainer.innerHTML = renderSocialLinks(footerData.socialLinks);
-    }
-  }
+  // Info bar — col 2
+  const contactEl = footer.querySelector('.footer-contact-info');
+  if (contactEl) contactEl.innerHTML = renderContactInfo(data.contactInfo);
 
-  const footerContact = footerContainer.querySelector('.footer_contact');
-  if (footerContact && footerData.contactInfo) {
-    const contactInfoContainer = footerContact.querySelector('.footer_contact_info');
-    if (contactInfoContainer) {
-      contactInfoContainer.innerHTML = renderContactInfo(footerData.contactInfo);
-    }
-  }
+  // Info bar — col 3
+  const mobileTitleEl = footer.querySelector('.footer-mobile-title');
+  const badgesEl      = footer.querySelector('.footer-app-badges');
 
-  const footerLinks = footerContainer.querySelector('.footer_links');
-  if (footerLinks) {
-    const linksTitle = footerLinks.querySelector('.footer_title');
-    if (linksTitle && footerData.quickLinksTitle) {
-      linksTitle.textContent = footerData.quickLinksTitle;
-    }
+  if (mobileTitleEl) mobileTitleEl.textContent = data.mobileTitle;
+  if (badgesEl)      badgesEl.innerHTML        = renderAppBadges(data.appDownloads);
 
-    const linksContainer = footerLinks.querySelector('.footer_links_container ul');
-    if (linksContainer) {
-          const allLinks = [
-        ...(footerData.quickLinksColumn1 || []),
-        ...(footerData.quickLinksColumn2 || [])
-      ];
-      linksContainer.innerHTML = renderFooterLinks(allLinks);
-    }
-  }
+  // Links bar
+  const leftEl  = footer.querySelector('.footer-nav-left');
+  const rightEl = footer.querySelector('.footer-nav-right');
+  if (leftEl)  leftEl.innerHTML  = renderNavLinks(data.leftLinks);
+  if (rightEl) rightEl.innerHTML = renderNavLinks(data.rightLinks);
 
-  const footerMobile = footerContainer.querySelector('.footer_mobile');
-  if (footerMobile) {
-    const mobileTitle = footerMobile.querySelector('.footer_title');
-    if (mobileTitle && footerData.mobileTitle) {
-      mobileTitle.textContent = footerData.mobileTitle;
-    }
+  // Copyright
+  const crEl = footer.querySelector('.cr_text');
+  if (crEl) crEl.textContent = data.copyrightText;
 
-    const mobileContent = footerMobile.querySelector('.footer_mobile_content');
-    if (mobileContent) {
-      if (footerData.appDownloads && footerData.appDownloads.length > 0) {
-        const renderedContent = renderAppDownloads(footerData.appDownloads);
-        mobileContent.innerHTML = renderedContent;
-      } else {
-        console.warn('No app downloads data found in footer');
-        mobileContent.innerHTML = '';
-      }
-    } else {
-      console.error('Mobile content container not found');
-    }
-  } else {
-    console.error('Footer Mobile section not found in DOM');
-  }
-
-  const copyrightRow = footerContainer.querySelector('.copyright_row');
-  if (copyrightRow && footerData.bottomLinks) {
-    const crLinks = copyrightRow.querySelector('.cr_list');
-    if (crLinks) {
-      crLinks.innerHTML = renderFooterLinks(footerData.bottomLinks);
-    }
-  }
-
-  if (footerData.copyrightText) {
-    const crText = footerContainer.querySelector('.cr_text');
-    if (crText) {
-      crText.innerHTML = footerData.copyrightText;
-    }
-  }
-
-  footerContainer.style.opacity = '1';
-  footerContainer.style.visibility = 'visible';
-  footerContainer.style.transition = 'opacity 0.2s ease-in-out';
+  footer.style.transition = 'opacity 0.2s ease';
+  footer.style.opacity    = '1';
 }
 
-function initFooter() {
-  renderFooter();
-}
+function initFooter() { renderFooter(); }
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initFooter);
 } else {
   initFooter();
 }
-
