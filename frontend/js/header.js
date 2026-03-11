@@ -6,11 +6,16 @@
 
 const HEADER_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const HEADER_CACHE_KEYS = {
-  CATEGORIES: 'fc_categories_data'
+  CATEGORIES: 'fc_categories_data',
+  CONFIG:     'fc_header_config'
 };
+
+const DEFAULT_CATEGORY_COUNT = 6;
 
 let categoriesCache = null;
 let categoriesPromise = null;
+let headerConfigCache = null;
+let headerConfigPromise = null;
 
 function getHeaderData() {
   return window.SITE_DATA?.header || {
@@ -124,14 +129,51 @@ async function fetchCategories() {
   return categoriesPromise;
 }
 
+// Fetch header config from Strapi: categorycount + headerbrandbar pills
+async function fetchHeaderConfig() {
+  if (headerConfigPromise) return headerConfigPromise;
+  if (headerConfigCache)   return headerConfigCache;
+
+  const cached = getCachedData(HEADER_CACHE_KEYS.CONFIG);
+  if (cached) {
+    headerConfigCache = cached;
+    return headerConfigCache;
+  }
+
+  headerConfigPromise = (async () => {
+    try {
+      const response = await fetch(getApiUrl('/header?populate[brandbar]=true'));
+      if (!response.ok) throw new Error(`Header config fetch failed: ${response.status}`);
+      const json = await response.json();
+      const d = json.data || {};
+      headerConfigCache = {
+        categoryCount: typeof d.categorycount === 'number' ? d.categorycount : DEFAULT_CATEGORY_COUNT,
+        pills: Array.isArray(d.brandbar)
+          ? d.brandbar
+              .filter(p => p.displayname && p.brandurl)
+              .sort((a, b) => (parseInt(a.order) || 0) - (parseInt(b.order) || 0))
+          : []
+      };
+      setCachedData(HEADER_CACHE_KEYS.CONFIG, headerConfigCache);
+    } catch (err) {
+      console.error('Error fetching header config:', err);
+      headerConfigCache = { categoryCount: DEFAULT_CATEGORY_COUNT, pills: [] };
+    }
+    headerConfigPromise = null;
+    return headerConfigCache;
+  })();
+
+  return headerConfigPromise;
+}
+
 // Render header navigation links with dropdown (using categories)
-function renderNavigationLinks(categories, currentPage = '') {
+function renderNavigationLinks(categories, currentPage = '', categoryCount = DEFAULT_CATEGORY_COUNT) {
   if (!categories || categories.length === 0) {
     return '<li><a href="/">Home</a></li>';
   }
 
-  const mainCategories = categories.slice(0, 6);
-  const dropdownCategories = categories.slice(6);
+  const mainCategories = categories.slice(0, categoryCount);
+  const dropdownCategories = categories.slice(categoryCount);
 
   let html = '';
   mainCategories.forEach(category => {
@@ -143,7 +185,7 @@ function renderNavigationLinks(categories, currentPage = '') {
   if (dropdownCategories.length > 0) {
     html += `<li class="dropdown">
       <a href="#" class="dropdown-toggle">
-        <i class="fa fa-chevron-down" aria-hidden="true"></i>
+        <i class="fa fa-bars" aria-hidden="true"></i>
       </a>
       <ul class="dropdown-menu">
         ${dropdownCategories.map(category => {
@@ -248,19 +290,33 @@ async function renderHeader(currentPage = '') {
   }
 
   const headerData = getHeaderData();
-  
-  const categories = await fetchCategories();
 
-  const logoContainer = headerContainer.querySelector('.logo_container');
-  const mainNav = headerContainer.querySelector('.main_nav');
-  const mobileMenuNav = document.querySelector('.menu_nav ul.menu_mm');
+  // Fetch config and categories in parallel
+  const [headerConfig, categories] = await Promise.all([
+    fetchHeaderConfig(),
+    fetchCategories()
+  ]);
+
+  const logoContainer     = headerContainer.querySelector('.logo_container');
+  const mainNav           = headerContainer.querySelector('.main_nav');
+  const brandPillsEl      = headerContainer.querySelector('.brand-rate-btns');
+  const mobileMenuNav     = document.querySelector('.menu_nav ul.menu_mm');
 
   if (logoContainer && headerData) {
     logoContainer.innerHTML = renderLogo(headerData.logoText, headerData.logo);
   }
 
   if (mainNav) {
-    mainNav.innerHTML = renderNavigationLinks(categories, currentPage);
+    mainNav.innerHTML = renderNavigationLinks(categories, currentPage, headerConfig.categoryCount);
+  }
+
+  if (brandPillsEl) {
+    brandPillsEl.innerHTML = headerConfig.pills
+      .map(p => {
+        const style = p.brandcolor ? ` style="background:${p.brandcolor}"` : '';
+        return `<a href="${p.brandurl}" class="brand-rate-btn"${style}>${p.displayname}</a>`;
+      })
+      .join('');
   }
 
   if (mobileMenuNav) {

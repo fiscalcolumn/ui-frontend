@@ -30,7 +30,7 @@ class HomepageSectionsManager {
    * Fetch all enabled homepage sections with their categories and style relations
    */
   async fetchSections() {
-    const url = getApiUrl('/homepage-sections?populate[category]=true&populate[homepagesectionstyle]=true&filters[enabled][$eq]=true&sort=order:asc');
+    const url = getApiUrl('/homepage-sections?populate[category]=true&filters[enabled][$eq]=true&sort=order:asc');
     const response = await fetch(url);
     const data = await response.json();
     return data.data || [];
@@ -60,32 +60,29 @@ class HomepageSectionsManager {
         continue;
       }
 
-      // Get sectionType and itemsToShow from homepagesectionstyle relation
-      const sectionStyle = section.homepagesectionstyle;
-      const sectionType = sectionStyle?.sectionstyle || 'grid';
-      const itemsToShow = sectionStyle?.itemtoshow || 5;
+      // sectionStyle and itemsToShow are direct fields on the section record
+      const sectionType = section.sectionStyle || 'article-list';
+      const itemsToShow = section.itemsToShow || 5;
 
-      // Determine article limit - carousel sections get 10 items
-      const isCarousel = sectionType === 'grid-vertical' || sectionType === 'grid-with-date';
+      const isCarousel = sectionType === 'news-grid';
       const limit = isCarousel ? 10 : itemsToShow;
 
-      // Fetch articles for this category
       const articles = await this.fetchArticlesByCategory(category.documentId, limit);
       
       const bgClass = i % 2 === 0 ? '' : 'section-alt-bg';
       
       let sectionHtml = '';
       switch (sectionType) {
-        case 'news':
+        case 'news-grid':
           sectionHtml = this.renderNewsSection(section, articles, bgClass, i, category);
           break;
-        case 'grid-with-date':
+        case 'featured-banner':
           sectionHtml = this.renderGridWithDateSection(section, articles, bgClass, i, category);
           break;
-        case 'grid-vertical':
+        case 'calculator-grid':
           sectionHtml = this.renderGridVerticalSection(section, articles, bgClass, i, category);
           break;
-        case 'grid':
+        case 'article-list':
         default:
           sectionHtml = this.renderGridSection(section, articles, bgClass, i, category);
           break;
