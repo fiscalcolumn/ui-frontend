@@ -1049,93 +1049,33 @@ class CategoryPageManager {
    * Show error message
    */
   async showError(message) {
-    // Update page title
     document.title = 'Page Not Found - FiscalColumn';
-    
-    // Show loading initially
+
     this.articlesContainer.innerHTML = `
       <div class="loading-container">
         <div class="spinner"></div>
         <p>Loading...</p>
       </div>
     `;
-    
+
     try {
-      // Fetch header for CategoryNotFound image, and PopularTag for tags
-      const [headerRes, popularTagRes] = await Promise.all([
-        fetch(getApiUrl('/header?populate=CategoryNotFound')),
-        fetch(getApiUrl('/popular-tag?populate[tags][populate][articles][populate]=image'))
-      ]);
-      
-      const headerData = await headerRes.json();
-      const popularTagData = await popularTagRes.json();
-      
-      // Get the not found image URL - handle different Strapi v5 media structures
-      const notFoundImage = headerData.data?.CategoryNotFound;
-      let imageUrl = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'600\'%3E%3Crect fill=\'%23f0f0f0\' width=\'800\' height=\'600\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'24\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3E404 Not Found%3C/text%3E%3C/svg%3E';
-      
-      if (notFoundImage) {
-        // Handle different possible structures
-        let url = null;
-        if (notFoundImage.url) {
-          url = notFoundImage.url;
-        } else if (notFoundImage.data?.attributes?.url) {
-          url = notFoundImage.data.attributes.url;
-        } else if (notFoundImage.data?.[0]?.attributes?.url) {
-          url = notFoundImage.data[0].attributes.url;
-        } else if (notFoundImage.data?.url) {
-          url = notFoundImage.data.url;
-        }
-        
-        if (url) {
-          imageUrl = getApiUrl('').replace('/api', '') + url;
-        }
-      }
-      
-      // Get popular tags
-      const popularTags = popularTagData.data?.tags || [];
-      
-      // Collect articles from popular tags (unique, top 20)
-      const articlesMap = new Map();
-      for (const tag of popularTags) {
-        if (tag.articles) {
-          for (const article of tag.articles) {
-            if (!articlesMap.has(article.documentId)) {
-              articlesMap.set(article.documentId, article);
-            }
-          }
-        }
-      }
-      const topArticles = Array.from(articlesMap.values()).slice(0, 10);
-      
-      // Fetch articles from Latest News and Stocks categories
-      const [latestNewsRes, marketNewsRes] = await Promise.all([
-        fetch(getApiUrl('/articles?filters[category][slug]=latest-news&populate=image&pagination[limit]=6&sort=publishedDate:desc')),
-        fetch(getApiUrl('/articles?filters[category][slug]=stocks&populate=image&pagination[limit]=6&sort=publishedDate:desc'))
-      ]);
-      
-      const latestNewsData = await latestNewsRes.json();
-      const marketNewsData = await marketNewsRes.json();
-      
-      const latestNewsArticles = latestNewsData.data || [];
-      const marketNewsArticles = marketNewsData.data || [];
-      
-      // Render the error page layout
-      this.renderErrorPage(imageUrl, message, popularTags, topArticles, latestNewsArticles, marketNewsArticles);
-      
-      // Initialize carousels
-      this.initErrorCarousels();
-      
+      const articlesRes = await fetch(
+        getApiUrl('/articles?populate[image]=true&populate[author][populate][photo]=true&populate[category]=true&pagination[limit]=8&sort=publishedDate:desc')
+      );
+      const articlesData = await articlesRes.json();
+      const latestArticles = articlesData.data || [];
+
+      this.renderErrorPage(latestArticles);
+
     } catch (error) {
       console.error('Error loading error page data:', error);
-      // Fallback to simple error
       this.articlesContainer.innerHTML = `
         <div class="error-container-simple">
           <h2>Page Not Found</h2>
           <p>${message}</p>
-          <div class="error-actions">
-            <a href="/" class="error-btn primary">Go to Homepage</a>
-            <a href="javascript:history.back()" class="error-btn secondary">Go Back</a>
+          <div class="error-hero-actions">
+            <a href="/" class="error-btn primary"><i class="fa fa-home"></i> Home Page</a>
+            <a href="javascript:history.back()" class="error-btn secondary"><i class="fa fa-arrow-left"></i> Go Back</a>
           </div>
         </div>
       `;
@@ -1143,206 +1083,38 @@ class CategoryPageManager {
   }
 
   /**
-   * Render the full error page with image, popular tags sidebar, and articles
+   * Render clean not-found page: hero + Latest Articles Layout A grid
    */
-  renderErrorPage(imageUrl, message, popularTags, articles, latestNewsArticles, marketNewsArticles) {
-    // Build popular tags HTML
-    const popularTagsHtml = popularTags.length > 0 ? popularTags.map(tag => `
-      <a href="/tag/${tag.slug}" class="popular-tag-item">
-        <div class="popular-tag-icon"><i class="fa fa-tag"></i></div>
-        <span class="popular-tag-name">${tag.name}</span>
-        <i class="fa fa-chevron-right popular-tag-arrow"></i>
-      </a>
-    `).join('') : '<p class="no-tags">No popular tags available</p>';
-    
-    // Build trending articles HTML (horizontal cards, 2 per row)
-    const trendingArticlesHtml = articles.length > 0 ? articles.map(article => 
-      this.renderErrorHorizontalCard(article)
-    ).join('') : '';
-    
-    // Build Latest News carousel cards
-    const latestNewsHtml = latestNewsArticles.length > 0 ? latestNewsArticles.map(article => 
-      this.renderErrorCarouselCard(article)
-    ).join('') : '';
-    
-    // Build Market News carousel cards
-    const marketNewsHtml = marketNewsArticles.length > 0 ? marketNewsArticles.map(article => 
-      this.renderErrorCarouselCard(article)
-    ).join('') : '';
-    
-    // Main layout
+  renderErrorPage(articles) {
+    const latestArticlesHtml = articles.length > 0
+      ? articles.map(a => this.renderLayoutACard(a)).join('')
+      : '<p style="color:#888;text-align:center;grid-column:1/-1;">No articles found.</p>';
+
     this.articlesContainer.innerHTML = `
       <div class="error-page-wrapper">
-        <div class="error-page-split">
-          <!-- Left side: Image background with buttons -->
-          <div class="error-left-section" style="background-image: url('${imageUrl}');">
-            <div class="error-page-actions">
-              <a href="/" class="error-btn primary">
-                <i class="fa fa-home"></i> Home Page
-              </a>
-              <a href="javascript:history.back()" class="error-btn secondary">
-                <i class="fa fa-arrow-left"></i> Go Back
-              </a>
-            </div>
-          </div>
-          
-          <!-- Right side: Popular Tags (35%) -->
-          <div class="error-right-section">
-            <div class="popular-tags-sidebar">
-              <div class="popular-tags-header">
-                <i class="fa fa-link"></i> <span>Popular Topics</span>
-              </div>
-              <div class="popular-tags-divider"></div>
-              <div class="popular-tags-list">
-                ${popularTagsHtml}
-              </div>
-            </div>
+
+        <!-- Hero -->
+        <div class="error-hero">
+          <h1 class="error-hero-title">Sorry, we couldn't find what you're&nbsp;looking&nbsp;for.</h1>
+          <p class="error-hero-sub">Don't worry — we're still <em>here</em>. Try heading home or browsing our latest articles below.</p>
+          <div class="error-hero-actions">
+            <a href="/" class="error-btn primary"><i class="fa fa-home"></i> Home Page</a>
+            <a href="javascript:history.back()" class="error-btn secondary"><i class="fa fa-arrow-left"></i> Go Back</a>
           </div>
         </div>
-        
-        ${articles.length > 0 ? `
-        <!-- Trending Articles Section -->
-        <div class="error-category-section">
+
+        <!-- Latest Articles -->
+        <div class="error-articles-section">
           <div class="error-section-header">
-            <h3 class="error-section-title">Trending Articles</h3>
+            <h2 class="error-section-title">Latest Articles</h2>
           </div>
-          <div class="error-articles-grid-2col">
-            ${trendingArticlesHtml}
-          </div>
-        </div>
-        ` : ''}
-        
-        ${latestNewsArticles.length > 0 ? `
-        <!-- Latest News Carousel Section -->
-        <div class="error-carousel-section">
-          <div class="error-section-header">
-            <h3 class="error-section-title">Latest News</h3>
-            <a href="/latest-news" class="error-section-link">View All <i class="fa fa-arrow-right"></i></a>
-          </div>
-          <div class="error-carousel-wrapper">
-            <button class="error-carousel-nav error-carousel-prev" data-carousel="latest-news">
-              <i class="fa fa-chevron-left"></i>
-            </button>
-            <div class="error-carousel-container" id="latest-news-carousel">
-              ${latestNewsHtml}
-            </div>
-            <button class="error-carousel-nav error-carousel-next" data-carousel="latest-news">
-              <i class="fa fa-chevron-right"></i>
-            </button>
+          <div class="rca-grid">
+            ${latestArticlesHtml}
           </div>
         </div>
-        ` : ''}
-        
-        ${marketNewsArticles.length > 0 ? `
-        <!-- Stocks Carousel Section -->
-        <div class="error-carousel-section alt-bg">
-          <div class="error-section-header">
-            <h3 class="error-section-title">Stocks</h3>
-            <a href="/stocks" class="error-section-link">View All <i class="fa fa-arrow-right"></i></a>
-          </div>
-          <div class="error-carousel-wrapper">
-            <button class="error-carousel-nav error-carousel-prev" data-carousel="market-news">
-              <i class="fa fa-chevron-left"></i>
-            </button>
-            <div class="error-carousel-container" id="market-news-carousel">
-              ${marketNewsHtml}
-            </div>
-            <button class="error-carousel-nav error-carousel-next" data-carousel="market-news">
-              <i class="fa fa-chevron-right"></i>
-            </button>
-          </div>
-        </div>
-        ` : ''}
+
       </div>
     `;
-  }
-
-  /**
-   * Render a horizontal article card for error page (Trending Articles)
-   */
-  renderErrorHorizontalCard(article) {
-    const imageUrl = article.image?.url 
-      ? getApiUrl('').replace('/api', '') + article.image.url 
-      : '';
-    const readTime = Utils.getReadTime(article);
-    const date = article.publishedDate ? Utils.formatDate(article.publishedDate) : '';
-    const excerpt = article.excerpt || '';
-    
-    return `
-      <div class="error-horizontal-card">
-        <div class="error-card-image">
-          <a href="/${article.category?.slug || 'article'}/${article.slug}">
-            ${imageUrl ? `<img src="${imageUrl}" alt="${article.title}">` : '<div class="error-card-placeholder"></div>'}
-          </a>
-        </div>
-        <div class="error-card-content">
-          <h4 class="error-card-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h4>
-          ${excerpt ? `<p class="error-card-excerpt">${excerpt}</p>` : ''}
-          <div class="error-card-meta">
-            <span><i class="fa fa-clock-o"></i> ${readTime} min read</span>
-            ${date ? `<span><i class="fa fa-calendar"></i> ${date}</span>` : ''}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Render a vertical carousel card for error page (Latest News / Market News)
-   */
-  renderErrorCarouselCard(article) {
-    const imageUrl = article.image?.url 
-      ? getApiUrl('').replace('/api', '') + article.image.url 
-      : '';
-    const readTime = Utils.getReadTime(article);
-    const date = article.publishedDate ? Utils.formatDate(article.publishedDate) : '';
-    const excerpt = article.excerpt || '';
-    
-    return `
-      <div class="error-carousel-card">
-        <div class="error-carousel-card-image">
-          <a href="/${article.category?.slug || 'article'}/${article.slug}">
-            ${imageUrl ? `<img src="${imageUrl}" alt="${article.title}">` : '<div class="no-image"></div>'}
-          </a>
-        </div>
-        <div class="error-carousel-card-content">
-          <h4 class="error-carousel-card-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h4>
-          ${excerpt ? `<p class="error-carousel-card-excerpt">${excerpt}</p>` : ''}
-          <div class="error-carousel-card-meta">
-            <span>${readTime} min read</span>
-            ${date ? `<span>• ${date}</span>` : ''}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Initialize carousel scrolling for error page
-   */
-  initErrorCarousels() {
-    document.querySelectorAll('.error-carousel-nav').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const carouselId = btn.dataset.carousel;
-        const container = document.getElementById(`${carouselId}-carousel`);
-        if (!container) return;
-        
-        const card = container.querySelector('.error-carousel-card');
-        if (!card) return;
-        
-        const cardWidth = card.offsetWidth + 20; // card width + gap
-        const direction = btn.classList.contains('error-carousel-next') ? 1 : -1;
-        
-        container.scrollBy({
-          left: direction * cardWidth,
-          behavior: 'smooth'
-        });
-      });
-    });
   }
 }
 

@@ -1,100 +1,98 @@
 /**
  * Header Article Component
- * Fetches and renders the header article below the market ticker
- * The header API now returns all article data needed
+ * Fetches header_article (shown above homepage sections) and
+ * header_article_2 (shown after the first category section, via window).
  */
 
-// Fetch header with populated header_article (reuse shared header data)
-async function fetchHeaderWithArticle() {
-  // Use shared header data if available
-  if (window.getHeaderData) {
-    return await window.getHeaderData();
-  }
-  
-  // Fallback if header.js hasn't loaded yet
+const HA_POPULATE =
+  'populate[header_article][populate][image]=true' +
+  '&populate[header_article][populate][category]=true' +
+  '&populate[header_article][populate][author][populate][photo]=true' +
+  '&populate[header_article_2][populate][image]=true' +
+  '&populate[header_article_2][populate][category]=true' +
+  '&populate[header_article_2][populate][author][populate][photo]=true';
+
+async function fetchHeaderArticles() {
   try {
-    const response = await fetch(getApiUrl('/header?populate=*'));
-    if (!response.ok) {
-      throw new Error('Failed to fetch header');
-    }
-    const data = await response.json();
+    const res = await fetch(getApiUrl(`/header?${HA_POPULATE}`));
+    if (!res.ok) throw new Error('Failed to fetch header');
+    const data = await res.json();
     return data.data;
-  } catch (error) {
-    console.error('Error fetching header:', error);
+  } catch (err) {
+    console.error('Error fetching header articles:', err);
     return null;
   }
 }
 
-// Format date for display
-function formatHeaderArticleDate(dateStr) {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+/** Build author HTML (avatar + name) */
+function haAuthorHtml(author) {
+  if (!author?.name) return '';
+  const photoUrl = author.photo?.url
+    ? `${getApiUrl('').replace('/api', '')}${author.photo.url}`
+    : '';
+  return `
+    <div class="ha-author">
+      ${photoUrl
+        ? `<img src="${photoUrl}" alt="${author.name}" class="ha-author-avatar">`
+        : `<div class="ha-author-avatar ha-author-initial">${author.name.charAt(0)}</div>`}
+      <span class="ha-author-name">${author.name}</span>
+    </div>`;
 }
 
-// Calculate reading time (approximate)
-// calculateReadingTime moved to Utils
+/** Build the inner HTML for an article card */
+function haCardHtml(article, layout = 'ha-layout-a') {
+  const categorySlug = article.category?.slug || 'news';
+  const categoryName = article.category?.name  || 'Latest News';
+  const url          = `/${categorySlug}/${article.slug}`;
+  const imageUrl     = article.image?.url
+    ? `${getApiUrl('').replace('/api', '')}${article.image.url}`
+    : '';
+  const date         = article.publishedDate || article.createdAt;
+  const formattedDate = date ? Utils.formatDate(date) : '';
+  const readingTime  = Utils.calculateReadingTimeString(article.content || article.excerpt || '');
 
-// Render header article
+  return `
+    <a href="${url}" class="ha-wrapper ${layout}">
+      <div class="ha-image">
+        ${imageUrl
+          ? `<img src="${imageUrl}" alt="${article.title}" loading="lazy">`
+          : '<div class="ha-img-placeholder"></div>'}
+      </div>
+      <div class="ha-content">
+        <div class="ha-category">${categoryName.toUpperCase()}</div>
+        <h2 class="ha-title">${article.title || ''}</h2>
+        <p class="ha-excerpt">${article.excerpt || ''}</p>
+        <div class="ha-footer">
+          ${haAuthorHtml(article.author)}
+          <div class="ha-meta">
+            <span>${readingTime}</span>
+            ${formattedDate ? `<span class="ha-sep">·</span><span>${formattedDate}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    </a>`;
+}
+
 async function renderHeaderArticle() {
   const container = document.getElementById('header-article-section');
-  if (!container) {
-    console.error('Header article container not found');
-    return;
-  }
+  if (!container) return;
 
-  const headerData = await fetchHeaderWithArticle();
-  const article = headerData?.header_article;
-  
-  if (!article) {
-    // Hide the section if no article is set
+  const headerData = await fetchHeaderArticles();
+  const article1   = headerData?.header_article;
+  const article2   = headerData?.header_article_2;
+
+  // Expose article2 for homepage-sections.js to inject after first section
+  window.headerArticle2 = article2 || null;
+
+  if (!article1) {
     container.style.display = 'none';
     return;
   }
 
-  // Build article URL
-  const categorySlug = article.category?.slug || 'news';
-  const articleUrl = `/${categorySlug}/${article.slug}`;
-
-  // Get image URL
-  const imageUrl = article.image?.url 
-    ? `${getApiUrl('').replace('/api', '')}${article.image.url}`
-    : '/images/default-article.jpg';
-
-  // Format date and reading time
-  const formattedDate = formatHeaderArticleDate(article.publishedDate || article.createdAt);
-  const readingTime = Utils.calculateReadingTimeString(article.content || article.excerpt);
-
   container.classList.add('loaded');
-
-  // Render the header article
-  container.innerHTML = `
-    <div class="container">
-      <div class="header-article-wrapper">
-        <div class="header-article-content">
-          <div class="header-article-label">LATEST NEWS</div>
-          <h2 class="header-article-title">
-            <a href="${articleUrl}">${article.title || 'No Title'}</a>
-          </h2>
-          <p class="header-article-excerpt">${article.excerpt || ''}</p>
-          <div class="header-article-meta">
-            <span class="header-article-reading-time">${readingTime}</span>
-            <span class="header-article-separator">•</span>
-            <span class="header-article-date">${formattedDate}</span>
-          </div>
-        </div>
-        <div class="header-article-image">
-          <a href="${articleUrl}">
-            <img src="${imageUrl}" alt="${article.title || 'Article Image'}" loading="lazy">
-          </a>
-        </div>
-      </div>
-    </div>
-  `;
+  container.innerHTML = `<div class="container">${haCardHtml(article1, 'ha-layout-a')}</div>`;
 }
 
-// Initialize header article when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', renderHeaderArticle);
 } else {

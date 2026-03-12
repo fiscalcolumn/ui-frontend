@@ -112,10 +112,71 @@ class HomepageSectionsManager {
       if (!browseInserted && allCategories.length > 0) {
         browseInserted = true;
         this.sectionsContainer.innerHTML += this.renderBrowseByCategory(allCategories);
+
+        // Insert header_article_2 (if set) after Browse by Category
+        const article2 = window.headerArticle2;
+        if (article2) {
+          this.sectionsContainer.innerHTML += this.renderMidArticle(article2);
+        }
       }
     }
 
     this.initCarouselScrolling();
+  }
+
+  /**
+   * Render the mid-page featured article (header_article_2)
+   * Layout: image 60% left / content 40% right
+   */
+  renderMidArticle(article) {
+    const base         = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
+    const categorySlug = article.category?.slug || 'news';
+    const categoryName = article.category?.name  || 'Latest News';
+    const url          = `/${categorySlug}/${article.slug}`;
+    const imageUrl     = article.image?.url
+      ? (article.image.url.startsWith('http') ? article.image.url : base + article.image.url)
+      : '';
+    const date         = article.publishedDate || article.createdAt;
+    const formattedDate = date ? Utils.formatDate(date) : '';
+    const readingTime  = Utils.calculateReadingTimeString(article.content || article.excerpt || '');
+
+    // Author
+    const author   = article.author;
+    const photoUrl = author?.photo?.url
+      ? (author.photo.url.startsWith('http') ? author.photo.url : base + author.photo.url)
+      : '';
+    const authorHtml = author?.name ? `
+      <div class="ha-author">
+        ${photoUrl
+          ? `<img src="${photoUrl}" alt="${author.name}" class="ha-author-avatar">`
+          : `<div class="ha-author-avatar ha-author-initial">${author.name.charAt(0)}</div>`}
+        <span class="ha-author-name">${author.name}</span>
+      </div>` : '';
+
+    return `
+      <div class="mid-article-section">
+        <div class="container">
+          <a href="${url}" class="ha-wrapper ha-layout-b">
+            <div class="ha-image">
+              ${imageUrl
+                ? `<img src="${imageUrl}" alt="${article.title}" loading="lazy">`
+                : '<div class="ha-img-placeholder"></div>'}
+            </div>
+            <div class="ha-content">
+              <div class="ha-category">${categoryName.toUpperCase()}</div>
+              <h2 class="ha-title">${article.title || ''}</h2>
+              <p class="ha-excerpt">${article.excerpt || ''}</p>
+              <div class="ha-footer">
+                ${authorHtml}
+                <div class="ha-meta">
+                  <span>${readingTime}</span>
+                  ${formattedDate ? `<span class="ha-sep">·</span><span>${formattedDate}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>`;
   }
 
   async fetchCategoriesWithImages() {
