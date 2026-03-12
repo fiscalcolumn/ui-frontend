@@ -2357,8 +2357,8 @@ section
 /* Dark mode */
 .dark-mode .browse-by-category-section
 {
-	background: var(--bg-secondary);
-	border-color: var(--border-color);
+	background: #77a6a6;
+	border-color: #b8d4d4;
 }
 .dark-mode .browse-cat-header { color: var(--text-primary); border-bottom-color: var(--text-primary); }
 
