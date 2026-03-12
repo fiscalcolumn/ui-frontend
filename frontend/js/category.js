@@ -359,30 +359,17 @@ class CategoryPageManager {
   }
 
   /**
-   * Render a related category carousel section
+   * Render a related category carousel section (dark date-badge style matching homepage)
    */
   renderRelatedCategoryCarousel(category, articles) {
-    const carouselId = `carousel-${category.slug}`;
-    
     return `
       <div class="related-category-section">
         <div class="container">
-          <div class="related-category-header">
-            <h3 class="related-category-title">${category.name}</h3>
-            <a href="/${category.slug}" class="related-category-link">View All <i class="fa fa-arrow-right"></i></a>
+          <div class="hp-section-header">
+            <h3 class="hp-section-title"><a href="/${category.slug}">${category.name.toUpperCase()}</a></h3>
           </div>
-          <div class="related-carousel-wrapper">
-            <button class="carousel-nav carousel-prev" data-carousel="${carouselId}" aria-label="Previous">
-              <i class="fa fa-chevron-left"></i>
-            </button>
-            <div class="related-carousel" id="${carouselId}">
-              <div class="carousel-track">
-                ${articles.map(article => this.renderCarouselCard(article, category)).join('')}
-              </div>
-            </div>
-            <button class="carousel-nav carousel-next" data-carousel="${carouselId}" aria-label="Next">
-              <i class="fa fa-chevron-right"></i>
-            </button>
+          <div class="hp-carousel">
+            ${articles.map(article => this.renderCarouselCard(article)).join('')}
           </div>
         </div>
       </div>
@@ -390,34 +377,37 @@ class CategoryPageManager {
   }
 
   /**
-   * Render a vertical card for the carousel
+   * Render a dark overlay card with date badge (matches homepage style)
    */
-  renderCarouselCard(article, category) {
+  renderCarouselCard(article) {
+    const imgBase = window.API_CONFIG?.BASE_URL || '';
     const hasImage = article.image?.url;
-    const imageHtml = hasImage
-      ? `<img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}">`
-      : `<div class="article-img-placeholder carousel-card-placeholder"><span class="article-placeholder-letter">${(article.category?.name || article.title || '?').charAt(0).toUpperCase()}</span></div>`;
-    
-    const excerpt = article.excerpt || Utils.truncateText(article.content, 60);
-    const readTime = Utils.getReadTime(article);
+    const inner = hasImage
+      ? `<img src="${imgBase}${article.image.url}" alt="${article.title}">`
+      : `<div class="cwdate-no-img"></div>`;
+
+    const date = article.publishedDate ? new Date(article.publishedDate) : new Date();
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = date.toLocaleString('en', { month: 'short' }).toUpperCase();
+    const readTime = article.minutesToread || 3;
+    const catSlug = article.category?.slug || 'article';
 
     return `
-      <div class="carousel-card">
-        <div class="carousel-card-image">
-          ${imageHtml}
+      <a href="/${catSlug}/${article.slug}" class="carousel-card cwdate-card">
+        ${inner}
+        <div class="carousel-card-date-badge">
+          <span class="date-day">${day}</span>
+          <span class="date-month">${month}</span>
         </div>
-        <div class="carousel-card-content">
-          <h4 class="carousel-card-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h4>
-          <p class="carousel-card-excerpt">${excerpt}</p>
-          <div class="carousel-card-meta">
+        <div class="cwdate-overlay">
+          <h4 class="cwdate-title">${article.title}</h4>
+          <div class="cwdate-meta">
             <span>${readTime} min read</span>
             <span class="separator">•</span>
             <span>${Utils.formatDate(article.publishedDate)}</span>
           </div>
         </div>
-      </div>
+      </a>
     `;
   }
 

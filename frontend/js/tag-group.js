@@ -83,10 +83,45 @@ class TagGroupPageManager {
 
   updateGroupInfo() {
     const name = this.group.name || '';
+    const slug = this.group.slug || '';
     const desc = this.group.description || '';
     const tags = this.group.tags || [];
+    const pageUrl = `https://fiscalcolumn.com/tag-group/${slug}`;
+    const metaTitle = `${name} | FiscalColumn`;
+    const metaDesc = desc.length > 160 ? desc.slice(0, 157) + '...' : desc || `Articles in ${name} topic group on FiscalColumn`;
 
-    document.title = `${name} - FiscalColumn`;
+    // Title + basic meta
+    document.title = metaTitle;
+    const pageTitleEl = document.getElementById('page-title');
+    if (pageTitleEl) pageTitleEl.textContent = metaTitle;
+    document.getElementById('meta-description').setAttribute('content', metaDesc);
+
+    // Canonical
+    const canonicalEl = document.getElementById('canonical-url');
+    if (canonicalEl) canonicalEl.setAttribute('href', pageUrl);
+
+    // OG + Twitter
+    const setMeta = (id, val) => { const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
+    setMeta('og-url', pageUrl);
+    setMeta('og-title', metaTitle);
+    setMeta('og-description', metaDesc);
+    setMeta('twitter-title', metaTitle);
+    setMeta('twitter-description', metaDesc);
+
+    // Breadcrumb schema
+    const breadcrumbSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fiscalcolumn.com/' },
+        { '@type': 'ListItem', position: 2, name: 'Topics', item: 'https://fiscalcolumn.com/tags' },
+        { '@type': 'ListItem', position: 3, name: name, item: pageUrl }
+      ]
+    };
+    const breadcrumbEl = document.getElementById('schema-breadcrumb');
+    if (breadcrumbEl) breadcrumbEl.textContent = JSON.stringify(breadcrumbSchema);
+
+    // DOM updates
     document.getElementById('breadcrumb-group').textContent = name;
     document.getElementById('group-name').textContent = name;
 
@@ -94,7 +129,6 @@ class TagGroupPageManager {
       const descEl = document.getElementById('group-desc');
       descEl.textContent = desc;
       descEl.style.display = 'block';
-      document.getElementById('meta-description').setAttribute('content', desc);
     }
 
     // Tag count (will update after article load for article count)

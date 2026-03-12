@@ -79,15 +79,70 @@ class AuthorPageManager {
 
   updateAuthorInfo() {
     const name = this.author.name || this.formatSlug(this.getAuthorSlug());
+    const slug = this.author.slug || this.getAuthorSlug();
+    const imgBase = window.API_CONFIG?.BASE_URL || '';
+    const photoUrl = this.author.photo?.url ? `${imgBase}${this.author.photo.url}` : null;
+    const bio = this.author.bio || '';
+    const pageUrl = `https://fiscalcolumn.com/author/${slug}`;
+    const ogImage = photoUrl || '/images/og-default.jpg';
+    const metaTitle = `${name} | FiscalColumn`;
+    const metaDesc = bio.length > 160 ? bio.slice(0, 157) + '...' : bio || `Articles by ${name} on FiscalColumn`;
 
-    document.title = `${name} - FiscalColumn`;
+    // Title + basic meta
+    document.title = metaTitle;
+    const pageTitleEl = document.getElementById('page-title');
+    if (pageTitleEl) pageTitleEl.textContent = metaTitle;
+    document.getElementById('meta-description').setAttribute('content', metaDesc);
+
+    // Canonical
+    const canonicalEl = document.getElementById('canonical-url');
+    if (canonicalEl) canonicalEl.setAttribute('href', pageUrl);
+
+    // OG
+    const setMeta = (id, val) => { const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
+    setMeta('og-url', pageUrl);
+    setMeta('og-title', metaTitle);
+    setMeta('og-description', metaDesc);
+    setMeta('og-image', ogImage);
+    setMeta('twitter-title', metaTitle);
+    setMeta('twitter-description', metaDesc);
+    setMeta('twitter-image', ogImage);
+
+    // Breadcrumb schema
+    const breadcrumbSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fiscalcolumn.com/' },
+        { '@type': 'ListItem', position: 2, name: 'Authors', item: 'https://fiscalcolumn.com/author' },
+        { '@type': 'ListItem', position: 3, name: name, item: pageUrl }
+      ]
+    };
+    const breadcrumbEl = document.getElementById('schema-breadcrumb');
+    if (breadcrumbEl) breadcrumbEl.textContent = JSON.stringify(breadcrumbSchema);
+
+    // ProfilePage schema
+    const profileSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'ProfilePage',
+      name: metaTitle,
+      url: pageUrl,
+      mainEntity: {
+        '@type': 'Person',
+        name: name,
+        description: bio || undefined,
+        image: ogImage !== '/images/og-default.jpg' ? ogImage : undefined,
+        url: pageUrl
+      }
+    };
+    const profileEl = document.getElementById('schema-profile');
+    if (profileEl) profileEl.textContent = JSON.stringify(profileSchema);
+
+    // DOM updates
     document.getElementById('author-name').textContent = name;
     document.getElementById('breadcrumb-author').textContent = name;
 
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const photoUrl = this.author.photo?.url ? `${imgBase}${this.author.photo.url}` : null;
     const avatarEl = document.getElementById('author-avatar-svg');
-
     if (photoUrl && avatarEl) {
       const img = document.createElement('img');
       img.src = photoUrl;
@@ -104,11 +159,10 @@ class AuthorPageManager {
       el.textContent = this.author.designation;
       el.style.display = 'block';
     }
-    if (this.author.bio) {
+    if (bio) {
       const el = document.getElementById('author-bio');
-      el.textContent = this.author.bio;
+      el.textContent = bio;
       el.style.display = 'block';
-      document.getElementById('meta-description').setAttribute('content', this.author.bio);
     }
   }
 

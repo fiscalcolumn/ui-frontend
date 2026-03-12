@@ -107,12 +107,51 @@ class TagPageManager {
    * Update page with tag information
    */
   updateTagInfo() {
-    document.title = `${this.tag.name} - FiscalColumn`;
-    document.getElementById('tag-title').textContent = this.tag.name;
-    document.getElementById('breadcrumb-tag').textContent = this.tag.name;
+    const name = this.tag.name;
+    const slug = this.tag.slug;
+    const desc = this.tag.description || '';
+    const group = this.tag.tagGroup;
+    const pageUrl = `https://fiscalcolumn.com/tag/${slug}`;
+    const metaTitle = `${name} | FiscalColumn`;
+    const metaDesc = desc.length > 160 ? desc.slice(0, 157) + '...' : desc || `Articles tagged ${name} on FiscalColumn`;
+
+    // Title + basic meta
+    document.title = metaTitle;
+    const pageTitleEl = document.getElementById('page-title');
+    if (pageTitleEl) pageTitleEl.textContent = metaTitle;
+    document.getElementById('meta-description').setAttribute('content', metaDesc);
+
+    // Canonical
+    const canonicalEl = document.getElementById('canonical-url');
+    if (canonicalEl) canonicalEl.setAttribute('href', pageUrl);
+
+    // OG + Twitter
+    const setMeta = (id, val) => { const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
+    setMeta('og-url', pageUrl);
+    setMeta('og-title', metaTitle);
+    setMeta('og-description', metaDesc);
+    setMeta('twitter-title', metaTitle);
+    setMeta('twitter-description', metaDesc);
+
+    // Breadcrumb schema
+    const crumbs = [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fiscalcolumn.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Topics', item: 'https://fiscalcolumn.com/tags' }
+    ];
+    if (group && group.slug) {
+      crumbs.push({ '@type': 'ListItem', position: 3, name: group.name || group.slug, item: `https://fiscalcolumn.com/tag-group/${group.slug}` });
+      crumbs.push({ '@type': 'ListItem', position: 4, name: name, item: pageUrl });
+    } else {
+      crumbs.push({ '@type': 'ListItem', position: 3, name: name, item: pageUrl });
+    }
+    const breadcrumbEl = document.getElementById('schema-breadcrumb');
+    if (breadcrumbEl) breadcrumbEl.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs });
+
+    // DOM updates
+    document.getElementById('tag-title').textContent = name;
+    document.getElementById('breadcrumb-tag').textContent = name;
 
     // Inject group breadcrumb item if tag belongs to a group
-    const group = this.tag.tagGroup;
     if (group && group.slug) {
       const tagCrumb = document.getElementById('breadcrumb-tag');
       const groupCrumb = document.createElement('li');
@@ -122,11 +161,10 @@ class TagPageManager {
     }
 
     // Description
-    if (this.tag.description) {
+    if (desc) {
       const descEl = document.getElementById('tag-desc');
-      descEl.textContent = this.tag.description;
+      descEl.textContent = desc;
       descEl.style.display = 'block';
-      document.getElementById('meta-description').setAttribute('content', this.tag.description);
     }
   }
 

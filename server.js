@@ -177,18 +177,20 @@ async function fetchAllItems(endpoint, limit = 100) {
 async function generateSitemap() {
   try {
     // Fetch all content types in parallel
-    const [categories, articles, staticPages, calculators, tags, metals, cities] = await Promise.all([
+    const [categories, articles, staticPages, calculators, tags, tagGroups, authors, metals, cities] = await Promise.all([
       fetchAllItems('/categories', 100),
       fetchAllItems('/articles?populate[category]=true&sort=publishedDate:desc', 100),
       fetchAllItems('/static-pages', 100),
       fetchAllItems('/calculators?filters[enableCalculator][$ne]=false', 100),
       fetchAllItems('/tags', 100),
+      fetchAllItems('/tag-groups', 100),
+      fetchAllItems('/authors', 100),
       fetchAllItems('/metals', 50),
       fetchAllItems('/cities', 500)
     ]);
 
     // Log counts for debugging
-    console.log(`Sitemap generation: ${categories.length} categories, ${articles.length} articles, ${staticPages.length} static pages, ${calculators.length} calculators, ${tags.length} tags, ${metals.length} metals, ${cities.length} cities`);
+    console.log(`Sitemap generation: ${categories.length} categories, ${articles.length} articles, ${staticPages.length} static pages, ${calculators.length} calculators, ${tags.length} tags, ${tagGroups.length} tag groups, ${authors.length} authors, ${metals.length} metals, ${cities.length} cities`);
 
     // Build sitemap XML
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -198,6 +200,18 @@ async function generateSitemap() {
     <loc>${SITE_URL}/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>
+  <!-- Authors listing -->
+  <url>
+    <loc>${SITE_URL}/author</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <!-- Topics listing -->
+  <url>
+    <loc>${SITE_URL}/tags</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
 `;
 
@@ -262,6 +276,30 @@ async function generateSitemap() {
         xml += `  <url>
     <loc>${SITE_URL}/tag/${encodeURIComponent(tag.slug)}</loc>
     <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`;
+      }
+    }
+
+    // Add tag group pages
+    for (const group of tagGroups) {
+      if (group.slug) {
+        xml += `  <url>
+    <loc>${SITE_URL}/tag-group/${encodeURIComponent(group.slug)}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`;
+      }
+    }
+
+    // Add author profile pages
+    for (const author of authors) {
+      if (author.slug) {
+        xml += `  <url>
+    <loc>${SITE_URL}/author/${encodeURIComponent(author.slug)}</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 `;

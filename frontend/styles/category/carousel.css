@@ -13,6 +13,48 @@
 .related-category-section:nth-child(even) {
   background: #fff;
 }
+
+/* Section header — matches homepage style */
+.related-category-section .hp-section-header {
+  margin-bottom: 20px;
+}
+.related-category-section .hp-section-title {
+  display: inline-block;
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1a1a1a;
+}
+.related-category-section .hp-section-title a {
+  color: #1a1a1a;
+  text-decoration: none;
+}
+.related-category-section .hp-section-title a:hover {
+  color: #14bdee;
+}
+
+/* hp-carousel scroll strip — matches homepage */
+.related-category-section .hp-carousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 6px;
+}
+.related-category-section .hp-carousel::-webkit-scrollbar {
+  display: none;
+}
+.related-category-section .hp-carousel .carousel-card {
+  flex: 0 0 calc(25% - 15px);
+  min-width: 240px;
+  max-width: none;
+  scroll-snap-align: start;
+}
 .related-category-header {
   display: flex;
   justify-content: space-between;
@@ -363,3 +405,21 @@
   color: #888;
 }
 
+/* No-image placeholder for cwdate cards */
+.cwdate-no-img {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1e2d45 0%, #162032 100%);
+}
+
+/* Dark mode overrides for related category section */
+body.dark-mode .related-category-section:nth-child(odd),
+body.dark-mode .related-category-section:nth-child(even) {
+  background: #1a1a2e;
+}
+body.dark-mode .related-category-section .hp-section-title {
+  border-bottom-color: #fdfcfc;
+}
+body.dark-mode .related-category-section .hp-section-title a {
+  color: #e0e0e0;
+}
