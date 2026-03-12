@@ -342,13 +342,19 @@ class CategoryPageManager {
     if (!relatedContainer) return;
 
     let html = '';
+    let sectionIndex = 0;
 
-    // For each related category, fetch articles and render carousel
+    // Round-robin between Layout A (grid cards) and Layout B (featured + sidebar)
     for (const relatedCat of relatedCategories) {
       const articles = await this.fetchArticlesForCategory(relatedCat.documentId, 10);
       
       if (articles.length > 0) {
-        html += this.renderRelatedCategoryCarousel(relatedCat, articles);
+        if (sectionIndex % 2 === 0) {
+          html += this.renderLayoutA(relatedCat, articles);
+        } else {
+          html += this.renderLayoutB(relatedCat, articles);
+        }
+        sectionIndex++;
       }
     }
 
@@ -358,57 +364,117 @@ class CategoryPageManager {
     this.initCarouselScrolling();
   }
 
-  /**
-   * Render a related category carousel section (dark date-badge style matching homepage)
-   */
-  renderRelatedCategoryCarousel(category, articles) {
+  // ─── Shared helpers ────────────────────────────────────────────────────────
+
+  rcSectionHeader(category) {
     return `
-      <div class="related-category-section">
-        <div class="container">
-          <div class="hp-section-header">
-            <h3 class="hp-section-title"><a href="/${category.slug}">${category.name.toUpperCase()}</a></h3>
-          </div>
-          <div class="hp-carousel">
-            ${articles.map(article => this.renderCarouselCard(article)).join('')}
-          </div>
-        </div>
-      </div>
-    `;
+      <div class="hp-section-header">
+        <h3 class="hp-section-title">
+          <a href="/${category.slug}">${category.name.toUpperCase()}</a>
+        </h3>
+      </div>`;
   }
 
-  /**
-   * Render a dark overlay card with date badge (matches homepage style)
-   */
-  renderCarouselCard(article) {
+  rcAuthorHtml(article) {
     const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const hasImage = article.image?.url;
-    const inner = hasImage
-      ? `<img src="${imgBase}${article.image.url}" alt="${article.title}">`
-      : `<div class="cwdate-no-img"></div>`;
+    const author = article.author;
+    if (!author) return '';
+    const photoUrl = author.photo?.url ? `${imgBase}${author.photo.url}` : null;
+    const initial = (author.name || 'A').charAt(0).toUpperCase();
+    const avatar = photoUrl
+      ? `<img src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
+      : `<span class="rc-author-initial">${initial}</span>`;
+    return `<div class="rc-author">${avatar}<span class="rc-author-name">${author.name}</span></div>`;
+  }
 
-    const date = article.publishedDate ? new Date(article.publishedDate) : new Date();
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = date.toLocaleString('en', { month: 'short' }).toUpperCase();
-    const readTime = article.minutesToread || 3;
-    const catSlug = article.category?.slug || 'article';
+  rcCategoryBadge(article) {
+    const name = article.category?.name || '';
+    return name ? `<span class="rc-category-badge">${name.toUpperCase()}</span>` : '';
+  }
 
+  rcImageUrl(article) {
+    const imgBase = window.API_CONFIG?.BASE_URL || '';
+    return article.image?.url ? `${imgBase}${article.image.url}` : null;
+  }
+
+  rcArticleUrl(article) {
+    return `/${article.category?.slug || 'article'}/${article.slug}`;
+  }
+
+  // ─── Layout A: 4-column editorial grid ─────────────────────────────────────
+
+  renderLayoutA(category, articles) {
     return `
-      <a href="/${catSlug}/${article.slug}" class="carousel-card cwdate-card">
-        ${inner}
-        <div class="carousel-card-date-badge">
-          <span class="date-day">${day}</span>
-          <span class="date-month">${month}</span>
-        </div>
-        <div class="cwdate-overlay">
-          <h4 class="cwdate-title">${article.title}</h4>
-          <div class="cwdate-meta">
-            <span>${readTime} min read</span>
-            <span class="separator">•</span>
-            <span>${Utils.formatDate(article.publishedDate)}</span>
+      <div class="related-category-section rcs-layout-a">
+        <div class="container">
+          ${this.rcSectionHeader(category)}
+          <div class="rca-grid">
+            ${articles.slice(0, 4).map(a => this.renderLayoutACard(a)).join('')}
           </div>
         </div>
-      </a>
-    `;
+      </div>`;
+  }
+
+  renderLayoutACard(article) {
+    const imgUrl = this.rcImageUrl(article);
+    const excerpt = article.excerpt || Utils.truncateText(article.content, 80);
+    return `
+      <a href="${this.rcArticleUrl(article)}" class="rca-card">
+        <div class="rca-card-image">
+          ${imgUrl
+            ? `<img src="${imgUrl}" alt="${article.title}">`
+            : `<div class="rca-no-img"></div>`}
+        </div>
+        ${this.rcCategoryBadge(article)}
+        <h4 class="rca-card-title">${article.title}</h4>
+        ${excerpt ? `<p class="rca-card-excerpt">${excerpt}</p>` : ''}
+        ${this.rcAuthorHtml(article)}
+      </a>`;
+  }
+
+  // ─── Layout B: Large featured + 3 sidebar items ─────────────────────────────
+
+  renderLayoutB(category, articles) {
+    const featured = articles[0];
+    const sidebar = articles.slice(1, 4);
+    return `
+      <div class="related-category-section rcs-layout-b">
+        <div class="container">
+          ${this.rcSectionHeader(category)}
+          <div class="rcb-grid">
+            <a href="${this.rcArticleUrl(featured)}" class="rcb-featured">
+              <div class="rcb-featured-image">
+                ${this.rcImageUrl(featured)
+                  ? `<img src="${this.rcImageUrl(featured)}" alt="${featured.title}">`
+                  : `<div class="rca-no-img"></div>`}
+              </div>
+              ${this.rcCategoryBadge(featured)}
+              <h3 class="rcb-featured-title">${featured.title}</h3>
+              <p class="rcb-featured-excerpt">${featured.excerpt || Utils.truncateText(featured.content, 100)}</p>
+            </a>
+            <div class="rcb-sidebar">
+              ${sidebar.map(a => this.renderLayoutBItem(a)).join('')}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  renderLayoutBItem(article) {
+    const imgUrl = this.rcImageUrl(article);
+    return `
+      <a href="${this.rcArticleUrl(article)}" class="rcb-item">
+        <div class="rcb-item-image">
+          ${imgUrl
+            ? `<img src="${imgUrl}" alt="${article.title}">`
+            : `<div class="rca-no-img"></div>`}
+        </div>
+        <div class="rcb-item-content">
+          ${this.rcCategoryBadge(article)}
+          <h4 class="rcb-item-title">${article.title}</h4>
+          <p class="rcb-item-excerpt">${article.excerpt || Utils.truncateText(article.content, 60)}</p>
+        </div>
+      </a>`;
   }
 
   /**
@@ -471,7 +537,7 @@ class CategoryPageManager {
    */
   async fetchArticlesForCategory(categoryDocumentId, limit = 10) {
     const url = getApiUrl(
-      `/articles?populate[category]=true&populate[image]=true&populate[tags]=true&filters[category][documentId][$eq]=${categoryDocumentId}&pagination[limit]=${limit}&sort=publishedDate:desc`
+      `/articles?populate[category]=true&populate[image]=true&populate[author][populate][photo]=true&filters[category][documentId][$eq]=${categoryDocumentId}&pagination[limit]=${limit}&sort=publishedDate:desc`
     );
     const response = await fetch(url);
     const data = await response.json();

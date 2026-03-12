@@ -342,27 +342,28 @@ class HomepageSectionsManager {
   }
 
   /**
-   * Render Carousel Card (same structure as category page)
+   * Render Carousel Card — editorial grid style (matches category page Layout A, no badge)
    */
   renderCarouselCard(article) {
-    const imageHtml = `<img src="${this.imgUrl(article.image?.url)}" class="${this.imgClass(article.image?.url)}" alt="${article.title}">`;
-    
+    const imgUrl = article.image?.url ? this.imgUrl(article.image.url) : null;
+    const excerpt = article.excerpt || Utils.truncateText(article.content, 80);
+    const url = `/${article.category?.slug || 'article'}/${article.slug}`;
+
     return `
-      <div class="carousel-card">
-        <div class="carousel-card-image">
-          ${imageHtml}
+      <a href="${url}" class="carousel-card rca-card">
+        <div class="rca-card-image">
+          ${imgUrl
+            ? `<img src="${imgUrl}" alt="${article.title}">`
+            : `<div class="rca-no-img"></div>`}
         </div>
-        <div class="carousel-card-content">
-          <h4 class="carousel-card-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h4>
-          <div class="carousel-card-meta">
-            <span>${article.minutesToread || 3} min read</span>
-            <span class="separator">•</span>
-            <span>${Utils.formatDate(article.publishedDate)}</span>
-          </div>
+        <h4 class="rca-card-title">${article.title}</h4>
+        ${excerpt ? `<p class="rca-card-excerpt">${excerpt}</p>` : ''}
+        <div class="rca-card-meta">
+          <span>${article.minutesToread || 3} min read</span>
+          <span class="rca-sep">•</span>
+          <span>${Utils.formatDate(article.publishedDate)}</span>
         </div>
-      </div>
+      </a>
     `;
   }
 
