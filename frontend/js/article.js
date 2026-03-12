@@ -75,7 +75,7 @@ class ArticlePageManager {
    */
   async fetchArticle(slug) {
     const url = getApiUrl(
-      `/articles?filters[slug][$eq]=${slug}&populate[category]=true&populate[image]=true&populate[tags]=true`
+      `/articles?filters[slug][$eq]=${slug}&populate[category]=true&populate[image]=true&populate[tags]=true&populate[author]=true`
     );
     const response = await fetch(url);
     const data = await response.json();
@@ -165,7 +165,7 @@ class ArticlePageManager {
     const imageUrl = this.article.image?.url 
       ? `${API_CONFIG.BASE_URL}${this.article.image.url}` 
       : `${window.location.origin}/images/default-og.jpg`;
-    const author = this.article.author || 'FiscalColumn';
+    const author = this.article.author?.name || this.article.author || 'FiscalColumn';
     const publishDate = this.article.publishedDate;
     const category = this.article.category;
 
@@ -278,87 +278,80 @@ class ArticlePageManager {
     const hasImage = this.article.image?.url;
     const imageUrl = hasImage ? `${API_CONFIG.BASE_URL}${this.article.image.url}` : '';
     const publishDate = Utils.formatDateLong(this.article.publishedDate);
-    const author = this.article.author || 'admin';
+    const author = this.article.author?.name || this.article.author || 'Admin';
     const views = this.article.views || 0;
     const readTime = this.article.minutesToread || 3;
+    const category = this.article.category;
 
-    // Build tags for footer
-    const tagsHtml = this.article.tags && this.article.tags.length > 0
-      ? this.article.tags.map(tag => 
-          `<a href="/tag/${tag.slug}">${tag.name}</a>`
-        ).join(', ')
+    const shareUrl = encodeURIComponent(window.location.href);
+    const shareTitle = encodeURIComponent(this.article.title);
+
+    const tagsHtml = this.article.tags?.length > 0
+      ? this.article.tags.map(tag => `<a href="/tag/${tag.slug}">${tag.name}</a>`).join(', ')
       : '';
 
+    const authorInitial = author.charAt(0).toUpperCase();
+    const authorAvatarSvg = `<svg class="author-avatar-svg" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="18" cy="18" r="18" fill="#1a2332"/>
+      <text x="18" y="23" text-anchor="middle" font-size="15" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">${authorInitial}</text>
+    </svg>`;
+
     this.articleContainer.innerHTML = `
+
+      <!-- ── ARTICLE HEADER ── -->
       <h1 class="article-title">${this.article.title}</h1>
-      
-      <div class="article-meta">
-        <span>Post on <a href="#">${publishDate}</a></span>
-        <span class="meta-separator">|</span>
-        <span>By <a href="#">${author}</a></span>
-        <span class="meta-separator">|</span>
-        <span><i class="fa fa-eye"></i> ${Utils.formatViews(views)} views</span>
-        <span class="meta-separator">|</span>
-        <span><i class="fa fa-clock-o"></i> ${readTime} min read</span>
+
+      <div class="article-meta-bar">
+        ${authorAvatarSvg}
+        <span class="meta-author">${author}</span>
+        <span class="meta-sep">|</span>
+        <span class="meta-date">${publishDate}</span>
+        <span class="meta-sep">|</span>
+        <span class="meta-views"><i class="fa fa-eye"></i> ${Utils.formatViews(views)} views</span>
+        <span class="meta-sep">|</span>
+        <span class="meta-read"><i class="fa fa-clock-o"></i> ${readTime} min read</span>
       </div>
 
+      <!-- ── FEATURED IMAGE ── -->
       ${hasImage ? `
       <div class="article-featured-image">
         <img src="${imageUrl}" alt="${this.article.title}">
-      </div>
-      ` : ''}
+      </div>` : ''}
 
+      <!-- ── DESCRIPTION / EXCERPT ── -->
       ${this.article.excerpt ? `
-      <div class="article-excerpt-quote">
-        <span class="excerpt-bar"></span>
-        <p class="excerpt-text">${this.article.excerpt}</p>
-      </div>
-      ` : ''}
+      <p class="article-subtitle">${this.article.excerpt}</p>` : ''}
 
-      <div class="article-inline-ad">
-        <div class="inline-ad-box">
-          <span>Advertisement</span>
-        </div>
-      </div>
-
-      <div class="article-body">
-        ${this.formatContent(this.article.content)}
-      </div>
-
-      <div class="article-footer">
+      <!-- ── TAGS + SHARE ── -->
+      <div class="article-tags-share-bar">
         ${tagsHtml ? `
         <div class="article-tags-footer">
           <span class="tags-label">Tags:</span>
           ${tagsHtml}
-        </div>
-        ` : ''}
-        
+        </div>` : '<div></div>'}
         <div class="article-share">
           <span class="share-label">Share:</span>
           <div class="share-buttons">
-            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn">
-              <i class="fa fa-facebook"></i>
-            </a>
-            <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(this.article.title)}" target="_blank" class="share-btn">
-              <i class="fa fa-twitter"></i>
-            </a>
-            <a href="https://plus.google.com/share?url=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn">
-              <i class="fa fa-google-plus"></i>
-            </a>
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(this.article.title)}" target="_blank" class="share-btn">
-              <i class="fa fa-linkedin"></i>
-            </a>
-            <a href="mailto:?subject=${encodeURIComponent(this.article.title)}&body=${encodeURIComponent(window.location.href)}" class="share-btn">
-              <i class="fa fa-envelope"></i>
-            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" class="share-btn"><i class="fa fa-facebook"></i></a>
+            <a href="https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}" target="_blank" class="share-btn"><i class="fa fa-twitter"></i></a>
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}" target="_blank" class="share-btn"><i class="fa fa-linkedin"></i></a>
+            <a href="mailto:?subject=${shareTitle}&body=${shareUrl}" class="share-btn"><i class="fa fa-envelope"></i></a>
           </div>
         </div>
       </div>
 
+      <!-- ── ADVERTISEMENT ── -->
+      <div class="article-inline-ad">
+        <div class="inline-ad-box"><span>Advertisement</span></div>
+      </div>
+
+      <!-- ── ARTICLE BODY ── -->
+      <div class="article-body">
+        ${this.formatContent(this.article.content)}
+      </div>
+
       <div class="article-ad-placeholder">
-        <div class="article-ad-box">
-          <span>Advertisement</span>
-        </div>
+        <div class="article-ad-box"><span>Advertisement</span></div>
       </div>
     `;
   }

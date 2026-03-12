@@ -10,20 +10,31 @@
   background: var(--bg-primary);
 }
 
-/* Article Title & Meta */
+/* Article Title & Header */
 .dark-mode .article-title {
   color: var(--text-primary);
 }
-.dark-mode .article-meta {
-  color: var(--text-secondary);
+.dark-mode .article-category-badge a {
+  background: #2a3a50;
+  color: #ccc;
 }
-.dark-mode .meta-separator {
+.dark-mode .article-meta-bar {
+  color: var(--text-muted);
+}
+.dark-mode .author-avatar-svg circle {
+  fill: #2a3a50;
+}
+.dark-mode .meta-author {
+  color: var(--text-primary);
+}
+.dark-mode .meta-sep {
   color: var(--border-color);
 }
-
-/* Article Excerpt Quote */
-.dark-mode .article-excerpt-quote .excerpt-text {
+.dark-mode .article-subtitle {
   color: var(--text-secondary);
+}
+.dark-mode .article-tags-share-bar {
+  border-color: var(--border-color);
 }
 
 /* Article Body */
@@ -73,10 +84,7 @@
   color: #14bdee;
 }
 
-/* Footer */
-.dark-mode .article-footer {
-  border-top-color: var(--border-color);
-}
+/* Tags & Share bar */
 .dark-mode .tags-label,
 .dark-mode .share-label {
   color: var(--text-primary);

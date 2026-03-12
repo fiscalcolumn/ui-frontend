@@ -8,34 +8,97 @@
   padding-right: 30px;
 }
 
-/* Article Title */
-.article-title {
-  font-size: 1.9rem;
+/* ── ARTICLE HEADER ── */
+
+/* Category badge */
+.article-category-badge {
+  margin-bottom: 14px;
+}
+.article-category-badge a {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #1a2332;
+  color: #fff;
+  font-size: 0.68rem;
   font-weight: 700;
-  color: #1a1a2e;
-  line-height: 1.35;
-  margin: 0 0 15px 0;
+  letter-spacing: 1px;
+  text-decoration: none;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+.article-category-badge a:hover {
+  background: #14bdee;
 }
 
-/* Article Meta */
-.article-meta {
+/* Article Title */
+.article-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1.25;
+  margin: 0 0 14px 0;
+  padding-bottom: 10px;
+}
+
+/* Inline meta bar: [avatar] Author | Date | Views | Read time */
+.article-meta-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  font-size: 0.85rem;
-  color: #888;
-  margin-bottom: 25px;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: #777;
+  margin-bottom: 24px;
+  padding-bottom: 10px;
 }
-.article-meta a {
-  color: #14bdee;
-  text-decoration: none;
+.author-avatar-svg {
+  width: 32px;
+  height: 32px;
+  border-radius: 10%;
+  flex-shrink: 0;
 }
-.article-meta a:hover {
-  text-decoration: underline;
+.meta-author {
+  font-weight: 800;
+  color: #1a2332;
 }
-.meta-separator {
-  margin: 0 8px;
+.meta-sep {
   color: #ccc;
+  margin: 0 8px;
+}
+.meta-date,
+.meta-views,
+.meta-read {
+  color: #888;
+}
+.meta-views .fa,
+.meta-read .fa {
+  margin-right: 3px;
+  font-size: 0.8rem;
+}
+
+/* Article Subtitle / Excerpt */
+.article-subtitle {
+  padding-top: 10px;
+  padding-bottom: 15px;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: #555;
+  line-height: 1.65;
+  margin: 0 0 24px 0;
+}
+
+/* Tags + Share bar */
+.article-tags-share-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
+  margin-bottom: 24px;
 }
 
 /* Featured Image */
@@ -51,29 +114,6 @@
   border-radius: 4px;
 }
 
-/* Article Excerpt Quote */
-.article-excerpt-quote {
-  display: flex;
-  align-items: stretch;
-  margin: 25px 0 30px 0;
-  padding: 0;
-}
-.article-excerpt-quote .excerpt-bar {
-  width: 4px;
-  min-height: 100%;
-  background: #14bdee;
-  flex-shrink: 0;
-  border-radius: 2px;
-}
-.article-excerpt-quote .excerpt-text {
-  margin: 0;
-  padding: 5px 0 5px 20px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  font-style: italic;
-  color: #444;
-  line-height: 1.6;
-}
 
 /* Article Body */
 .article-body {
@@ -213,31 +253,22 @@
   border-radius: 4px;
 }
 
-/* Article Footer - Tags & Share */
-.article-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 0;
-  border-top: 1px solid #eee;
-  gap: 20px;
-}
-
 /* Tags in Footer */
 .article-tags-footer {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  text-transform: uppercase;
+  padding-top: 10px;
 }
 .tags-label {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
-  color: #333;
+  color: #26036c;
 }
 .article-tags-footer a {
-  color: #666;
+  color: #120245;
   font-size: 0.85rem;
   text-decoration: none;
   transition: color 0.2s;
@@ -250,6 +281,7 @@
 .article-share {
   display: flex;
   align-items: center;
+  text-transform: uppercase;
   gap: 12px;
 }
 .share-label {
@@ -262,17 +294,17 @@
   gap: 8px;
 }
 .share-btn {
-  width: 32px;
-  height: 32px;
+  width: 45px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  color: #999;
+  color: #085037;
   background: transparent;
   text-decoration: none;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
+  font-size: 1.5rem;
 }
 .share-btn:hover {
   color: #14bdee;
@@ -329,23 +361,23 @@
 }
 @media (max-width: 768px) {
   .article-title {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
-  .article-meta {
+  .article-byline {
     flex-direction: column;
-    gap: 5px;
+    align-items: flex-start;
   }
-  .meta-separator {
-    display: none;
+  .article-byline-right {
+    align-items: flex-start;
+  }
+  .article-tags-share-bar {
+    flex-direction: column;
+    align-items: flex-start;
   }
   .article-body {
     font-size: 0.95rem;
   }
   .article-images {
     grid-template-columns: 1fr;
-  }
-  .article-footer {
-    flex-direction: column;
-    align-items: flex-start;
   }
 }
