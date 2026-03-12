@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Tag</title>
+<title>Tags</title>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="description" content="" id="meta-description">
+<meta name="description" content="Browse all topics and tag groups" id="meta-description">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,12 +21,8 @@
 <link rel="stylesheet" type="text/css" href="/styles/main_styles.css">
 <link rel="stylesheet" type="text/css" href="/styles/responsive.css">
 
-<!-- Tag Page Styles -->
-<link rel="stylesheet" type="text/css" href="/styles/tag/base.css">
-<link rel="stylesheet" type="text/css" href="/styles/tag/tags.css">
-<link rel="stylesheet" type="text/css" href="/styles/tag/articles.css">
-<link rel="stylesheet" type="text/css" href="/styles/tag/responsive.css">
-<link rel="stylesheet" type="text/css" href="/styles/tag/dark-mode.css">
+<!-- Tags Listing Page Styles -->
+<link rel="stylesheet" type="text/css" href="/styles/tag/tags-list.css">
 
 </head>
 <body>
@@ -94,79 +90,30 @@
 	<div class="breadcrumb-container">
 		<div class="container">
 			<nav aria-label="breadcrumb">
-				<ol class="breadcrumb" id="breadcrumb-list">
+				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="/">Home</a></li>
-					<li class="breadcrumb-item"><a href="/tags">Tags</a></li>
-					<li class="breadcrumb-item active" id="breadcrumb-tag">Loading...</li>
+					<li class="breadcrumb-item active">Tags</li>
 				</ol>
 			</nav>
 		</div>
 	</div>
 
-	<!-- Tag Info Bar -->
-	<div class="tag-info-bar">
+	<!-- Page Header -->
+	<div class="tags-listing-header">
 		<div class="container">
-			<div class="tag-info-content">
-				<h1 class="tag-info-title" id="tag-title">Loading...</h1>
-				<div class="tag-info-stats">
-					<span class="tag-info-stat" id="tag-article-count">
-						<i class="fa fa-newspaper-o"></i> <span>0</span> articles
-					</span>
-					<span class="tag-info-stat" id="tag-related-count" style="display: none;">
-						<i class="fa fa-link"></i> <span id="related-count">0</span> related tags
-					</span>
-				</div>
-			</div>
+			<h1 class="tags-listing-title">Browse by Topic</h1>
 		</div>
 	</div>
 
-	<!-- Similar Tags Section (if any) -->
-	<div class="tags-section" id="tags-section" style="display: none;">
+	<!-- Tags Content -->
+	<div class="tags-listing-content">
 		<div class="container">
-			<div id="similar-tags-container" style="display: none;">
-				<div class="tags-section-title">
-					<i class="fa fa-clone"></i> Also known as
-				</div>
-				<div class="tags-row" id="similar-tags-row"></div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Main Content Area -->
-	<div class="articles-main-container">
-		<div class="container">
-			<!-- Featured Article + Related Tags Row -->
-			<div class="featured-with-sidebar" id="featured-with-sidebar">
-				<div class="featured-article-wrapper" id="featured-article-wrapper">
-					<!-- Featured article will be rendered here -->
-				</div>
-				<div class="related-tags-sidebar" id="related-tags-sidebar" style="display: none;">
-					<div class="sidebar-title">
-						<i class="fa fa-link"></i> Related Topics
-					</div>
-					<div class="sidebar-tags-list" id="sidebar-tags-list">
-						<!-- Related tags will be rendered here -->
-					</div>
+			<div id="tags-listing-container">
+				<div class="tl-loading">
+					<div class="tl-spinner"></div>
+					<p>Loading topics...</p>
 				</div>
 			</div>
-			
-			<!-- Other Articles -->
-			<div id="articles-container">
-				<div class="loading-container">
-					<div class="spinner"></div>
-					<p>Loading articles...</p>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Pagination -->
-	<div class="pagination-container" id="pagination-container" style="display: none;">
-		<div class="container">
-			<nav aria-label="Page navigation">
-				<ul class="pagination" id="pagination">
-				</ul>
-			</nav>
 		</div>
 	</div>
 
@@ -223,7 +170,7 @@
 <script src="/js/header.js"></script>
 <script src="/js/footer.js"></script>
 <script src="/js/dark-mode.js"></script>
-<script src="/js/tag.js"></script>
+<script src="/js/tags-list.js"></script>
 
 </body>
 </html>

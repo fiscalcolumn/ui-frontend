@@ -1,0 +1,183 @@
+/**
+ * Tag Group Profile Page - /tag-group/:slug
+ */
+
+/* ── Info Bar ── */
+.tg-info-bar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 32px 0;
+}
+
+.tg-info-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+/* ── Icon ── */
+.tg-icon-wrap {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #14bdee 0%, #0a9ec8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 2rem;
+  box-shadow: 0 4px 16px rgba(20,189,238,0.25);
+}
+
+/* ── Text Block ── */
+.tg-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tg-info-name {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1a2332;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.tg-info-desc {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 640px;
+}
+
+/* ── Stats Row ── */
+.tg-info-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.tg-info-stat {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.tg-info-stat i {
+  margin-right: 5px;
+  color: #14bdee;
+}
+
+/* ── Tag Pills inside header ── */
+.tg-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.tg-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding-top: 10px;
+  background: transparent;
+  border-radius: 0;
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.8px;
+  color: #4a5568;
+  text-decoration: none;
+  transition: color 0.15s;
+  border-radius: 1px;
+}
+
+.tg-tag-pill i {
+  display: none;
+}
+
+.tg-tag-pill:hover {
+  color: #14bdee;
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.tg-tag-sep {
+  color: #c8cdd6;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
+  font-size: 1.4rem;
+  font-weight: 400;
+  user-select: none;
+  line-height: 1;
+}
+
+/* ── Articles area spacing ── */
+.articles-main-container {
+  padding: 40px 0;
+}
+
+/* ── Dark Mode ── */
+.dark-mode .tg-info-bar {
+  background: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .tg-info-name {
+  color: var(--text-primary);
+}
+
+.dark-mode .tg-info-desc {
+  color: var(--text-secondary);
+}
+
+.dark-mode .tg-info-stat {
+  color: var(--text-muted);
+}
+
+.dark-mode .tg-tag-pill {
+  color: var(--text-secondary);
+}
+
+.dark-mode .tg-tag-pill:hover {
+  color: #14bdee;
+}
+
+.dark-mode .tg-tag-sep {
+  color: #3a4f65;
+}
+
+/* ── Responsive ── */
+@media (max-width: 576px) {
+  .tg-info-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .tg-info-name {
+    font-size: 1.3rem;
+  }
+
+  .tg-info-stats {
+    justify-content: center;
+  }
+
+  .tg-tags-row {
+    justify-content: center;
+  }
+
+  .tg-icon-wrap {
+    width: 64px;
+    height: 64px;
+    font-size: 1.6rem;
+  }
+}

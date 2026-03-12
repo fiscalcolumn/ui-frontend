@@ -345,9 +345,29 @@ app.get('/', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'index.html'));
 });
 
-// Tag pages - /tag/:slug
+// Tags listing - /tags
+app.get('/tags', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'tags.html'));
+});
+
+// Tag group detail - /tag-group/:slug
+app.get('/tag-group/:slug', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'tag-group.html'));
+});
+
+// Tag detail - /tag/:slug
 app.get('/tag/:slug', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'tag.html'));
+});
+
+// Authors listing - /author
+app.get('/author', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'authors.html'));
+});
+
+// Author profile - /author/:slug
+app.get('/author/:slug', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'author.html'));
 });
 
 // Static pages — add slugs here when you create a new static page in Strapi

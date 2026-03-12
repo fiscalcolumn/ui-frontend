@@ -111,12 +111,22 @@ class TagPageManager {
     document.title = `${this.tag.name} - FiscalColumn`;
     document.getElementById('tag-title').textContent = this.tag.name;
     document.getElementById('breadcrumb-tag').textContent = this.tag.name;
-    
+
+    // Inject group breadcrumb item if tag belongs to a group
+    const group = this.tag.tagGroup;
+    if (group && group.slug) {
+      const tagCrumb = document.getElementById('breadcrumb-tag');
+      const groupCrumb = document.createElement('li');
+      groupCrumb.className = 'breadcrumb-item';
+      groupCrumb.innerHTML = `<a href="/tag-group/${group.slug}">${group.name || group.slug}</a>`;
+      tagCrumb.parentNode.insertBefore(groupCrumb, tagCrumb);
+    }
+
     // Update meta description
     if (this.tag.description) {
       document.getElementById('meta-description').setAttribute('content', this.tag.description);
     }
-    
+
     // Update related tags count
     const relatedCount = this.tag.relatedTags?.length || 0;
     if (relatedCount > 0) {
