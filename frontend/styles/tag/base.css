@@ -5,38 +5,126 @@
 
 /* Breadcrumb styles moved to main_styles.css */
 
-/* Tag Info Bar - Simple */
-.tag-info-bar {
-  padding: 5px 0;
-  margin-top: 25px;
-  background: transparent;
-  border-bottom: 1px solid #eee;
+/* ── Tag Info Bar (matches tag-group style) ── */
+.ti-info-bar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 32px 0;
 }
-.tag-info-content {
+.ti-info-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+.ti-icon-wrap {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #14bdee 0%, #0a9ec8 100%);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 15px;
+  justify-content: center;
+  color: #fff;
+  font-size: 2rem;
+  box-shadow: 0 4px 16px rgba(20,189,238,0.25);
 }
-.tag-info-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1a1a1a;
+.ti-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ti-info-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a2332;
   margin: 0;
+  line-height: 1.2;
 }
-.tag-info-stats {
+.ti-info-desc {
+  font-size: 0.92rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 640px;
+}
+.ti-info-stats {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  margin-top: 2px;
 }
-.tag-info-stat {
-  font-size: 0.85rem;
-  color: #666;
+.ti-info-stat {
+  font-size: 0.95rem;
+  color: #888;
 }
-.tag-info-stat i {
+.ti-info-stat i {
+  margin-right: 5px;
   color: #14bdee;
-  margin-right: 4px;
+}
+
+/* ── Related / Similar Tags rows ── */
+.ti-tags-section {
+  display: none;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ti-tags-label {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #999;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ti-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.ti-tag-link {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  color: #4a5568;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.ti-tag-link:hover {
+  color: #14bdee;
+  text-decoration: none;
+}
+.ti-tag-sep {
+  color: #c8cdd6;
+
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 1.2rem;
+  font-weight: 300;
+  user-select: none;
+}
+
+/* Dark mode */
+.dark-mode .ti-info-bar {
+  background: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .ti-info-name   { color: var(--text-primary); }
+.dark-mode .ti-info-desc   { color: var(--text-secondary); }
+.dark-mode .ti-info-stat   { color: var(--text-muted); }
+.dark-mode .ti-tags-label  { color: #5a7a9a; }
+.dark-mode .ti-tag-link    { color: var(--text-secondary); }
+.dark-mode .ti-tag-link:hover { color: #14bdee; }
+.dark-mode .ti-tag-sep     { color: #3a4f65; }
+
+/* Responsive */
+@media (max-width: 576px) {
+  .ti-info-content { flex-direction: column; align-items: center; text-align: center; }
+  .ti-info-name    { font-size: 1.3rem; }
+  .ti-info-stats   { justify-content: center; }
+  .ti-icon-wrap    { width: 64px; height: 64px; font-size: 1.6rem; }
 }
 
 /* Articles Main Container */

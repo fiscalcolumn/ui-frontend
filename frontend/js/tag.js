@@ -107,7 +107,6 @@ class TagPageManager {
    * Update page with tag information
    */
   updateTagInfo() {
-    // Update page title and meta
     document.title = `${this.tag.name} - FiscalColumn`;
     document.getElementById('tag-title').textContent = this.tag.name;
     document.getElementById('breadcrumb-tag').textContent = this.tag.name;
@@ -122,61 +121,45 @@ class TagPageManager {
       tagCrumb.parentNode.insertBefore(groupCrumb, tagCrumb);
     }
 
-    // Update meta description
+    // Description
     if (this.tag.description) {
+      const descEl = document.getElementById('tag-desc');
+      descEl.textContent = this.tag.description;
+      descEl.style.display = 'block';
       document.getElementById('meta-description').setAttribute('content', this.tag.description);
     }
-
-    // Update related tags count
-    const relatedCount = this.tag.relatedTags?.length || 0;
-    if (relatedCount > 0) {
-      document.getElementById('tag-related-count').style.display = 'inline';
-      document.getElementById('related-count').textContent = relatedCount;
-    }
   }
 
   /**
-   * Render similar tags
+   * Render similar tags as pipe-separated links in info bar
    */
   renderSimilarTags() {
-    const similarTags = this.tag.similarTags || [];
-    if (similarTags.length === 0) return;
-    
-    document.getElementById('tags-section').style.display = 'block';
-    document.getElementById('similar-tags-container').style.display = 'block';
-    
-    const container = document.getElementById('similar-tags-row');
-    container.innerHTML = similarTags.map(tag => `
-      <a href="/tag/${tag.slug}" class="tag-pill similar">
-        <i class="fa fa-tag"></i>
-        ${tag.name}
-      </a>
-    `).join('');
+    const tags = this.tag.similarTags || [];
+    if (tags.length === 0) return;
+
+    const section = document.getElementById('similar-tags-section');
+    const row = document.getElementById('similar-tags-row');
+    section.style.display = 'flex';
+
+    row.innerHTML = tags.map((tag, i) =>
+      `<a href="/tag/${tag.slug}" class="ti-tag-link">${tag.name.toUpperCase()}</a>${i < tags.length - 1 ? '<span class="ti-tag-sep">|</span>' : ''}`
+    ).join('');
   }
 
   /**
-   * Render related tags in sidebar
+   * Render related tags as pipe-separated links in info bar
    */
   renderRelatedTags() {
-    const relatedTags = this.tag.relatedTags || [];
-    if (relatedTags.length === 0) return;
-    
-    const sidebar = document.getElementById('related-tags-sidebar');
-    const container = document.getElementById('sidebar-tags-list');
-    
-    if (!sidebar || !container) return;
-    
-    sidebar.style.display = 'block';
-    
-    container.innerHTML = relatedTags.map(tag => `
-      <a href="/tag/${tag.slug}" class="sidebar-tag-item">
-        <div class="sidebar-tag-icon">
-          <i class="fa fa-tag"></i>
-        </div>
-        <span class="sidebar-tag-name">${tag.name}</span>
-        <i class="fa fa-chevron-right sidebar-tag-arrow"></i>
-      </a>
-    `).join('');
+    const tags = this.tag.relatedTags || [];
+    if (tags.length === 0) return;
+
+    const section = document.getElementById('related-tags-section');
+    const row = document.getElementById('related-tags-row');
+    section.style.display = 'flex';
+
+    row.innerHTML = tags.map((tag, i) =>
+      `<a href="/tag/${tag.slug}" class="ti-tag-link">${tag.name.toUpperCase()}</a>${i < tags.length - 1 ? '<span class="ti-tag-sep">|</span>' : ''}`
+    ).join('');
   }
 
   /**
