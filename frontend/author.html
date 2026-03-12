@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Author</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="" id="meta-description">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Core Styles -->
+<link rel="stylesheet" type="text/css" href="/styles/bootstrap4/bootstrap.min.css">
+<link href="/plugins/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/owl.carousel.css">
+<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/owl.theme.default.css">
+<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/animate.css">
+
+<!-- Main Styles -->
+<link rel="stylesheet" type="text/css" href="/styles/main_styles.css">
+<link rel="stylesheet" type="text/css" href="/styles/responsive.css">
+
+<!-- Tag Page Styles (reused for author page) -->
+<link rel="stylesheet" type="text/css" href="/styles/tag/base.css">
+<link rel="stylesheet" type="text/css" href="/styles/tag/articles.css">
+<link rel="stylesheet" type="text/css" href="/styles/tag/responsive.css">
+<link rel="stylesheet" type="text/css" href="/styles/tag/dark-mode.css">
+
+<!-- Author Profile Styles -->
+<link rel="stylesheet" type="text/css" href="/styles/author/author.css">
+
+</head>
+<body>
+<div class="super_container">
+
+	<!-- Header -->
+	<header class="header">
+		<!-- Brand Bar -->
+		<div class="header_brand_bar">
+			<div class="container">
+				<div class="header_brand_content d-flex flex-row align-items-center justify-content-between">
+					<div class="logo_container">
+						<a href="/">
+							<div class="logo_text"></div>
+						</a>
+					</div>
+					<div class="header_brand_actions d-flex align-items-center">
+						<div class="brand-rate-btns"></div>
+						<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+							<i class="fa fa-moon-o" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Nav Bar -->
+		<div class="header_nav_bar">
+			<div class="container">
+				<div class="header_nav_content d-flex flex-row align-items-center">
+					<nav class="main_nav_contaner">
+						<ul class="main_nav">
+						</ul>
+					</nav>
+					<div class="header_nav_right d-flex align-items-center ml-auto">
+						<div class="search_button"><i class="fa fa-search" aria-hidden="true"></i></div>
+						<div class="hamburger menu_mm">
+							<i class="fa fa-bars menu_mm" aria-hidden="true"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Search Panel -->
+		<div class="header_search_container">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<div class="header_search_content d-flex flex-row align-items-center justify-content-end">
+							<form action="#" class="header_search_form">
+								<input type="search" class="search_input" placeholder="Search" required="required">
+								<button class="header_search_button d-flex flex-column align-items-center justify-content-center">
+									<i class="fa fa-search" aria-hidden="true"></i>
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- Breadcrumb -->
+	<div class="breadcrumb-container">
+		<div class="container">
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="/">Home</a></li>
+					<li class="breadcrumb-item"><a href="/author">Authors</a></li>
+					<li class="breadcrumb-item active" id="breadcrumb-author">Loading...</li>
+				</ol>
+			</nav>
+		</div>
+	</div>
+
+	<!-- Author Info Bar -->
+	<div class="author-info-bar">
+		<div class="container">
+			<div class="author-info-content">
+				<div class="author-large-avatar">
+					<svg id="author-avatar-svg" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+						<circle cx="36" cy="36" r="36" fill="#1a2332"/>
+						<text id="author-avatar-initial" x="36" y="46" text-anchor="middle" font-size="28" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">?</text>
+					</svg>
+				</div>
+				<div class="author-info-text">
+					<h1 class="author-info-name" id="author-name">Loading...</h1>
+					<div class="author-info-designation" id="author-designation" style="display:none;"></div>
+					<div class="author-info-bio" id="author-bio" style="display:none;"></div>
+					<div class="author-info-stats">
+						<span class="author-info-stat" id="author-article-count">
+							<i class="fa fa-newspaper-o"></i> <span>0</span> articles
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Main Content Area -->
+	<div class="articles-main-container">
+		<div class="container">
+			<!-- Featured Article -->
+			<div class="featured-with-sidebar" id="featured-with-sidebar">
+				<div class="featured-article-wrapper" id="featured-article-wrapper">
+				</div>
+			</div>
+
+			<!-- Other Articles -->
+			<div id="articles-container">
+				<div class="loading-container">
+					<div class="spinner"></div>
+					<p>Loading articles...</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Pagination -->
+	<div class="pagination-container" id="pagination-container" style="display: none;">
+		<div class="container">
+			<nav aria-label="Page navigation">
+				<ul class="pagination" id="pagination">
+				</ul>
+			</nav>
+		</div>
+	</div>
+
+	<!-- Footer -->
+	<footer class="footer">
+		<div class="footer-info-bar">
+			<div class="container">
+				<div class="footer-info-grid">
+					<div class="footer-col footer-col-brand">
+						<div class="footer-brand-text"></div>
+						<div class="footer-brand-desc"></div>
+						<ul class="footer-social-list"></ul>
+					</div>
+					<div class="footer-col footer-col-contact">
+						<div class="footer-col-title">Contact Us</div>
+						<div class="footer-contact-info"></div>
+					</div>
+					<div class="footer-col footer-col-mobile">
+						<div class="footer-col-title footer-mobile-title"></div>
+						<div class="footer-app-badges"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="footer-links-section">
+			<div class="container">
+				<div class="footer-nav-bar">
+					<ul class="footer-nav-left"></ul>
+					<ul class="footer-nav-right"></ul>
+				</div>
+				<div class="footer-bottom">
+					<div class="cr_text"></div>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+</div>
+
+<!-- Core Scripts -->
+<script src="/js/jquery-3.2.1.min.js"></script>
+<script src="/styles/bootstrap4/popper.js"></script>
+<script src="/styles/bootstrap4/bootstrap.min.js"></script>
+<script src="/plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
+
+<!-- Strapi API Integration -->
+<script src="/config.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/site-data.js"></script>
+<script src="/js/header.js"></script>
+<script src="/js/footer.js"></script>
+<script src="/js/dark-mode.js"></script>
+<script src="/js/author.js"></script>
+
+</body>
+</html>

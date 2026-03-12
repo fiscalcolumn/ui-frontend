@@ -1,0 +1,75 @@
+/**
+ * Author Profile Page - /author/:slug
+ */
+
+/* ── Info Bar ── */
+.author-info-bar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 32px 0;
+}
+.author-info-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.author-large-avatar {
+  flex-shrink: 0;
+}
+.author-large-avatar svg,
+.author-large-avatar img {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Text ── */
+.author-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.author-info-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a2332;
+  margin: 0;
+  line-height: 1.2;
+}
+.author-info-designation {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #14bdee;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+.author-info-bio {
+  font-size: 0.92rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 600px;
+}
+.author-info-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.author-info-stat {
+  font-size: 0.85rem;
+  color: #888;
+}
+.author-info-stat i {
+  margin-right: 4px;
+}
+
+/* ── Dark Mode ── */
+.dark-mode .author-info-bar          { background: var(--bg-secondary); border-bottom-color: var(--border-color); }
+.dark-mode .author-info-name         { color: var(--text-primary); }
+.dark-mode .author-info-bio          { color: var(--text-secondary); }
+.dark-mode .author-info-stat         { color: var(--text-muted); }
+.dark-mode .author-large-avatar circle { fill: #2a3a50; }

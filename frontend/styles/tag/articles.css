@@ -90,14 +90,18 @@
 .articles-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
+  gap: 28px 32px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid #efefef;
 }
 
 /* Article Card */
 .article-card {
   display: flex;
   gap: 16px;
-  padding: 0;
+  padding: 0 0 24px 0;
+  border-bottom: 1px solid #efefef;
 }
 .article-card-thumb {
   flex-shrink: 0;

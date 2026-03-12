@@ -108,3 +108,20 @@
   color: #fff;
 }
 
+/* Latest News Section */
+.dark-mode .news_posts_small {
+  border-left-color: var(--border-color);
+}
+.dark-mode .news-side-item {
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .news-side-title {
+  color: var(--text-primary);
+}
+.dark-mode .news-side-title:hover {
+  color: #14bdee;
+}
+.dark-mode .news-side-meta {
+  color: var(--text-muted);
+}
+

@@ -108,6 +108,12 @@
 }
 
 /* Article Cards */
+.dark-mode .articles-grid {
+  border-top-color: var(--border-color);
+}
+.dark-mode .article-card {
+  border-bottom-color: var(--border-color);
+}
 .dark-mode .article-card-thumb {
   background: var(--bg-secondary);
 }

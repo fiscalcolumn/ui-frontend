@@ -278,7 +278,9 @@ class ArticlePageManager {
     const hasImage = this.article.image?.url;
     const imageUrl = hasImage ? `${API_CONFIG.BASE_URL}${this.article.image.url}` : '';
     const publishDate = Utils.formatDateLong(this.article.publishedDate);
-    const author = this.article.author?.name || this.article.author || 'Admin';
+    const authorObj = this.article.author;
+    const author = authorObj?.name || (typeof authorObj === 'string' ? authorObj : 'Admin');
+    const authorSlug = authorObj?.slug || null;
     const views = this.article.views || 0;
     const readTime = this.article.minutesToread || 3;
     const category = this.article.category;
@@ -287,14 +289,17 @@ class ArticlePageManager {
     const shareTitle = encodeURIComponent(this.article.title);
 
     const tagsHtml = this.article.tags?.length > 0
-      ? this.article.tags.map(tag => `<a href="/tag/${tag.slug}">${tag.name}</a>`).join(', ')
+      ? this.article.tags.map(tag => `<a href="/tag/${tag.slug}">${tag.name}</a>`).join('<span class="tag-sep">,</span>')
       : '';
 
     const authorInitial = author.charAt(0).toUpperCase();
-    const authorAvatarSvg = `<svg class="author-avatar-svg" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    const authorAvatarSvg = `<svg class="author-avatar-svg" width="32" height="32" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <circle cx="18" cy="18" r="18" fill="#1a2332"/>
       <text x="18" y="23" text-anchor="middle" font-size="15" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">${authorInitial}</text>
     </svg>`;
+    const authorNameHtml = authorSlug
+      ? `<a href="/author/${authorSlug}" class="meta-author">${author}</a>`
+      : `<span class="meta-author">${author}</span>`;
 
     this.articleContainer.innerHTML = `
 
@@ -303,7 +308,7 @@ class ArticlePageManager {
 
       <div class="article-meta-bar">
         ${authorAvatarSvg}
-        <span class="meta-author">${author}</span>
+        ${authorNameHtml}
         <span class="meta-sep">|</span>
         <span class="meta-date">${publishDate}</span>
         <span class="meta-sep">|</span>
