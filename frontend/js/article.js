@@ -354,10 +354,6 @@ class ArticlePageManager {
       <div class="article-body">
         ${this.formatContent(this.article.content)}
       </div>
-
-      <div class="article-ad-placeholder">
-        <div class="article-ad-box"><span>Advertisement</span></div>
-      </div>
     `;
   }
 
@@ -420,25 +416,11 @@ class ArticlePageManager {
       : '';
 
     this.sidebarContainer.innerHTML = `
-      <!-- Ad Placeholder 1 (Top) -->
-      <div class="sidebar-section sidebar-ad-placeholder">
-        <div class="ad-placeholder-box">
-          <span>Ad Space</span>
-        </div>
-      </div>
-
       <!-- Latest Articles -->
       <div class="sidebar-section">
         <h3 class="sidebar-section-title">Latest Articles</h3>
         <div class="latest-articles latest-articles-scrollable">
           ${latestHtml}
-        </div>
-      </div>
-
-      <!-- Ad Placeholder 2 -->
-      <div class="sidebar-section sidebar-ad-placeholder">
-        <div class="ad-placeholder-box ad-placeholder-small">
-          <span>Ad Space</span>
         </div>
       </div>
 
@@ -455,22 +437,6 @@ class ArticlePageManager {
       </div>
       ` : ''}
 
-      ${tagsHtml ? `
-      <!-- Tags -->
-      <div class="sidebar-section">
-        <h3 class="sidebar-section-title">Tags</h3>
-        <div class="sidebar-tags-list">
-          ${tagsHtml}
-        </div>
-      </div>
-
-      <!-- Ad Placeholder 3 (Below Tags) -->
-      <div class="sidebar-section sidebar-ad-placeholder">
-        <div class="ad-placeholder-box">
-          <span>Ad Space</span>
-        </div>
-      </div>
-      ` : ''}
     `;
   }
 

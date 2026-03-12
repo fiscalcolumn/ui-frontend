@@ -314,7 +314,9 @@ async function renderHeader(currentPage = '') {
     brandPillsEl.innerHTML = headerConfig.pills
       .map(p => {
         const style = p.brandcolor ? ` style="background:${p.brandcolor}"` : '';
-        return `<a href="${p.brandurl}" class="brand-rate-btn"${style}>${p.displayname}</a>`;
+        // Ensure URL is absolute (starts with /) to avoid relative-path issues
+        const url = p.brandurl.startsWith('/') ? p.brandurl : '/' + p.brandurl;
+        return `<a href="${url}" class="brand-rate-btn"${style}>${p.displayname}</a>`;
       })
       .join('');
   }
