@@ -6,7 +6,7 @@
 /* ===== HORIZONTAL GRID CARD ===== */
 .grid-card-horizontal {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   padding: 0;
 }
 
@@ -14,7 +14,7 @@
   flex-shrink: 0;
   width: 100px;
   height: 100px;
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
   background: #f5f5f5;
 }
@@ -35,23 +35,15 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.grid-card-category {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #14bdee;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  gap: 6px;
 }
 
 .grid-card-title {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: 400;
   color: #1a1a1a;
-  line-height: 1.35;
-  margin: 0 0 6px 0;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .grid-card-title a {
@@ -64,22 +56,9 @@
   color: #14bdee;
 }
 
-.grid-card-excerpt {
-  font-size: 0.8rem;
-  color: #666;
-  line-height: 1.45;
-  margin: 0 0 16px 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 .grid-card-meta {
   font-size: 0.7rem;
-  color: #999;
-  margin-top: auto;
+  color: #3b3939;
 }
 
 .grid-card-meta .separator {
@@ -87,7 +66,7 @@
   color: #ddd;
 }
 
-/* ===== VERTICAL GRID CARD ===== */
+/* ===== VERTICAL GRID CARD ===== Carousal Cards*/
 .grid-card-vertical {
   display: flex;
   flex-direction: column;
@@ -99,8 +78,17 @@
 
 .grid-card-vertical .grid-card-image {
   width: 100%;
-  height: 140px;
+  height: 260px;
   background: #f5f5f5;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.grid-card-vertical .grid-card-image img {
+  width: 100%;
+  height: 160%;
+  object-fit: cover;
+  display: block;
 }
 
 .grid-card-vertical .grid-card-content {

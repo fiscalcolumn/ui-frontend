@@ -287,23 +287,25 @@
   color: #fff;
 }
 
-/* Category Tags */
+/* Shared Tags Bar (Trending + Popular Topics) */
 .dark-mode .category-tags-section {
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .popular-tags-section {
   border-top-color: var(--border-color);
   border-bottom-color: var(--border-color);
 }
-.dark-mode .category-tags-title {
+.dark-mode .popular-tags-label {
   color: var(--text-secondary);
 }
-.dark-mode .category-tag-pill {
-  background: var(--bg-primary);
-  border-color: var(--border-color);
-  color: var(--text-primary);
+.dark-mode .popular-tags-pipe {
+  color: var(--border-color);
 }
-.dark-mode .category-tag-pill:hover {
-  background: var(--bg-primary);
-  border-color: #14bdee;
+.dark-mode .popular-tag-link {
+  color: var(--text-secondary);
+}
+.dark-mode .popular-tag-link:hover {
   color: #14bdee;
 }
 

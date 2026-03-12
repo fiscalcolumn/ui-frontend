@@ -36,107 +36,67 @@
   border-radius: 12px;
 }
 
-/* Category Tags Section */
+/* Trending bar outer wrapper — white strip with bottom border */
 .category-tags-section {
-  padding: 10px 0;
-  background: #f5f5f5;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-}
-.category-tags-header {
-  margin-bottom: 12px;
-}
-.category-tags-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #666;
-  letter-spacing: 0.5px;
-}
-.category-tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-.category-tag-pill {
-  display: inline-block;
-  padding: 6px 14px;
+  padding: 0;
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: #444;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-.category-tag-pill:hover {
-  background: #fff;
-  border-color: #14bdee;
-  color: #14bdee;
-  text-decoration: none;
-}
-
-/* Popular Tags Section (below first article) */
-.popular-tags-section {
-  margin: 20px 0;
-  padding: 0 0 20px 0;
   border-bottom: 1px solid #e0e0e0;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: baseline;
-  gap: 15px;
-  flex-wrap: wrap;
-  width: 100%;
 }
 
-.popular-tags-header {
-  display: inline-flex !important;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #161616;
+/* ===== SHARED TAGS BAR (Trending + Popular Topics) ===== */
+.popular-tags-section {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 30px 0;
+  margin: 30px 0;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  gap: 0;
+}
+
+.popular-tags-section::-webkit-scrollbar {
+  display: none;
+}
+
+.popular-tags-label .fa {
+  margin-right: 4px;
+  font-size: 1.5em;
+  opacity: 0.5;
+}
+
+.popular-tags-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000103;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
   white-space: nowrap;
-  margin: 0;
-  line-height: 1.2;
+  flex-shrink: 0;
 }
 
-.popular-tags-header i {
-  color: #14bdee;
-  font-size: 1.0rem;
+.popular-tags-pipe {
+  color: #c8c8cc;
+  font-size: 1rem;
+  font-weight: 300;
+  margin: 0 12px;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 .popular-tag-link {
-  display: inline !important;
-  color: #111111;
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 300;
+  color: #3d4152;
   text-decoration: none;
-  transition: all 0.2s ease;
+  letter-spacing: 0.1px;
   white-space: nowrap;
-  line-height: 1.2;
-  vertical-align: baseline;
+  transition: color 0.18s;
 }
 
 .popular-tag-link:hover {
   color: #14bdee;
-  text-decoration: underline;
-}
-
-/* Dark mode styles for popular tags */
-@media (prefers-color-scheme: dark) {
-  .popular-tags-header {
-    color: #ccc;
-  }
-  
-  .popular-tag-link {
-    color: #ccc;
-  }
-  
-  .popular-tag-link:hover {
-    color: #14bdee;
-  }
+  text-decoration: none;
 }

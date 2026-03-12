@@ -57,12 +57,13 @@
 /* Section Header */
 .dark-mode .hp-section-title {
   color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
 }
 .dark-mode .hp-section-title a {
   color: var(--text-primary);
 }
 .dark-mode .hp-section-title a:hover {
-  color: #14bdee;
+  color: var(--text-primary);
 }
 
 /* Carousel (same as category page) */

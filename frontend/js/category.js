@@ -318,11 +318,10 @@ class CategoryPageManager {
     container.style.display = 'block';
     container.innerHTML = `
       <div class="container">
-        <div class="category-tags-header">
-          <span class="category-tags-title">TOP SEARCHES:</span>
-        </div>
-        <div class="category-tags-list">
-          ${uniqueTags.map(tag => `<a href="/tag/${tag.slug}" class="category-tag-pill">${tag.name}</a>`).join('')}
+        <div class="popular-tags-section">
+          <span class="popular-tags-label"><i class="fa fa-bolt"></i> TRENDING</span>
+          <span class="popular-tags-pipe">|</span>
+          ${uniqueTags.map(tag => `<a href="/tag/${tag.slug}" class="popular-tag-link">${tag.name.toUpperCase()}</a>`).join('<span class="popular-tags-pipe">|</span>')}
         </div>
       </div>
     `;
@@ -817,7 +816,7 @@ class CategoryPageManager {
   renderPopularTags(tags) {
     if (!tags || tags.length === 0) return '';
     
-    const tagsHtml = tags.map(tag => {
+    const tagItems = tags.map(tag => {
       // Handle different tag structures
       let tagName, tagSlug;
       if (typeof tag === 'string') {
@@ -830,18 +829,16 @@ class CategoryPageManager {
       
       if (!tagName || !tagSlug) return '';
       
-      return `<a href="/tag/${encodeURIComponent(tagSlug)}" class="popular-tag-link">${tagName}</a>`;
-    }).filter(Boolean).join('');
-    
-    if (!tagsHtml) return '';
-    
+      return `<a href="/tag/${encodeURIComponent(tagSlug)}" class="popular-tag-link">${tagName.toUpperCase()}</a>`;
+    }).filter(Boolean);
+
+    if (!tagItems.length) return '';
+
     return `
       <div class="popular-tags-section">
-        <span class="popular-tags-header">
-          <i class="fa fa-tags"></i>
-          <span>Popular Topics</span>
-        </span>
-        ${tagsHtml}
+        <span class="popular-tags-label"><i class="fa fa-fire"></i> POPULAR TOPICS</span>
+        <span class="popular-tags-pipe">|</span>
+        ${tagItems.join('<span class="popular-tags-pipe">|</span>')}
       </div>
     `;
   }

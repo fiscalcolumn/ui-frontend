@@ -8,6 +8,19 @@ class HomepageSectionsManager {
     this.sectionsContainer = document.getElementById('homepage-sections-container');
   }
 
+  /** Resolve a Strapi image URL to an absolute URL, falling back to the local placeholder */
+  imgUrl(url) {
+    if (!url) return '/images/placeholder-article.svg';
+    if (url.startsWith('http')) return url;
+    const base = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
+    return base + url;
+  }
+
+  /** Returns 'img-placeholder' class string when no real image exists */
+  imgClass(url) {
+    return url ? '' : 'img-placeholder';
+  }
+
   /**
    * Initialize - fetch and render all sections
    */
@@ -130,7 +143,7 @@ class HomepageSectionsManager {
   }
 
   renderBrowseByCategory(categories) {
-    const apiBase = (window.API_CONFIG?.apiUrl || '').replace('/api', '');
+    const apiBase = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
     const cards = categories.map((cat, idx) => {
       const label = (cat.displayname || cat.name || '').toUpperCase();
       const initial = label.charAt(0);
@@ -174,7 +187,7 @@ class HomepageSectionsManager {
    */
   renderNewsSection(section, articles, bgClass, index, category) {
     const mainArticle = articles[0];
-    const sideArticles = articles.slice(1, 6);
+    const sideArticles = articles.slice(1, 5);
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
     const sectionTitle = category?.displayname || category?.name || 'News';
 
@@ -274,27 +287,18 @@ class HomepageSectionsManager {
    * Render Large News Post
    */
   renderLargeNewsPost(article) {
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage 
-      ? `<div class="news_post_image"><img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
-      : '';
-    
     return `
-      <div class="news_post_large_container">
-        <div class="news_post_large">
-          ${imageHtml}
-          <div class="news_post_large_title"><a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a></div>
-          <div class="news_post_meta">
-            <ul>
-              <li><a href="#">${article.author || 'Admin'}</a></li>
-              <li><a href="#">${Utils.formatDate(article.publishedDate)}</a></li>
-            </ul>
-          </div>
-          <div class="news_post_text">
-            <p>${article.excerpt || Utils.truncateText(article.content, 150)}</p>
+      <a href="/${article.category?.slug || 'article'}/${article.slug}" class="news-featured-card">
+        <img src="${this.imgUrl(article.image?.url)}" class="${this.imgClass(article.image?.url)}" alt="${article.title}">
+        <div class="news-featured-overlay">
+          <h3 class="news-featured-title">${article.title}</h3>
+          <div class="news-featured-meta">
+            <span>${article.author || 'Admin'}</span>
+            <span class="separator">|</span>
+            <span>${Utils.formatDate(article.publishedDate)}</span>
           </div>
         </div>
-      </div>
+      </a>
     `;
   }
 
@@ -303,13 +307,12 @@ class HomepageSectionsManager {
    */
   renderSmallNewsPost(article) {
     return `
-      <div class="news_post_small">
-        <div class="news_post_small_title"><a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a></div>
-        <div class="news_post_meta">
-          <ul>
-            <li><a href="#">${article.author || 'Admin'}</a></li>
-            <li><a href="#">${Utils.formatDate(article.publishedDate)}</a></li>
-          </ul>
+      <div class="news-side-item">
+        <a href="/${article.category?.slug || 'article'}/${article.slug}" class="news-side-title">${article.title}</a>
+        <div class="news-side-meta">
+          <span>${article.author || 'Admin'}</span>
+          <span class="separator">|</span>
+          <span>${Utils.formatDate(article.publishedDate)}</span>
         </div>
       </div>
     `;
@@ -319,20 +322,14 @@ class HomepageSectionsManager {
    * Render Grid Card (Horizontal layout - image left, content right)
    */
   renderGridCard(article) {
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage 
-      ? `<div class="grid-card-image"><img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
-      : '<div class="grid-card-image grid-card-placeholder"></div>';
-    
-    const categoryName = article.category?.name || 'Article';
-    
+    const imageHtml = `<div class="grid-card-image"><img src="${this.imgUrl(article.image?.url)}" class="${this.imgClass(article.image?.url)}" alt="${article.title}"></div>`;
+
     return `
       <div class="col-lg-6 col-md-6 grid_card_col">
         <div class="grid-card-horizontal">
           ${imageHtml}
           <div class="grid-card-content">
             <h3 class="grid-card-title"><a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a></h3>
-            <p class="grid-card-excerpt">${article.excerpt || Utils.truncateText(article.content, 80)}</p>
             <div class="grid-card-meta">
               <span>${article.minutesToread || 3} min read</span>
               <span class="separator">•</span>
@@ -348,10 +345,7 @@ class HomepageSectionsManager {
    * Render Carousel Card (same structure as category page)
    */
   renderCarouselCard(article) {
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage 
-      ? `<img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}">`
-      : '<div class="carousel-card-placeholder"></div>';
+    const imageHtml = `<img src="${this.imgUrl(article.image?.url)}" class="${this.imgClass(article.image?.url)}" alt="${article.title}">`;
     
     return `
       <div class="carousel-card">
@@ -362,7 +356,6 @@ class HomepageSectionsManager {
           <h4 class="carousel-card-title">
             <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
           </h4>
-          <p class="carousel-card-excerpt">${article.excerpt || Utils.truncateText(article.content, 60)}</p>
           <div class="carousel-card-meta">
             <span>${article.minutesToread || 3} min read</span>
             <span class="separator">•</span>
@@ -377,36 +370,28 @@ class HomepageSectionsManager {
    * Render Carousel Card with Date Badge
    */
   renderCarouselCardWithDate(article) {
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage 
-      ? `<img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}">`
-      : '<div class="carousel-card-placeholder"></div>';
-    
+    const inner = `<img src="${this.imgUrl(article.image?.url)}" class="${this.imgClass(article.image?.url)}" alt="${article.title}">`;
+
     const date = new Date(article.publishedDate);
     const day = date.getDate().toString().padStart(2, '0');
     const month = date.toLocaleString('en', { month: 'short' });
-    
+
     return `
-      <div class="carousel-card carousel-card-with-date">
-        <div class="carousel-card-image">
-          ${imageHtml}
-          <div class="carousel-card-date-badge">
-            <span class="date-day">${day}</span>
-            <span class="date-month">${month}</span>
-          </div>
+      <a href="/${article.category?.slug || 'article'}/${article.slug}" class="carousel-card cwdate-card">
+        ${inner}
+        <div class="carousel-card-date-badge">
+          <span class="date-day">${day}</span>
+          <span class="date-month">${month}</span>
         </div>
-        <div class="carousel-card-content">
-          <h4 class="carousel-card-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h4>
-          <p class="carousel-card-excerpt">${article.excerpt || Utils.truncateText(article.content, 60)}</p>
-          <div class="carousel-card-meta">
+        <div class="cwdate-overlay">
+          <h4 class="cwdate-title">${article.title}</h4>
+          <div class="cwdate-meta">
             <span>${article.minutesToread || 3} min read</span>
             <span class="separator">•</span>
             <span>${Utils.formatDate(article.publishedDate)}</span>
           </div>
         </div>
-      </div>
+      </a>
     `;
   }
 
