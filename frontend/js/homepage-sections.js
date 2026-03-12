@@ -255,23 +255,58 @@ class HomepageSectionsManager {
   renderGridSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
     const sectionTitle = category?.displayname || category?.name || 'Articles';
-    
+    const five = articles.slice(0, 5);
+
+    // Bento layout: tile 1 (wide top-left), 2+3 (small top-right), 4 (small bottom-left), 5 (wide bottom-right)
+    const sizes = ['bento-1', 'bento-2', 'bento-3', 'bento-4', 'bento-5'];
+    const tilesHtml = five.map((article, i) => this.renderBentoTile(article, sizes[i])).join('');
+
     return `
-      <div class="courses content-section section-${index + 1} ${bgClass}">
+      <div class="content-section section-${index + 1} ${bgClass}">
         <div class="container">
-          <div class="row">
-            <div class="col">
-              <div class="hp-section-header">
-                <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
-              </div>
-            </div>
+          <div class="hp-section-header">
+            <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
           </div>
-          <div class="row courses_row">
-            ${articles.slice(0, 6).map(article => this.renderGridCard(article)).join('')}
+          <div class="bento-grid">
+            ${tilesHtml}
           </div>
         </div>
       </div>
     `;
+  }
+
+  renderBentoTile(article, sizeClass) {
+    const imgBase = window.API_CONFIG?.BASE_URL || '';
+    const imgUrl = article.image?.url ? `${imgBase}${article.image.url}` : null;
+    const url = `/${article.category?.slug || 'article'}/${article.slug}`;
+    const excerpt = article.excerpt || Utils.truncateText(article.content, 90);
+    const author = article.author;
+    const photoUrl = author?.photo?.url ? `${imgBase}${author.photo.url}` : null;
+    const isLarge = sizeClass === 'bento-1' || sizeClass === 'bento-5';
+
+    const avatarHtml = author ? `
+      <div class="bento-avatar" title="${author.name || ''}">
+        ${photoUrl
+          ? `<img src="${photoUrl}" alt="${author.name}">`
+          : `<span>${(author.name || 'A').charAt(0).toUpperCase()}</span>`}
+      </div>` : '';
+
+    return `
+      <a href="${url}" class="bento-tile ${sizeClass}">
+        ${imgUrl
+          ? `<img src="${imgUrl}" alt="${article.title}" class="bento-img">`
+          : `<div class="bento-no-img"></div>`}
+        <div class="bento-overlay">
+          <div class="bento-body">
+            <h4 class="bento-title">${article.title}</h4>
+            ${isLarge && excerpt ? `<p class="bento-excerpt">${excerpt}</p>` : ''}
+          </div>
+          <div class="bento-footer">
+            ${avatarHtml}
+            <span class="bento-date">${Utils.formatDate(article.publishedDate)}</span>
+          </div>
+        </div>
+      </a>`;
   }
 
   /**

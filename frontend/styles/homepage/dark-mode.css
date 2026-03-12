@@ -83,6 +83,15 @@
   background: var(--bg-primary);
   box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
+/* rca-card (editorial layout) should be transparent so the section bg shows through */
+.dark-mode .carousel-card.rca-card {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.dark-mode .rca-card-image,
+.dark-mode .rca-no-img {
+  background: var(--bg-secondary);
+}
 .dark-mode .carousel-card-image {
   background: var(--bg-secondary);
 }
