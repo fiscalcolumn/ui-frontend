@@ -20,6 +20,10 @@
 .dark-mode .featured-image:hover img {
   opacity: 1;
 }
+.dark-mode .featured-image--placeholder,
+.dark-mode .article-img-placeholder {
+  background: linear-gradient(135deg, #0a1a2a 0%, #0d8ab0 100%);
+}
 .dark-mode .featured-title {
   color: var(--text-primary);
 }

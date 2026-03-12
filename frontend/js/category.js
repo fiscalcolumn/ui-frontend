@@ -44,19 +44,13 @@ class CategoryPageManager {
       // Update page with actual category info
       this.updateCategoryInfo();
       
-      // Store contentType as instance variable for use in pagination and other methods
-      // Try multiple possible paths for the contentType value
-      const contentTypeValue = this.category.categorycontenttype?.categorycontenttype 
-        || this.category.categorycontenttype?.data?.attributes?.categorycontenttype
-        || this.category.categorycontenttype?.attributes?.categorycontenttype
-        || null;
-      
-      this.contentType = contentTypeValue || 'articles';
-      
-      // Normalize the comparison (case-insensitive, trimmed)
-      const normalizedContentType = String(this.contentType).toLowerCase().trim();
-      
-      if (normalizedContentType === 'calculator') {
+      // categorycontenttype is a flat string field in Strapi v5
+      this.contentType = (typeof this.category.categorycontenttype === 'string'
+        ? this.category.categorycontenttype
+        : 'articles'
+      ).toLowerCase().trim();
+
+      if (this.contentType === 'calculators') {
         await this.loadCalculators();
       } else {
         await this.loadArticles();
@@ -401,9 +395,9 @@ class CategoryPageManager {
    */
   renderCarouselCard(article, category) {
     const hasImage = article.image?.url;
-    const imageHtml = hasImage 
+    const imageHtml = hasImage
       ? `<img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}">`
-      : '<div class="carousel-card-placeholder"></div>';
+      : `<div class="article-img-placeholder carousel-card-placeholder"><span class="article-placeholder-letter">${(article.category?.name || article.title || '?').charAt(0).toUpperCase()}</span></div>`;
     
     const excerpt = article.excerpt || Utils.truncateText(article.content, 60);
     const readTime = Utils.getReadTime(article);
@@ -475,7 +469,8 @@ class CategoryPageManager {
    * Fetch category details by slug (with related categories, toparticle, populartags, and categorycontenttype)
    */
   async fetchCategory(slug) {
-    const url = getApiUrl(`/categories?filters[slug][$eq]=${slug}&populate[relatedcategories]=true&populate[relatedtaggroups][populate][tags]=true&populate[categoryImage]=true&populate[toparticle][populate][category]=true&populate[toparticle][populate][image]=true&populate[populartags]=true&populate[categorycontenttype]=true`);
+    // Note: categorycontenttype is an enum (scalar) — it returns automatically, do NOT populate it
+    const url = getApiUrl(`/categories?filters[slug][$eq]=${slug}&populate[relatedcategories]=true&populate[relatedtaggroups][populate][tags]=true&populate[categoryImage]=true&populate[toparticle][populate][category]=true&populate[toparticle][populate][image]=true&populate[populartags]=true`);
     const response = await fetch(url);
     const data = await response.json();
     const category = data.data && data.data.length > 0 ? data.data[0] : null;
@@ -708,9 +703,16 @@ class CategoryPageManager {
     }
     
     const hasImage = !!imageUrl;
-    const imageHtml = hasImage 
+    const categoryName = article.category?.name || this.category?.name || '';
+    const initial = categoryName.charAt(0).toUpperCase() || article.title.charAt(0).toUpperCase();
+    const imageHtml = hasImage
       ? `<div class="featured-image"><img src="${API_CONFIG.BASE_URL}${imageUrl}" alt="${article.title}"></div>`
-      : '';
+      : `<div class="featured-image featured-image--placeholder">
+           <div class="featured-placeholder-inner">
+             <span class="featured-placeholder-initial">${initial}</span>
+             <span class="featured-placeholder-label">${categoryName}</span>
+           </div>
+         </div>`;
     
     const excerpt = article.excerpt || Utils.truncateText(article.content || '', 250);
     const readTime = Utils.getReadTime(article);
@@ -722,6 +724,7 @@ class CategoryPageManager {
 
     return `
       <div class="featured-article">
+        ${imageHtml}
         <div class="featured-content">
           <div class="featured-category">${article.category?.name || this.category?.name || 'Article'}</div>
           <h1 class="featured-title">
@@ -735,7 +738,6 @@ class CategoryPageManager {
             <span class="date">${Utils.formatDate(article.publishedDate || article.createdAt)}</span>
           </div>
         </div>
-        ${imageHtml}
       </div>
     `;
   }
@@ -743,11 +745,24 @@ class CategoryPageManager {
   /**
    * Render a single article card (horizontal with thumbnail)
    */
+  /**
+   * Generate a gradient placeholder for articles without an image.
+   * @param {string} wrapperClass  — the wrapping div class (e.g. "card-thumb")
+   * @param {object} article
+   */
+  articlePlaceholder(wrapperClass, article) {
+    const letter = (article.category?.name || article.title || '?').charAt(0).toUpperCase();
+    return `
+      <div class="${wrapperClass} article-img-placeholder">
+        <span class="article-placeholder-letter">${letter}</span>
+      </div>`;
+  }
+
   renderArticleCard(article) {
     const hasImage = article.image?.url;
-    const imageHtml = hasImage 
+    const imageHtml = hasImage
       ? `<div class="card-thumb"><img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
-      : '<div class="card-thumb card-thumb-placeholder"></div>';
+      : this.articlePlaceholder('card-thumb', article);
     
     const readTime = Utils.getReadTime(article);
     const excerpt = article.excerpt || Utils.truncateText(article.content, 80);
@@ -858,9 +873,9 @@ class CategoryPageManager {
    */
   renderMiniCard(article) {
     const hasImage = article.image?.url;
-    const imageHtml = hasImage 
+    const imageHtml = hasImage
       ? `<div class="mini-card-image"><img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
-      : '<div class="mini-card-image mini-card-placeholder"></div>';
+      : this.articlePlaceholder('mini-card-image', article);
     
     const excerpt = article.excerpt || Utils.truncateText(article.content, 60);
     const readTime = Utils.getReadTime(article);
@@ -1028,10 +1043,10 @@ class CategoryPageManager {
       }
       const topArticles = Array.from(articlesMap.values()).slice(0, 10);
       
-      // Fetch articles from Latest News and Market News categories
+      // Fetch articles from Latest News and Stocks categories
       const [latestNewsRes, marketNewsRes] = await Promise.all([
         fetch(getApiUrl('/articles?filters[category][slug]=latest-news&populate=image&pagination[limit]=6&sort=publishedDate:desc')),
-        fetch(getApiUrl('/articles?filters[category][slug]=market-news&populate=image&pagination[limit]=6&sort=publishedDate:desc'))
+        fetch(getApiUrl('/articles?filters[category][slug]=stocks&populate=image&pagination[limit]=6&sort=publishedDate:desc'))
       ]);
       
       const latestNewsData = await latestNewsRes.json();
@@ -1154,11 +1169,11 @@ class CategoryPageManager {
         ` : ''}
         
         ${marketNewsArticles.length > 0 ? `
-        <!-- Market News Carousel Section -->
+        <!-- Stocks Carousel Section -->
         <div class="error-carousel-section alt-bg">
           <div class="error-section-header">
-            <h3 class="error-section-title">Market News</h3>
-            <a href="/market-news" class="error-section-link">View All <i class="fa fa-arrow-right"></i></a>
+            <h3 class="error-section-title">Stocks</h3>
+            <a href="/stocks" class="error-section-link">View All <i class="fa fa-arrow-right"></i></a>
           </div>
           <div class="error-carousel-wrapper">
             <button class="error-carousel-nav error-carousel-prev" data-carousel="market-news">

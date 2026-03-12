@@ -72,6 +72,83 @@
   transition: opacity 0.3s ease;
 }
 
+/* ── Shared article image placeholder ───────────────────────────── */
+.article-img-placeholder {
+  background: linear-gradient(135deg, #0f2a45 0%, #14bdee 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.article-placeholder-letter {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Playfair Display', serif;
+  line-height: 1;
+  user-select: none;
+}
+
+/* card-thumb sizing — matches .card-thumb (140×160px) */
+.card-thumb.article-img-placeholder {
+  width: 140px;
+  min-width: 140px;
+  height: 160px;
+  border-radius: 6px;
+}
+
+/* mini-card-image sizing */
+.mini-card-image.article-img-placeholder {
+  width: 100%;
+  height: 130px;
+  border-radius: 6px 6px 0 0;
+}
+
+/* carousel card sizing */
+.carousel-card-placeholder.article-img-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 140px;
+  border-radius: 0;
+}
+
+/* ── Featured placeholder ───────────────────────────────────────── */
+.featured-image--placeholder {
+  height: 320px;
+  background: linear-gradient(135deg, #0f2a45 0%, #14bdee 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.featured-placeholder-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.featured-placeholder-initial {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  line-height: 1;
+}
+.featured-placeholder-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
 /* Cards Section */
 .articles-cards-section {
   padding-bottom: 25px;

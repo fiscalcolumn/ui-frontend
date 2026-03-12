@@ -51,48 +51,117 @@ class HomepageSectionsManager {
    */
   async renderSections(sections) {
     this.sectionsContainer.innerHTML = '';
-    
+    let browseInserted  = false;
+    let renderedCount   = 0;
+
+    // Pre-fetch browse categories once
+    const allCategories = await this.fetchCategoriesWithImages();
+
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
       const category = section.category;
       
-      if (!category) {
-        continue;
-      }
+      if (!category) continue;
 
-      // sectionStyle and itemsToShow are direct fields on the section record
       const sectionType = section.sectionStyle || 'article-list';
       const itemsToShow = section.itemsToShow || 5;
-
-      const isCarousel = sectionType === 'news-grid';
-      const limit = isCarousel ? 10 : itemsToShow;
+      const isCarousel  = sectionType === 'news-grid';
+      const limit       = isCarousel ? 10 : itemsToShow;
 
       const articles = await this.fetchArticlesByCategory(category.documentId, limit);
-      
-      const bgClass = i % 2 === 0 ? '' : 'section-alt-bg';
-      
+
+      // Skip sections with no articles (don't count them toward placement)
+      if (!articles || articles.length === 0) continue;
+
+      const bgClass = renderedCount % 2 === 0 ? '' : 'section-alt-bg';
+
       let sectionHtml = '';
       switch (sectionType) {
         case 'news-grid':
-          sectionHtml = this.renderNewsSection(section, articles, bgClass, i, category);
+          sectionHtml = this.renderNewsSection(section, articles, bgClass, renderedCount, category);
           break;
         case 'featured-banner':
-          sectionHtml = this.renderGridWithDateSection(section, articles, bgClass, i, category);
+          sectionHtml = this.renderGridWithDateSection(section, articles, bgClass, renderedCount, category);
           break;
         case 'calculator-grid':
-          sectionHtml = this.renderGridVerticalSection(section, articles, bgClass, i, category);
+          sectionHtml = this.renderGridVerticalSection(section, articles, bgClass, renderedCount, category);
           break;
         case 'article-list':
         default:
-          sectionHtml = this.renderGridSection(section, articles, bgClass, i, category);
+          sectionHtml = this.renderGridSection(section, articles, bgClass, renderedCount, category);
           break;
       }
-      
+
       this.sectionsContainer.innerHTML += sectionHtml;
+      renderedCount++;
+
+      // Insert "Browse by Category" after the FIRST section that has content
+      if (!browseInserted && allCategories.length > 0) {
+        browseInserted = true;
+        this.sectionsContainer.innerHTML += this.renderBrowseByCategory(allCategories);
+      }
     }
 
-    // Initialize carousel scrolling after all sections are rendered
     this.initCarouselScrolling();
+  }
+
+  async fetchCategoriesWithImages() {
+    try {
+      const url = getApiUrl('/categories?populate[categoryImage]=true&filters[enabled][$eq]=true&sort=order:asc');
+      const res  = await fetch(url);
+      const data = await res.json();
+      return data.data || [];
+    } catch { return []; }
+  }
+
+  // Palette cycles for categories without an image
+  getCategoryColor(index) {
+    const palettes = [
+      { bg: '#3d5a80', text: '#ffffff' },
+      { bg: '#6b4226', text: '#ffffff' },
+      { bg: '#2d6a4f', text: '#ffffff' },
+      { bg: '#7b2d8b', text: '#ffffff' },
+      { bg: '#b5451b', text: '#ffffff' },
+      { bg: '#1a5276', text: '#ffffff' },
+      { bg: '#6c6f22', text: '#ffffff' },
+      { bg: '#4a235a', text: '#ffffff' },
+    ];
+    return palettes[index % palettes.length];
+  }
+
+  renderBrowseByCategory(categories) {
+    const apiBase = (window.API_CONFIG?.apiUrl || '').replace('/api', '');
+    const cards = categories.map((cat, idx) => {
+      const label = (cat.displayname || cat.name || '').toUpperCase();
+      const initial = label.charAt(0);
+
+      if (cat.categoryImage?.url) {
+        const imgUrl = cat.categoryImage.url.startsWith('http')
+          ? cat.categoryImage.url
+          : apiBase + cat.categoryImage.url;
+        return `
+          <a href="/${cat.slug}" class="browse-cat-card">
+            <img src="${imgUrl}" alt="${label}" loading="lazy">
+            <div class="browse-cat-label">${label}</div>
+          </a>`;
+      }
+
+      // No image — colored tile with category initial
+      const { bg, text } = this.getCategoryColor(idx);
+      return `
+        <a href="/${cat.slug}" class="browse-cat-card browse-cat-no-img" style="background:${bg}">
+          <div class="browse-cat-initial" style="color:${text}">${initial}</div>
+          <div class="browse-cat-label browse-cat-label-solid">${label}</div>
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="browse-by-category-section">
+        <div class="container">
+          <div class="browse-cat-header">BROWSE BY CATEGORY</div>
+          <div class="browse-cat-grid">${cards}</div>
+        </div>
+      </div>`;
   }
 
   /**

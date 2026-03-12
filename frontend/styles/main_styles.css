@@ -2086,7 +2086,7 @@ section
 /* Dark info bar — top section */
 .footer-info-bar
 {
-	background: #e2cfd9;
+	background: #f2f4f4;
 	padding: 56px 0 48px;
 }
 .footer-info-grid
@@ -2260,6 +2260,107 @@ section
 	font-size: 13px;
 	color: #888;
 }
+
+/*********************************
+14b. Browse by Category
+*********************************/
+
+.browse-by-category-section
+{
+	padding: 48px 0;
+	background: #f8f8f6;
+	border-top: 1px solid #ebebeb;
+	border-bottom: 1px solid #ebebeb;
+}
+.browse-cat-header
+{
+	font-family: 'Inter', sans-serif;
+	font-size: 18px;
+	font-weight: 300;
+	letter-spacing: 0.1px;
+	color: #1a2332;
+	margin-bottom: 24px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #505153;
+	display: inline-block;
+}
+.browse-cat-grid
+{
+	display: flex;
+	gap: 12px;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+	padding-bottom: 4px;
+}
+.browse-cat-grid::-webkit-scrollbar { display: none; }
+
+.browse-cat-card
+{
+	position: relative;
+	flex: 0 0 160px;
+	height: 200px;
+	border-radius: 4px;
+	overflow: hidden;
+	display: block;
+	text-decoration: none;
+}
+.browse-cat-card img
+{
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transition: transform 350ms ease;
+}
+.browse-cat-card:hover img
+{
+	transform: scale(1.05);
+}
+.browse-cat-label
+{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 10px 12px;
+	background: rgba(26, 35, 50, 0.72);
+	color: #ffffff;
+	font-family: 'Inter', sans-serif;
+	font-size: 12px;
+	font-weight: 400;
+	letter-spacing: 1px;
+}
+
+/* No-image tile */
+.browse-cat-no-img
+{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+.browse-cat-initial
+{
+	font-family: 'Playfair Display', serif;
+	font-size: 64px;
+	font-weight: 700;
+	line-height: 1;
+	opacity: 0.35;
+	margin-bottom: 8px;
+}
+.browse-cat-label-solid
+{
+	background: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Dark mode */
+.dark-mode .browse-by-category-section
+{
+	background: var(--bg-secondary);
+	border-color: var(--border-color);
+}
+.dark-mode .browse-cat-header { color: var(--text-primary); border-bottom-color: var(--text-primary); }
 
 /*********************************
 15. Dark Mode
