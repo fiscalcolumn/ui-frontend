@@ -631,7 +631,7 @@
 
 .rcb-item-image {
   width: 120px;
-  height: 120px;
+  height: 140px;
   border-radius: 4px;
   overflow: hidden;
   background: #e9ecef;
@@ -666,6 +666,25 @@
 .rcb-item:hover .rcb-item-title {
   color: #14bdee;
 }
+
+/* Date | Author meta line used in Layout B */
+.rcb-meta {
+  font-size: 0.75rem;
+  color: #888;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 4px;
+}
+.rcb-meta-author {
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.rcb-meta-date { color: #999; }
+.rcb-meta-sep  { color: #ccc; }
 
 .rcb-item-excerpt {
   font-size: 0.9rem;
@@ -727,6 +746,11 @@ body.dark-mode .rcb-item-excerpt {
 body.dark-mode .rca-card-meta {
   color: #777;
 }
+
+body.dark-mode .rcb-meta { color: #777; }
+body.dark-mode .rcb-meta-author { color: #aaa; }
+body.dark-mode .rcb-meta-date { color: #666; }
+body.dark-mode .rcb-meta-sep { color: #444; }
 
 body.dark-mode .rc-author-name {
   color: #bbb;

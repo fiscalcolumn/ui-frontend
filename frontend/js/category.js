@@ -401,6 +401,13 @@ class CategoryPageManager {
     return `/${article.category?.slug || 'article'}/${article.slug}`;
   }
 
+  rcDateAuthor(article) {
+    const parts = [];
+    if (article.author?.name) parts.push(`<span class="rcb-meta-author">${article.author.name}</span>`);
+    if (article.publishedDate) parts.push(`<span class="rcb-meta-date">${Utils.formatDate(article.publishedDate)}</span>`);
+    return parts.join('<span class="rcb-meta-sep"> | </span>');
+  }
+
   // ─── Layout A: 4-column editorial grid ─────────────────────────────────────
 
   renderLayoutA(category, articles) {
@@ -437,6 +444,7 @@ class CategoryPageManager {
   renderLayoutB(category, articles) {
     const featured = articles[0];
     const sidebar = articles.slice(1, 4);
+    const featuredMeta = this.rcDateAuthor(featured);
     return `
       <div class="related-category-section rcs-layout-b">
         <div class="container">
@@ -451,6 +459,7 @@ class CategoryPageManager {
               ${this.rcCategoryBadge(featured)}
               <h3 class="rcb-featured-title">${featured.title}</h3>
               <p class="rcb-featured-excerpt">${featured.excerpt || Utils.truncateText(featured.content, 100)}</p>
+              ${featuredMeta ? `<div class="rcb-meta">${featuredMeta}</div>` : ''}
             </a>
             <div class="rcb-sidebar">
               ${sidebar.map(a => this.renderLayoutBItem(a)).join('')}
@@ -462,6 +471,8 @@ class CategoryPageManager {
 
   renderLayoutBItem(article) {
     const imgUrl = this.rcImageUrl(article);
+    const meta = this.rcDateAuthor(article);
+    const excerpt = article.excerpt || Utils.truncateText(article.content, 60);
     return `
       <a href="${this.rcArticleUrl(article)}" class="rcb-item">
         <div class="rcb-item-image">
@@ -472,7 +483,8 @@ class CategoryPageManager {
         <div class="rcb-item-content">
           ${this.rcCategoryBadge(article)}
           <h4 class="rcb-item-title">${article.title}</h4>
-          <p class="rcb-item-excerpt">${article.excerpt || Utils.truncateText(article.content, 60)}</p>
+          ${excerpt ? `<p class="rcb-item-excerpt">${excerpt}</p>` : ''}
+          ${meta ? `<div class="rcb-meta">${meta}</div>` : ''}
         </div>
       </a>`;
   }

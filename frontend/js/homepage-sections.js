@@ -53,7 +53,7 @@ class HomepageSectionsManager {
    * Fetch articles for a specific category
    */
   async fetchArticlesByCategory(categoryDocumentId, limit = 5) {
-    const url = getApiUrl(`/articles?populate[category]=true&populate[image]=true&populate[tags]=true&filters[category][documentId][$eq]=${categoryDocumentId}&pagination[limit]=${limit}&sort=publishedDate:desc`);
+    const url = getApiUrl(`/articles?populate[category]=true&populate[image]=true&populate[author][populate][photo]=true&filters[category][documentId][$eq]=${categoryDocumentId}&pagination[limit]=${limit}&sort=publishedDate:desc`);
     const response = await fetch(url);
     const data = await response.json();
     return data.data || [];
@@ -186,29 +186,62 @@ class HomepageSectionsManager {
    * Render News Section (Large post + small posts)
    */
   renderNewsSection(section, articles, bgClass, index, category) {
-    const mainArticle = articles[0];
-    const sideArticles = articles.slice(1, 5);
+    const featured = articles[0];
+    const sideArticles = articles.slice(1, 4);
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
     const sectionTitle = category?.displayname || category?.name || 'News';
 
-    return `
-      <div class="news content-section section-${index + 1} ${bgClass}">
-        <div class="container">
-          <div class="row">
-            <div class="col">
-              <div class="hp-section-header">
-                <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
-              </div>
-            </div>
+    if (!featured) return '';
+
+    const imgBase = window.API_CONFIG?.BASE_URL || '';
+
+    const featuredImgUrl = featured.image?.url ? `${imgBase}${featured.image.url}` : null;
+    const featuredExcerpt = featured.excerpt || Utils.truncateText(featured.content, 100);
+    const featuredUrl = `/${featured.category?.slug || 'article'}/${featured.slug}`;
+
+    const makeMeta = (a) => {
+      const parts = [];
+      if (a.author?.name) parts.push(`<span class="rcb-meta-author">${a.author.name}</span>`);
+      if (a.publishedDate) parts.push(`<span class="rcb-meta-date">${Utils.formatDate(a.publishedDate)}</span>`);
+      return parts.length ? `<div class="rcb-meta">${parts.join('<span class="rcb-meta-sep"> | </span>')}</div>` : '';
+    };
+
+    const sideItemsHtml = sideArticles.map(a => {
+      const imgUrl = a.image?.url ? `${imgBase}${a.image.url}` : null;
+      const url = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const excerpt = a.excerpt || Utils.truncateText(a.content, 60);
+      return `
+        <a href="${url}" class="rcb-item">
+          <div class="rcb-item-image">
+            ${imgUrl ? `<img src="${imgUrl}" alt="${a.title}">` : `<div class="rca-no-img"></div>`}
           </div>
-          <div class="row news_row">
-            <div class="col-lg-7 news_col">
-              ${mainArticle ? this.renderLargeNewsPost(mainArticle) : '<div class="no-articles">No articles available</div>'}
-            </div>
-            <div class="col-lg-5 news_col">
-              <div class="news_posts_small">
-                ${sideArticles.map(article => this.renderSmallNewsPost(article)).join('')}
+          <div class="rcb-item-content">
+            <h4 class="rcb-item-title">${a.title}</h4>
+            ${excerpt ? `<p class="rcb-item-excerpt">${excerpt}</p>` : ''}
+            ${makeMeta(a)}
+          </div>
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="content-section section-${index + 1} ${bgClass}">
+        <div class="container">
+          <div class="hp-section-header">
+            <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
+          </div>
+          <div class="rcb-grid">
+            <a href="${featuredUrl}" class="rcb-featured">
+              <div class="rcb-featured-image">
+                ${featuredImgUrl
+                  ? `<img src="${featuredImgUrl}" alt="${featured.title}">`
+                  : `<div class="rca-no-img"></div>`}
               </div>
+              <h3 class="rcb-featured-title">${featured.title}</h3>
+              <p class="rcb-featured-excerpt">${featuredExcerpt}</p>
+              ${makeMeta(featured)}
+            </a>
+            <div class="rcb-sidebar">
+              ${sideItemsHtml}
             </div>
           </div>
         </div>
@@ -268,7 +301,7 @@ class HomepageSectionsManager {
   renderGridWithDateSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
     const sectionTitle = category?.displayname || category?.name || 'Articles';
-    
+
     return `
       <div class="related-category-section content-section section-${index + 1} ${bgClass}">
         <div class="container">
@@ -276,7 +309,7 @@ class HomepageSectionsManager {
             <h3 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h3>
           </div>
           <div class="hp-carousel">
-            ${articles.slice(0, 10).map(article => this.renderCarouselCardWithDate(article)).join('')}
+            ${articles.slice(0, 10).map(article => this.renderCarouselCard(article)).join('')}
           </div>
         </div>
       </div>
@@ -348,6 +381,15 @@ class HomepageSectionsManager {
     const imgUrl = article.image?.url ? this.imgUrl(article.image.url) : null;
     const excerpt = article.excerpt || Utils.truncateText(article.content, 80);
     const url = `/${article.category?.slug || 'article'}/${article.slug}`;
+    const author = article.author;
+    const photoUrl = author?.photo?.url ? this.imgUrl(author.photo.url) : null;
+    const authorHtml = author ? `
+      <div class="rc-author">
+        ${photoUrl
+          ? `<img src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
+          : `<span class="rc-author-initial">${(author.name || 'A').charAt(0).toUpperCase()}</span>`}
+        <span class="rc-author-name">${author.name}</span>
+      </div>` : '';
 
     return `
       <a href="${url}" class="carousel-card rca-card">
@@ -358,11 +400,7 @@ class HomepageSectionsManager {
         </div>
         <h4 class="rca-card-title">${article.title}</h4>
         ${excerpt ? `<p class="rca-card-excerpt">${excerpt}</p>` : ''}
-        <div class="rca-card-meta">
-          <span>${article.minutesToread || 3} min read</span>
-          <span class="rca-sep">•</span>
-          <span>${Utils.formatDate(article.publishedDate)}</span>
-        </div>
+        ${authorHtml}
       </a>
     `;
   }
