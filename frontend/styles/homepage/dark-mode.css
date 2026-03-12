@@ -54,6 +54,17 @@
   border-top-color: #14bdee;
 }
 
+/* Section Header */
+.dark-mode .hp-section-title {
+  color: var(--text-primary);
+}
+.dark-mode .hp-section-title a {
+  color: var(--text-primary);
+}
+.dark-mode .hp-section-title a:hover {
+  color: #14bdee;
+}
+
 /* Carousel (same as category page) */
 .dark-mode .related-category-section:nth-child(odd) {
   background: var(--bg-primary);

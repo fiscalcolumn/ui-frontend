@@ -165,27 +165,9 @@ class HomepageSectionsManager {
   }
 
   /**
-   * Initialize carousel scrolling functionality (same as category page)
+   * No-op — carousels now use native CSS overflow scroll; no JS buttons needed.
    */
-  initCarouselScrolling() {
-    document.querySelectorAll('.carousel-nav').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const carouselId = btn.dataset.carousel;
-        const carousel = document.getElementById(carouselId);
-        if (!carousel) return;
-
-        const cardWidth = carousel.querySelector('.carousel-card')?.offsetWidth || 280;
-        const gap = 20;
-        const scrollAmount = cardWidth + gap;
-
-        if (btn.classList.contains('carousel-prev')) {
-          carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        } else {
-          carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
-      });
-    });
-  }
+  initCarouselScrolling() {}
 
   /**
    * Render News Section (Large post + small posts)
@@ -194,7 +176,6 @@ class HomepageSectionsManager {
     const mainArticle = articles[0];
     const sideArticles = articles.slice(1, 6);
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
-    // Use category.displayname instead of section.title
     const sectionTitle = category?.displayname || category?.name || 'News';
 
     return `
@@ -202,9 +183,8 @@ class HomepageSectionsManager {
         <div class="container">
           <div class="row">
             <div class="col">
-              <div class="section_title_container d-flex flex-row align-items-center justify-content-between">
-                <h2 class="section_title mb-0">${sectionTitle}</h2>
-                <div class="courses_button trans_200"><a href="${categoryUrl}">${section.buttonText || 'view all'}</a></div>
+              <div class="hp-section-header">
+                <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
               </div>
             </div>
           </div>
@@ -228,7 +208,6 @@ class HomepageSectionsManager {
    */
   renderGridSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
-    // Use category.displayname instead of section.title
     const sectionTitle = category?.displayname || category?.name || 'Articles';
     
     return `
@@ -236,9 +215,8 @@ class HomepageSectionsManager {
         <div class="container">
           <div class="row">
             <div class="col">
-              <div class="section_title_container d-flex flex-row align-items-center justify-content-between">
-                <h2 class="section_title mb-0">${sectionTitle}</h2>
-                <div class="courses_button trans_200"><a href="${categoryUrl}">${section.buttonText || 'view all'}</a></div>
+              <div class="hp-section-header">
+                <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
               </div>
             </div>
           </div>
@@ -251,33 +229,20 @@ class HomepageSectionsManager {
   }
 
   /**
-   * Render Grid Vertical Section (Carousel - same as category page)
+   * Render Grid Vertical Section (Carousel - native CSS horizontal scroll, 4 visible)
    */
   renderGridVerticalSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
-    const carouselId = `carousel-vertical-${index}`;
-    // Use category.displayname instead of section.title
     const sectionTitle = category?.displayname || category?.name || 'Articles';
     
     return `
       <div class="related-category-section content-section section-${index + 1} ${bgClass}">
         <div class="container">
-          <div class="related-category-header">
-            <h3 class="related-category-title">${sectionTitle}</h3>
-            <a href="${categoryUrl}" class="related-category-link">${section.buttonText || 'View All'} <i class="fa fa-arrow-right"></i></a>
+          <div class="hp-section-header">
+            <h3 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h3>
           </div>
-          <div class="related-carousel-wrapper">
-            <button class="carousel-nav carousel-prev" data-carousel="${carouselId}" aria-label="Previous">
-              <i class="fa fa-chevron-left"></i>
-            </button>
-            <div class="related-carousel" id="${carouselId}">
-              <div class="carousel-track">
-                ${articles.slice(0, 10).map(article => this.renderCarouselCard(article)).join('')}
-              </div>
-            </div>
-            <button class="carousel-nav carousel-next" data-carousel="${carouselId}" aria-label="Next">
-              <i class="fa fa-chevron-right"></i>
-            </button>
+          <div class="hp-carousel">
+            ${articles.slice(0, 10).map(article => this.renderCarouselCard(article)).join('')}
           </div>
         </div>
       </div>
@@ -285,33 +250,20 @@ class HomepageSectionsManager {
   }
 
   /**
-   * Render Grid with Date Section (Carousel with date badges)
+   * Render Grid with Date Section (Carousel with date badges — native CSS horizontal scroll, 4 visible)
    */
   renderGridWithDateSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
-    const carouselId = `carousel-date-${index}`;
-    // Use category.displayname instead of section.title
     const sectionTitle = category?.displayname || category?.name || 'Articles';
     
     return `
       <div class="related-category-section content-section section-${index + 1} ${bgClass}">
         <div class="container">
-          <div class="related-category-header">
-            <h3 class="related-category-title">${sectionTitle}</h3>
-            <a href="${categoryUrl}" class="related-category-link">${section.buttonText || 'View All'} <i class="fa fa-arrow-right"></i></a>
+          <div class="hp-section-header">
+            <h3 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h3>
           </div>
-          <div class="related-carousel-wrapper">
-            <button class="carousel-nav carousel-prev" data-carousel="${carouselId}" aria-label="Previous">
-              <i class="fa fa-chevron-left"></i>
-            </button>
-            <div class="related-carousel" id="${carouselId}">
-              <div class="carousel-track">
-                ${articles.slice(0, 10).map(article => this.renderCarouselCardWithDate(article)).join('')}
-              </div>
-            </div>
-            <button class="carousel-nav carousel-next" data-carousel="${carouselId}" aria-label="Next">
-              <i class="fa fa-chevron-right"></i>
-            </button>
+          <div class="hp-carousel">
+            ${articles.slice(0, 10).map(article => this.renderCarouselCardWithDate(article)).join('')}
           </div>
         </div>
       </div>

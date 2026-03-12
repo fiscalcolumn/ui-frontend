@@ -2287,7 +2287,7 @@ section
 .browse-cat-grid
 {
 	display: flex;
-	gap: 12px;
+	gap: 10px;
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
