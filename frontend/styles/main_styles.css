@@ -2139,6 +2139,8 @@ section
 	transition: background 200ms ease;
 }
 .footer-social-list li a:hover { background: #14bdee; }
+.footer-social-list li a[aria-label="RSS Feed"] { background: #e8611a; }
+.footer-social-list li a[aria-label="RSS Feed"]:hover { background: #c0501a; }
 
 /* Column titles */
 .footer-col-title

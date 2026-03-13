@@ -113,6 +113,7 @@ app.get('/robots.txt', (req, res) => {
 Allow: /
 
 Sitemap: ${SITE_URL}/sitemap.xml
+Feed: ${SITE_URL}/feed.xml
 `);
 });
 
@@ -375,6 +376,105 @@ app.get('/sitemap.xml', async (req, res) => {
   } catch (error) {
     console.error('Sitemap generation error:', error);
     res.status(500).send('Error generating sitemap');
+  }
+});
+
+/**
+ * Generate RSS 2.0 Feed from latest articles
+ */
+async function generateFeed() {
+  const articles = await fetchAllItems(
+    '/articles?populate[category]=true&populate[author]=true&populate[image]=true&sort=publishedDate:desc',
+    50
+  );
+
+  const escapeXml = (str = '') =>
+    String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+
+  const items = articles.map(article => {
+    const categorySlug = article.category?.slug || 'article';
+    const articleSlug  = article.slug || '';
+    const link         = `${SITE_URL}/${categorySlug}/${articleSlug}`;
+    const pubDate      = article.publishedDate
+      ? new Date(article.publishedDate).toUTCString()
+      : new Date(article.publishedAt || Date.now()).toUTCString();
+    const author       = article.author?.name || 'FiscalColumn';
+    const category     = article.category?.name || '';
+    const excerpt      = escapeXml(article.excerpt || '');
+    const imageUrl     = article.image?.url
+      ? `${STRAPI_URL}${article.image.url}`
+      : '';
+
+    const enclosure = imageUrl
+      ? `\n    <enclosure url="${escapeXml(imageUrl)}" type="image/jpeg" length="0"/>`
+      : '';
+
+    return `
+  <item>
+    <title>${escapeXml(article.title)}</title>
+    <link>${escapeXml(link)}</link>
+    <guid isPermaLink="true">${escapeXml(link)}</guid>
+    <pubDate>${pubDate}</pubDate>
+    <author>${escapeXml(author)}</author>
+    <category>${escapeXml(category)}</category>
+    <description>${excerpt}</description>${enclosure}
+  </item>`;
+  }).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:media="http://search.yahoo.com/mrss/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>FiscalColumn – Personal Finance &amp; Market Insights</title>
+    <link>${SITE_URL}</link>
+    <description>In-depth articles on personal finance, gold &amp; silver rates, banking, investing, and market trends in India.</description>
+    <language>en-in</language>
+    <copyright>Copyright ${new Date().getFullYear()} FiscalColumn</copyright>
+    <managingEditor>hello@fiscalcolumn.com (FiscalColumn)</managingEditor>
+    <webMaster>hello@fiscalcolumn.com (FiscalColumn)</webMaster>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <ttl>60</ttl>
+    <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
+    <image>
+      <url>${SITE_URL}/favicon-32x32.png</url>
+      <title>FiscalColumn</title>
+      <link>${SITE_URL}</link>
+    </image>
+${items}
+  </channel>
+</rss>`;
+}
+
+// RSS Feed cache
+let feedCache = { xml: null, timestamp: null, ttl: 60 * 60 * 1000 }; // 1 hour
+
+// RSS Feed endpoint
+app.get('/feed.xml', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (feedCache.xml && feedCache.timestamp && (now - feedCache.timestamp) < feedCache.ttl) {
+      res.type('application/rss+xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      return res.send(feedCache.xml);
+    }
+
+    const xml = await generateFeed();
+    feedCache.xml = xml;
+    feedCache.timestamp = now;
+
+    res.type('application/rss+xml');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (error) {
+    console.error('RSS feed generation error:', error);
+    res.status(500).send('Error generating RSS feed');
   }
 });
 

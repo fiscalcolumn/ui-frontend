@@ -169,7 +169,15 @@ async function renderFooter() {
 
   if (brandTextEl)  brandTextEl.textContent  = data.logoText;
   if (brandDescEl)  brandDescEl.textContent  = data.description;
-  if (socialListEl) socialListEl.innerHTML   = renderSocialLinks(data.socialLinks);
+  if (socialListEl) {
+    socialListEl.innerHTML = renderSocialLinks(data.socialLinks);
+    // Append RSS feed link
+    const rssItem = document.createElement('li');
+    rssItem.innerHTML = `<a href="/feed.xml" target="_blank" rel="noopener noreferrer" aria-label="RSS Feed" title="Subscribe via RSS">
+      <i class="fa fa-rss" aria-hidden="true"></i>
+    </a>`;
+    socialListEl.appendChild(rssItem);
+  }
 
   // Info bar — col 2
   const contactEl = footer.querySelector('.footer-contact-info');
