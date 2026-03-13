@@ -2092,8 +2092,8 @@ section
 .footer-info-grid
 {
 	display: grid;
-	grid-template-columns: 2fr 1.5fr 1fr;
-	gap: 48px;
+	grid-template-columns: 1fr 1.5fr 1fr;
+	gap: 150px;
 	align-items: flex-start;
 }
 .footer-col { display: flex; flex-direction: column; gap: 16px; }
@@ -2156,28 +2156,62 @@ section
 	
 }
 
-/* Contact column */
-.footer-contact-info { display: flex; flex-direction: column; gap: 12px; }
-.footer-contact-line
-{
+/* Newsletter column */
+.footer-newsletter-desc {
+	font-size: 1rem;
+	color: #3c3d3e;
+	line-height: 1.5;
+	margin: 0;
+}
+.footer-subscribe-form {
 	display: flex;
-	align-items: flex-start;
-	gap: 15px;
-	font-family: 'Merriweather', serif;
-	font-size: 16px;
-	color: #03112b;
-	line-height: 1.5;
+	flex-direction: column;
+	gap: 10px;
 }
-.footer-contact-line i
-{
-	color: #14bdee;
-	font-size: 20px;
-	margin-top: 1px;
-	line-height: 1.5;
-	flex-shrink: 0;
+.footer-subscribe-input-wrap {
+	position: relative;
 }
-.footer-contact-line a { color: #8b95a8; transition: color 150ms ease; }
-.footer-contact-line a:hover { color: #406f8f; }
+.footer-subscribe-input {
+	width: 100%;
+	padding: 10px 14px;
+	border: 1.5px solid #d0d7e2;
+	border-radius: 2px;
+	font-size: 1rem;
+	text-transform: uppercase;
+	font-family: 'DM Sans', sans-serif;
+	color: #1a2332;
+	background: #fff;
+	outline: none;
+	box-sizing: border-box;
+	transition: border-color 0.2s;
+}
+.footer-subscribe-input:focus {
+	border-color: #14bdee;
+}
+.footer-subscribe-btn {
+	padding: 10px 20px;
+	background: #838585;
+	color: #fff;
+	border: none;
+	text-transform: uppercase;
+	border-radius: 2px;
+	font-size: 1rem;
+	font-weight: 600;
+	font-family: 'DM Sans', sans-serif;
+	cursor: pointer;
+	transition: background 0.2s;
+	letter-spacing: 0.3px;
+}
+.footer-subscribe-btn:hover  { background: #0fa8d6; }
+.footer-subscribe-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.footer-subscribe-msg {
+	font-size: 0.82rem;
+	margin: 0;
+	min-height: 1.2em;
+}
+.footer-subscribe-msg--success { color: #1aab60; }
+.footer-subscribe-msg--error   { color: #e03e3e; }
+
 
 /* Mobile / App badges column */
 .footer-app-badges

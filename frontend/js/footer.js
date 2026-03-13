@@ -154,6 +154,59 @@ function renderNavLinks(links) {
 
 // --- Main render ---
 
+function initSubscribeForm() {
+  const form  = document.getElementById('footer-subscribe-form');
+  const input = document.getElementById('footer-subscribe-email');
+  const msg   = document.getElementById('footer-subscribe-msg');
+  if (!form || !input || !msg) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg.className = 'footer-subscribe-msg';
+    msg.textContent = '';
+
+    const email = input.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      msg.textContent = 'Please enter a valid email address.';
+      msg.classList.add('footer-subscribe-msg--error');
+      return;
+    }
+
+    const btn = form.querySelector('.footer-subscribe-btn');
+    btn.disabled = true;
+    btn.textContent = 'Subscribing...';
+
+    try {
+      const apiBase = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
+      const res = await fetch(`${apiBase}/api/subscriptions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: { email, source: 'footer' } }),
+      });
+      const json = await res.json();
+
+      if (res.ok) {
+        const text = json.message === 'already_subscribed'
+          ? 'You\'re already subscribed!'
+          : 'Thank you for subscribing!';
+        msg.textContent = text;
+        msg.classList.add('footer-subscribe-msg--success');
+        input.value = '';
+      } else {
+        msg.textContent = json.error?.message || 'Something went wrong. Please try again.';
+        msg.classList.add('footer-subscribe-msg--error');
+      }
+    } catch {
+      msg.textContent = 'Network error. Please try again.';
+      msg.classList.add('footer-subscribe-msg--error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Subscribe';
+    }
+  });
+}
+
 async function renderFooter() {
   const footer = document.querySelector('.footer');
   if (!footer) return;
@@ -179,9 +232,8 @@ async function renderFooter() {
     socialListEl.appendChild(rssItem);
   }
 
-  // Info bar — col 2
-  const contactEl = footer.querySelector('.footer-contact-info');
-  if (contactEl) contactEl.innerHTML = renderContactInfo(data.contactInfo);
+  // Info bar — col 2: Newsletter subscribe form
+  initSubscribeForm();
 
   // Info bar — col 3
   const mobileTitleEl = footer.querySelector('.footer-mobile-title');
