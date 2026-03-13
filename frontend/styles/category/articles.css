@@ -8,8 +8,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 50px;
-  padding-bottom: 35px;
-  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+  
   margin-bottom: 30px;
   align-items: center;
 }

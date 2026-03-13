@@ -39,7 +39,7 @@
 /* Trending bar outer wrapper — white strip with bottom border */
 .category-tags-section {
   padding: 0;
-  background: #fff;
+  background: #e2cfd9;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -51,8 +51,8 @@
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 30px 0;
-  margin: 30px 0;
+  padding: 20px 0;
+  margin: 20px 0;
   border-top: 1px solid #e0e0e0;
   border-bottom: 1px solid #e0e0e0;
   gap: 0;
