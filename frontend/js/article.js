@@ -75,7 +75,7 @@ class ArticlePageManager {
    */
   async fetchArticle(slug) {
     const url = getApiUrl(
-      `/articles?filters[slug][$eq]=${slug}&populate[category]=true&populate[image]=true&populate[tags]=true&populate[author]=true`
+      `/articles?filters[slug][$eq]=${slug}&populate[category]=true&populate[image]=true&populate[tags]=true&populate[author][populate][photo]=true`
     );
     const response = await fetch(url);
     const data = await response.json();
@@ -293,7 +293,10 @@ class ArticlePageManager {
       : '';
 
     const authorInitial = author.charAt(0).toUpperCase();
-    const authorAvatarSvg = `<svg class="author-avatar-svg" width="32" height="32" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    const authorPhotoUrl = authorObj?.photo?.url ? `${window.API_CONFIG?.BASE_URL || ''}${authorObj.photo.url}` : null;
+    const authorAvatarSvg = authorPhotoUrl
+      ? `<img src="${authorPhotoUrl}" alt="${author}" class="author-avatar-img" width="32" height="32">`
+      : `<svg class="author-avatar-svg" width="32" height="32" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <circle cx="18" cy="18" r="18" fill="#1a2332"/>
       <text x="18" y="23" text-anchor="middle" font-size="15" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">${authorInitial}</text>
     </svg>`;
