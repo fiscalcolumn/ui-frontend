@@ -416,14 +416,6 @@ class ArticlePageManager {
       : '';
 
     this.sidebarContainer.innerHTML = `
-      <!-- Latest Articles -->
-      <div class="sidebar-section">
-        <h3 class="sidebar-section-title">Latest Articles</h3>
-        <div class="latest-articles latest-articles-scrollable">
-          ${latestHtml}
-        </div>
-      </div>
-
       ${relatedHtml ? `
       <!-- Related Articles (Same Category) -->
       <div class="sidebar-section">
@@ -436,6 +428,14 @@ class ArticlePageManager {
         </div>
       </div>
       ` : ''}
+
+      <!-- Latest Articles -->
+      <div class="sidebar-section">
+        <h3 class="sidebar-section-title">Latest Articles</h3>
+        <div class="latest-articles latest-articles-scrollable">
+          ${latestHtml}
+        </div>
+      </div>
 
     `;
   }

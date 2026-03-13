@@ -383,6 +383,11 @@ app.get('/', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'index.html'));
 });
 
+// App coming soon page
+app.get('/app', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'coming-soon.html'));
+});
+
 // Tags listing - /tags
 app.get('/tags', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'tags.html'));

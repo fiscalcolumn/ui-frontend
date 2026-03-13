@@ -67,9 +67,48 @@
   margin-right: 4px;
 }
 
+/* ── Featured First Article (image on right) ── */
+.featured-article-wrapper .featured-article {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 35px;
+}
+.featured-article-wrapper .featured-image {
+  order: 2;
+  margin-bottom: 0;
+  max-height: 340px;
+}
+.featured-article-wrapper .featured-image img {
+  height: 340px;
+  border-radius: 5px;
+}
+.featured-article-wrapper .featured-content {
+  order: 1;
+}
+
+@media (max-width: 768px) {
+  .featured-article-wrapper .featured-article {
+    grid-template-columns: 1fr !important;
+  }
+  .featured-article-wrapper .featured-image {
+    order: 1;
+    max-height: 220px;
+  }
+  .featured-article-wrapper .featured-image img {
+    height: 220px;
+  }
+  .featured-article-wrapper .featured-content {
+    order: 2;
+  }
+}
+
 /* ── Dark Mode ── */
 .dark-mode .author-info-bar          { background: var(--bg-secondary); border-bottom-color: var(--border-color); }
 .dark-mode .author-info-name         { color: var(--text-primary); }
 .dark-mode .author-info-bio          { color: var(--text-secondary); }
 .dark-mode .author-info-stat         { color: var(--text-muted); }
 .dark-mode .author-large-avatar circle { fill: #2a3a50; }
+.dark-mode .featured-article-wrapper .featured-article { border-bottom-color: var(--border-color); }

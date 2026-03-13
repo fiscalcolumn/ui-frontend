@@ -136,7 +136,8 @@ function renderAppBadges(appDownloads) {
     const img = app.image || BADGE_IMAGES[app.platform];
     if (!img) return '';
     const label = app.label || (app.platform === 'google-play' ? 'Get it on Google Play' : 'Download on the App Store');
-    return `<a href="${app.url || '#'}" target="_blank" rel="noopener noreferrer" class="footer-badge-link">
+    // Always point to the coming-soon page until real app links are available
+    return `<a href="/app" class="footer-badge-link">
       <img src="${img}" alt="${label}" class="footer-badge-img">
     </a>`;
   }).join('');
