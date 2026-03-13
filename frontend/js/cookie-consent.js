@@ -5,17 +5,35 @@
  * Values: 'all' | 'essential' | null (not yet decided)
  */
 (function () {
-  const STORAGE_KEY = 'fc_cookie_consent';
-  const BANNER_ID   = 'fc-cookie-banner';
+  const STORAGE_KEY   = 'fc_cookie_consent';
+  const STORAGE_DATE  = 'fc_cookie_consent_date';
+  const BANNER_ID     = 'fc-cookie-banner';
+  const EXPIRY_DAYS   = 180; // re-ask after 6 months
 
   function getConsent() {
-    try { return localStorage.getItem(STORAGE_KEY); } catch { return null; }
+    try {
+      const value = localStorage.getItem(STORAGE_KEY);
+      if (!value) return null;
+
+      const savedDate = localStorage.getItem(STORAGE_DATE);
+      if (savedDate) {
+        const ageMs   = Date.now() - new Date(savedDate).getTime();
+        const ageDays = ageMs / (1000 * 60 * 60 * 24);
+        if (ageDays > EXPIRY_DAYS) {
+          // Consent expired — clear and re-ask
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(STORAGE_DATE);
+          return null;
+        }
+      }
+      return value;
+    } catch { return null; }
   }
 
   function setConsent(value) {
     try {
       localStorage.setItem(STORAGE_KEY, value);
-      localStorage.setItem(STORAGE_KEY + '_date', new Date().toISOString());
+      localStorage.setItem(STORAGE_DATE, new Date().toISOString());
     } catch {}
   }
 
