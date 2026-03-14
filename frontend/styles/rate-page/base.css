@@ -15,7 +15,7 @@
   background: linear-gradient(135deg, #1a2332 0%, #0d1520 100%);
   padding: 36px 0 0;
   margin-bottom: 28px;
-  border-bottom: 3px solid var(--mc, #D4A017);
+  border-bottom: 24px solid var(--mc, #ede3c9);
 }
 
 .rp-hero-top {
@@ -33,7 +33,7 @@
   gap: 18px;
 }
 
-.rp-metal-icon { font-size: 2.8rem; line-height: 1; }
+.rp-metal-icon { font-size: 5rem; line-height: 1; }
 
 .rp-title {
   font-size: 2rem;
@@ -97,19 +97,19 @@
   padding: 10px 24px;
   border: none;
   background: rgba(255,255,255,0.06);
-  color: #8b9bb4;
-  font-size: 1.2rem;
-  font-weight: 600;
+  color: #dfe7f3;
+  font-size: 1.5rem;
+  font-weight: 800;
   cursor: pointer;
-  border-radius: 8px 8px 0 0;
+  
   transition: background 0.15s, color 0.15s;
-  line-height: 1.2;
+  line-height: 2;
 }
 .rp-purity-tab span {
-  font-size: 0.65rem;
+  font-size: 1rem;
   font-weight: 400;
   color: inherit;
-  opacity: 0.7;
+  opacity: 0.;
   margin-top: 2px;
 }
 .rp-purity-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
@@ -291,31 +291,38 @@
 
 .rp-location-result {
   display: flex;
-  align-items: baseline;
-  gap: 14px;
-  padding: 18px 20px;
-  background: var(--card-bg, #f8f9fa);
-  border: 1px solid var(--border-color, #e8eaed);
+  max-width: 280px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px 20px;
   border-radius: 10px;
-  margin-bottom: 12px;
+  gap: 8px;
+  min-height: 240px;
+}
+.rp-loc-context {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 10px;
 }
 .rp-loc-price {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
   color: var(--mc, #D4A017);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  padding-bottom: 10px;
 }
 .rp-loc-label {
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   color: var(--text-secondary, #666);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.rp-loc-coming {
-  font-size: 0.7rem;
-  color: var(--text-secondary, #888);
-  margin-top: 2px;
+  letter-spacing: 0.05em;
+  padding-bottom: 10px;
 }
 
 .rp-location-note {
@@ -400,14 +407,19 @@
 }
 .rp-loc-tax-row .rp-card { margin-bottom: 0; }
 
-/* Location card — State + City side by side */
-.rp-location-selects {
+/* Location card — dropdowns left | price right */
+.rp-location-inner {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 24px;
+  align-items: start;
 }
-.rp-location-selects .rp-select { width: 100%; }
+.rp-location-dropdowns {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rp-location-dropdowns .rp-select { width: 100%; }
 
 /* Tax card */
 .rp-tax-list {
@@ -677,8 +689,6 @@ a.rp-jwl-img-wrap:hover {
   .rp-hero-right { text-align: left; width: 100%; }
   .rp-price-main { font-size: 2.2rem; }
   .rp-title { font-size: 1.4rem; }
-  .rp-location-row { grid-template-columns: 1fr; }
-  .rp-location-result { text-align: left; }
   .rp-chart-header { flex-direction: column; align-items: flex-start; }
-  .rp-card { padding: 20px 16px; }
+  .rp-location-inner { grid-template-columns: 1fr; }
 }

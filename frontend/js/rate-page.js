@@ -72,7 +72,7 @@ class RatePageManager {
     this.taxes           = [];
     this.articles        = [];
     this.cities          = [];
-    // Detect city slug from URL: /gold-rate/mumbai → 'mumbai'
+    // Detect city slug from URL: /gold-rate-today/mumbai → 'mumbai'
     const urlParts = window.location.pathname.split('/').filter(Boolean);
     this.citySlug  = urlParts.length >= 2 ? urlParts[1] : null;
     this.cityName  = this.citySlug
@@ -82,7 +82,7 @@ class RatePageManager {
 
   // ── Boot ────────────────────────────────────────────────────────────────────
   async init() {
-    this.metal = window.location.pathname.includes('silver')
+    this.metal = window.location.pathname.toLowerCase().includes('silver')
       ? METAL_CONFIG.silver
       : METAL_CONFIG.gold;
 
@@ -340,9 +340,10 @@ class RatePageManager {
     ).join('');
 
     // ── State dropdown ──
-    const stateOpts = this.states.length
-      ? this.states.map(s => `<option value="${s}">${s}</option>`).join('')
-      : '<option disabled>No states loaded — enable public access in Strapi Admin</option>';
+    const firstState = this.states[0] || '';
+    const stateOpts  = this.states.length
+      ? this.states.map(s => `<option value="${s}"${s === firstState ? ' selected' : ''}>${s}</option>`).join('')
+      : '<option disabled>No states loaded</option>';
 
     this.mainEl.innerHTML = `
 
@@ -353,26 +354,30 @@ class RatePageManager {
 
             <div class="rp-card rp-location-card">
               <h2 class="rp-section-title"><i class="fa fa-map-marker"></i> Check Rate by City</h2>
-              <div class="rp-location-selects">
-                <div class="rp-select-wrap">
-                  <label>State</label>
-                  <select class="rp-select" id="rp-state-select">
-                    <option value="">All India Average</option>
-                    ${stateOpts}
-                  </select>
+              <div class="rp-location-inner">
+                <!-- Left: stacked dropdowns -->
+                <div class="rp-location-dropdowns">
+                  <div class="rp-select-wrap">
+                    <label>State</label>
+                    <select class="rp-select" id="rp-state-select">
+                      ${stateOpts}
+                    </select>
+                  </div>
+                  <div class="rp-select-wrap">
+                    <label>City</label>
+                    <select class="rp-select" id="rp-city-select" disabled>
+                      <option value="">Loading…</option>
+                    </select>
+                  </div>
+                  <p class="rp-location-note"><i class="fa fa-info-circle"></i> City-specific rates coming soon. Showing national average.</p>
                 </div>
-                <div class="rp-select-wrap">
-                  <label>City</label>
-                  <select class="rp-select" id="rp-city-select" disabled>
-                    <option value="">Select State first</option>
-                  </select>
+                <!-- Right: price panel — always visible -->
+                <div class="rp-location-result" id="rp-location-result">
+                  <div class="rp-loc-context" id="rp-loc-context">All India</div>
+                  <div class="rp-loc-price" id="rp-loc-price">${base ? this.fmt(Math.round(base * ap.ratio)) : '—'}</div>
+                  <div class="rp-loc-label" id="rp-loc-label">${ap.label} · per ${mc.unitLabel}</div>
                 </div>
               </div>
-              <div class="rp-location-result" id="rp-location-result">
-                <div class="rp-loc-price">${base ? this.fmt(dispPrice) : '—'}</div>
-                <div class="rp-loc-label">All India · ${ap.label} · per ${mc.unitLabel}</div>
-              </div>
-              <p class="rp-location-note"><i class="fa fa-info-circle"></i> City-specific rates are coming soon. Currently showing national average.</p>
             </div>
 
             <div class="rp-card rp-jewellers-col">
@@ -482,11 +487,12 @@ class RatePageManager {
     }).join('');
 
     return `
-      <div class="hp-section-header">
-        <h3 class="hp-section-title">
-          <a href="/${mc.name.toLowerCase()}-rate">${mc.name.toUpperCase()} RATES NEWS &amp; UPDATES</a>
-        </h3>
-      </div>
+        <div class="hp-section-header">
+          <h3 class="hp-section-title">
+            <a href="/${mc.name.toLowerCase()}-rate">${mc.name.toUpperCase()} RATES NEWS &amp; UPDATES</a>
+          </h3>
+        </div>
+        <!-- ↑ links to category page /gold-rate or /silver-rate -->
       <div class="hp-carousel">${cards}</div>`;
   }
 
@@ -494,7 +500,7 @@ class RatePageManager {
   renderCitiesSection() {
     if (!this.cities.length) return '';
     const metal    = this.metal.name.toLowerCase();
-    const basePath = `/${metal}-rate`;
+    const basePath = `/${metal}-rate-today`;
     const PER_ROW  = 10;
 
     const items = this.cities.map(c => {
@@ -736,40 +742,56 @@ class RatePageManager {
 
   // ── Location ──────────────────────────────────────────────────────────────────
   bindLocationSelectors() {
-    const stateEl  = document.getElementById('rp-state-select');
-    const cityEl   = document.getElementById('rp-city-select');
-    const resultEl = document.getElementById('rp-location-result');
+    const stateEl   = document.getElementById('rp-state-select');
+    const cityEl    = document.getElementById('rp-city-select');
+    const priceEl   = document.getElementById('rp-loc-price');
+    const labelEl   = document.getElementById('rp-loc-label');
+    const contextEl = document.getElementById('rp-loc-context');
     if (!stateEl) return;
 
-    stateEl.addEventListener('change', async () => {
-      const stateName = stateEl.value;
-      if (!stateName) {
-        cityEl.innerHTML = '<option>Select State first</option>';
-        cityEl.disabled  = true;
-        return;
-      }
+    const updatePrice = (location) => {
+      const mc   = this.metal;
+      const base = parseFloat(this.todayRate?.buyingRate || 0);
+      const p    = mc.purities[this.activePurityIdx];
+      if (priceEl)   priceEl.textContent   = base ? this.fmt(Math.round(base * p.ratio)) : '—';
+      if (labelEl)   labelEl.textContent   = `${p.label} · per ${mc.unitLabel}`;
+      if (contextEl) contextEl.textContent = location;
+    };
 
+    const loadCitiesForState = async (stateName, autoSelectFirst = false) => {
       cityEl.innerHTML = '<option>Loading…</option>';
       cityEl.disabled  = true;
 
       const cities = await this.fetchCitiesForState(stateName);
       if (cities.length > 0) {
-        cityEl.innerHTML = `<option value="">All cities in ${stateName}</option>` +
-          cities.map(c => `<option value="${c}">${c}</option>`).join('');
+        cityEl.innerHTML = cities.map((c, i) =>
+          `<option value="${c}"${i === 0 && autoSelectFirst ? ' selected' : ''}>${c}</option>`
+        ).join('');
         cityEl.disabled = false;
+        if (autoSelectFirst) updatePrice(`${cities[0]}, ${stateName}`);
       } else {
-        cityEl.innerHTML = '<option>No cities found</option>';
+        cityEl.innerHTML = '<option value="">No cities found</option>';
       }
+    };
 
-      if (resultEl) {
-        const mc    = this.metal;
-        const base  = parseFloat(this.todayRate?.buyingRate || 0);
-        const p     = mc.purities[this.activePurityIdx];
-        resultEl.innerHTML = `
-          <div class="rp-loc-price">${this.fmt(Math.round(base * p.ratio))}</div>
-          <div class="rp-loc-label">${stateName} · ${p.label} · per ${mc.unitLabel}</div>
-          <div class="rp-loc-coming">City rates coming soon</div>`;
+    // Auto-select first state's cities on load
+    if (stateEl.value) loadCitiesForState(stateEl.value, true);
+
+    stateEl.addEventListener('change', async () => {
+      const stateName = stateEl.value;
+      if (!stateName) {
+        cityEl.innerHTML = '<option value="">Select State first</option>';
+        cityEl.disabled  = true;
+        updatePrice('All India');
+        return;
       }
+      await loadCitiesForState(stateName, true);
+    });
+
+    cityEl.addEventListener('change', () => {
+      const cityName  = cityEl.value;
+      const stateName = stateEl.value;
+      updatePrice(cityName ? `${cityName}, ${stateName}` : stateName);
     });
   }
 
@@ -788,7 +810,7 @@ class RatePageManager {
     document.getElementById('twitter-title')?.setAttribute('content', title);
     document.getElementById('twitter-description')?.setAttribute('content', desc);
 
-    const metalBase = `/${mc.name.toLowerCase()}-rate`;
+    const metalBase = `/${mc.name.toLowerCase()}-rate-today`;
     const canonical = this.citySlug
       ? `${window.location.origin}${metalBase}/${this.citySlug}`
       : `${window.location.origin}${metalBase}`;
@@ -803,7 +825,7 @@ class RatePageManager {
 
     const catEl  = document.getElementById('breadcrumb-category');
     const pageEl = document.getElementById('breadcrumb-page');
-    if (catEl)  { catEl.textContent = `${mc.name} Rates`; catEl.href = metalBase; }
+    if (catEl)  { catEl.textContent = `${mc.name} Rate Today`; catEl.href = metalBase; }
     if (pageEl) pageEl.textContent = this.cityName
       ? `${mc.name} Rate in ${this.cityName}`
       : `${mc.name} Rate Today`;

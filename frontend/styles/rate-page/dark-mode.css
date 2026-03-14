@@ -25,11 +25,10 @@
 .dark-mode .rp-section .hp-section-title a { color: var(--text-primary); }
 
 /* Location card */
-.dark-mode .rp-jewellers-col { border-left-color: var(--border-color); }
-.dark-mode .rp-location-result {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-}
+.dark-mode .rp-jewellers-col    { border-left-color: var(--border-color); }
+.dark-mode .rp-location-result  { border-color: var(--border-color); }
+.dark-mode .rp-loc-context      { color: var(--text-secondary); }
+.dark-mode .rp-loc-label        { color: var(--text-secondary); }
 .dark-mode .rp-select {
   background-color: var(--bg-secondary);
   border-color: var(--border-color);

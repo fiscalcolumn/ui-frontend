@@ -307,14 +307,14 @@ async function generateSitemap() {
       }
     }
 
-    // Rate landing pages
+    // Rate today landing pages
     xml += `  <url>
-    <loc>${SITE_URL}/gold-rate</loc>
+    <loc>${SITE_URL}/gold-rate-today</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/silver-rate</loc>
+    <loc>${SITE_URL}/silver-rate-today</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -325,12 +325,12 @@ async function generateSitemap() {
       const citySlug = (city.slug || city.name || '').toLowerCase().replace(/\s+/g, '-');
       if (citySlug) {
         xml += `  <url>
-    <loc>${SITE_URL}/gold-rate/${encodeURIComponent(citySlug)}</loc>
+    <loc>${SITE_URL}/gold-rate-today/${encodeURIComponent(citySlug)}</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/silver-rate/${encodeURIComponent(citySlug)}</loc>
+    <loc>${SITE_URL}/silver-rate-today/${encodeURIComponent(citySlug)}</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -483,19 +483,19 @@ app.get('/app', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'coming-soon.html'));
 });
 
-// Rate pages - /gold-rate, /silver-rate (short canonical URLs)
-app.get('/gold-rate', (req, res) => {
+// Rate pages - today's live price pages
+app.get('/gold-rate-today', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
 });
-app.get('/silver-rate', (req, res) => {
+app.get('/silver-rate-today', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
 });
 
-// City-specific rate pages - /gold-rate/mumbai, /silver-rate/delhi etc.
-app.get('/gold-rate/:city', (req, res) => {
+// City-specific rate pages - /gold-rate-today/mumbai, /silver-rate-today/delhi etc.
+app.get('/gold-rate-today/:city', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
 });
-app.get('/silver-rate/:city', (req, res) => {
+app.get('/silver-rate-today/:city', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
 });
 
