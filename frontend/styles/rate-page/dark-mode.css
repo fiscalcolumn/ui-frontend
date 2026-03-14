@@ -1,126 +1,86 @@
 /**
- * Rate Page Dark Mode Styles
+ * Rate Page — Dark Mode
  */
 
-/* Breadcrumb dark mode styles moved to main_styles.css */
+.dark-mode .rate-page-container { background: var(--bg-primary); }
 
-.dark-mode .rate-page-container {
-  background: var(--bg-primary);
+/* Hero stays dark regardless — just lighten slightly */
+.dark-mode .rp-hero { background: linear-gradient(135deg, #0d1520 0%, #060d14 100%); }
+.dark-mode .rp-purity-tab.active { background: var(--bg-primary); }
+
+/* Cards */
+.dark-mode .rp-card {
+  background: var(--bg-secondary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
+.dark-mode .rp-section-title { color: var(--text-primary); }
 
-.dark-mode .rate-header {
+/* Price table */
+.dark-mode .rp-price-table th {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   border-bottom-color: var(--border-color);
 }
+.dark-mode .rp-price-table td {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .rp-price-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+.dark-mode .rp-table-purity { color: var(--text-primary) !important; }
+.dark-mode .rp-table-note { color: var(--text-muted); }
 
-.dark-mode .rate-title {
+/* Range buttons */
+.dark-mode .rp-range-btn {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+.dark-mode .rp-range-btn:hover { color: var(--mc, #D4A017); border-color: var(--mc, #D4A017); }
+
+/* Chart stats */
+.dark-mode .rp-chart-stats { color: var(--text-muted); }
+.dark-mode .rp-chart-stats strong { color: var(--text-primary); }
+
+/* Location */
+.dark-mode .rp-select {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
   color: var(--text-primary);
 }
+.dark-mode .rp-select-wrap label { color: var(--text-secondary); }
+.dark-mode .rp-location-note { color: var(--text-muted); }
 
-.dark-mode .rate-date {
-  color: var(--text-secondary);
-}
+/* About */
+.dark-mode .rp-about-item { background: var(--bg-tertiary); }
+.dark-mode .rp-about-item h3 { color: var(--text-primary); }
+.dark-mode .rp-about-item p  { color: var(--text-secondary); }
 
-.dark-mode .rate-display-card {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-  border-color: #14bdee;
-}
+/* Loading / Error */
+.dark-mode .rp-spinner { border-color: var(--border-color); border-top-color: #D4A017; }
+.dark-mode .rp-error { background: var(--bg-secondary); }
+.dark-mode .rp-error h2 { color: var(--text-primary); }
+.dark-mode .rp-error p  { color: var(--text-secondary); }
+.dark-mode .rp-no-data  { color: var(--text-muted); }
 
-.dark-mode .rate-label,
-.dark-mode .rate-unit {
-  color: var(--text-secondary);
-}
 
-.dark-mode .rate-amount {
-  color: #14bdee;
-}
+/* Tax card */
+.dark-mode .rp-tax-label       { color: var(--text-primary); }
+.dark-mode .rp-tax-note-inline,
+.dark-mode .rp-tax-note        { color: var(--text-secondary); }
+.dark-mode .rp-tax-row         { border-bottom-color: var(--border-color); }
+.dark-mode .rp-tax-gov--central { background: rgba(26,111,168,0.2); color: #6ab4e8; }
+.dark-mode .rp-tax-gov--state   { background: rgba(160,100,0,0.2);  color: #e8b84b; }
+.dark-mode .rp-tax-gov--both    { background: rgba(39,110,39,0.2);  color: #74d474; }
 
-.dark-mode .rate-mcx {
-  border-top-color: var(--border-color);
-}
-
-.dark-mode .mcx-label {
-  color: var(--text-secondary);
-}
-
-.dark-mode .mcx-value {
-  color: var(--text-primary);
-}
-
-.dark-mode .purity-item {
+/* Jeweller cards */
+.dark-mode .rp-jwl-card:hover { border-color: var(--mc, #D4A017); }
+.dark-mode .rp-jwl-img-wrap {
   background: var(--bg-secondary);
   border-color: var(--border-color);
 }
-
-.dark-mode .purity-label {
-  color: var(--text-secondary);
+.dark-mode a.rp-jwl-img-wrap:hover {
+  border-color: var(--mc, #D4A017);
 }
-
-.dark-mode .purity-value {
-  color: #14bdee;
-}
-
-.dark-mode .rate-chart-section,
-.dark-mode .rate-info-section,
-.dark-mode .sidebar-section {
-  background: var(--bg-secondary);
-}
-
-.dark-mode .section-title {
-  color: var(--text-primary);
-}
-
-.dark-mode .rate-info-content {
-  color: var(--text-secondary);
-}
-
-.dark-mode .rate-info-content strong {
-  color: #5ecef5;
-}
-
-.dark-mode .sidebar-title {
-  color: var(--text-primary);
-  border-bottom-color: var(--border-color);
-}
-
-.dark-mode .city-rate-item {
-  background: var(--bg-tertiary);
-}
-
-.dark-mode .city-rate-item:hover {
-  background: rgba(20, 189, 238, 0.1);
-}
-
-.dark-mode .city-name {
-  color: var(--text-primary);
-}
-
-.dark-mode .city-rate {
-  color: #14bdee;
-}
-
-.dark-mode .quick-link {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.dark-mode .quick-link:hover {
-  background: #14bdee;
-  color: #fff;
-}
-
-.dark-mode .rate-error {
-  background: var(--bg-secondary);
-}
-
-.dark-mode .rate-error h2 {
-  color: var(--text-primary);
-}
-
-.dark-mode .rate-error p {
-  color: var(--text-secondary);
-}
-
-.dark-mode .no-data {
-  color: var(--text-muted);
-}
-
+.dark-mode .rp-jwl-name { color: var(--text-primary); }
+.dark-mode .rp-jewellers-desc { color: var(--text-secondary); }
+.dark-mode .rp-jwl-badge { background: var(--bg-secondary); color: var(--text-secondary); }

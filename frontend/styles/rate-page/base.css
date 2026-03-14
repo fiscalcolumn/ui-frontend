@@ -1,348 +1,607 @@
 /**
- * Rate Page Styles
+ * Rate Page — Gold / Silver
+ * Premium financial data design
  */
 
-/* Breadcrumb styles moved to main_styles.css */
-
-/* Page Container */
+/* ── Page Shell ── */
 .rate-page-container {
-  padding: 40px 0 80px;
-  background: #f8f9fa;
+  padding: 0 0 80px;
+  background: #f4f5f7;
   min-height: 70vh;
 }
 
-/* Rate Header */
-.rate-header {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #eee;
+/* ── Hero ── */
+.rp-hero {
+  background: linear-gradient(135deg, #1a2332 0%, #0d1520 100%);
+  padding: 36px 0 0;
+  margin-bottom: 28px;
+  border-bottom: 3px solid var(--mc, #D4A017);
 }
 
-.rate-title {
-  font-size: 2rem;
+.rp-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 28px;
+}
+
+.rp-hero-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.rp-metal-icon { font-size: 2.8rem; line-height: 1; }
+
+.rp-title {
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #1a1a2e;
-  margin: 0 0 10px 0;
+  color: #ffffff;
+  margin: 0 0 6px;
   line-height: 1.2;
 }
 
-.rate-date {
-  font-size: 0.95rem;
-  color: #666;
+.rp-date {
+  font-size: 0.82rem;
+  color: #8b9bb4;
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
+.rp-date i { margin-right: 4px; color: var(--mc, #D4A017); }
 
-.rate-date i {
-  color: #14bdee;
-}
+.rp-hero-right { text-align: right; }
 
-/* Rate Display Card */
-.rate-display-card {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-  border: 2px solid #14bdee;
-  border-radius: 16px;
-  padding: 40px;
-  margin-bottom: 30px;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(20, 189, 238, 0.1);
-}
+.rp-price-block { margin-bottom: 8px; }
 
-.rate-main-value {
-  margin-bottom: 20px;
-}
-
-.rate-label {
-  font-size: 0.9rem;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-}
-
-.rate-amount {
-  font-size: 4rem;
-  font-weight: 700;
-  color: #14bdee;
+.rp-price-main {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--mc, #D4A017);
   line-height: 1;
-  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
 }
 
-.rate-unit {
-  font-size: 1.1rem;
-  color: #888;
-}
-
-.rate-mcx {
-  padding-top: 20px;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-.mcx-label {
-  font-size: 0.85rem;
-  color: #666;
+.rp-price-unit {
+  font-size: 0.82rem;
+  color: #8b9bb4;
+  margin-top: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.mcx-value {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #1a1a2e;
-}
-
-/* Purity Breakdown */
-.purity-breakdown {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.purity-item {
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-}
-
-.purity-label {
-  display: block;
+.rp-change {
   font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 8px;
+  font-weight: 500;
 }
+.rp-up { color: #22c55e; }
+.rp-dn { color: #ef4444; }
 
-.purity-value {
-  display: block;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #14bdee;
+/* ── Purity Tabs ── */
+.rp-purity-tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.rp-purity-tabs::-webkit-scrollbar { display: none; }
 
-/* Chart Section */
-.rate-chart-section {
+.rp-purity-tab {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 24px;
+  border: none;
+  background: rgba(255,255,255,0.06);
+  color: #8b9bb4;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.2;
+}
+.rp-purity-tab span {
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: inherit;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+.rp-purity-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.rp-purity-tab.active {
+  background: #f4f5f7;
+  color: var(--mc, #D4A017);
+}
+.rp-purity-tab.active span { color: #666; opacity: 1; }
+
+/* ── Shared Card ── */
+.rp-card {
   background: #fff;
   border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
-.section-title {
-  font-size: 1.25rem;
+.rp-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a2332;
+  margin: 0 0 20px;
+}
+.rp-section-title i { margin-right: 8px; color: var(--mc, #D4A017); }
+
+/* ── Table + Jewellers 60/40 Row ── */
+.rp-table-jeweller-row {
+  display: grid;
+  grid-template-columns: 60% 1fr;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+.rp-table-jeweller-row .rp-card { margin-bottom: 0; }
+
+/* ── Price Table ── */
+.rp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.rp-price-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+.rp-price-table th {
+  background: #f8f9fa;
+  color: #555;
   font-weight: 600;
-  color: #1a1a2e;
-  margin: 0 0 20px 0;
+  padding: 10px 14px;
+  text-align: right;
+  border-bottom: 2px solid #e8eaf0;
+}
+.rp-price-table th:first-child { text-align: left; }
+.rp-price-table td {
+  padding: 10px 14px;
+  text-align: right;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+  font-variant-numeric: tabular-nums;
+}
+.rp-price-table td:first-child { text-align: left; }
+.rp-price-table tbody tr:hover td { background: #f9fbfd; }
+.rp-table-purity { font-weight: 600; color: #1a2332 !important; }
+.rp-table-purity small { font-weight: 400; color: #888; margin-left: 4px; }
+
+.rp-table-note {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 12px 0 0;
+}
+.rp-table-note i { margin-right: 4px; color: var(--mc, #D4A017); }
+
+/* ── Chart ── */
+.rp-chart-card { }
+
+.rp-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.rp-chart-header .rp-section-title { margin: 0; }
+
+.rp-range-btns { display: flex; gap: 4px; }
+
+.rp-range-btn {
+  padding: 5px 12px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.rp-range-btn:hover { border-color: var(--mc, #D4A017); color: var(--mc, #D4A017); }
+.rp-range-btn.active {
+  background: var(--mc, #D4A017);
+  border-color: var(--mc, #D4A017);
+  color: #fff;
 }
 
-.chart-container {
+.rp-chart-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 0.82rem;
+  color: #888;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.rp-chart-stats strong { color: #1a2332; }
+
+.rp-chart-wrap {
   position: relative;
-  height: 300px;
+  height: 320px;
   width: 100%;
 }
 
-/* Info Section */
-.rate-info-section {
-  background: #fff;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.rate-info-content {
-  font-size: 0.95rem;
-  color: #555;
-  line-height: 1.75;
-}
-
-.rate-info-content p {
-  margin-bottom: 15px;
-}
-
-.rate-info-content strong {
-  color: #14bdee;
-}
-
-/* Sidebar */
-.rate-sidebar {
-  position: sticky;
-  top: 20px;
-}
-
-.sidebar-section {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.sidebar-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1a1a2e;
-  margin: 0 0 15px 0;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.city-rates-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.city-rate-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.city-rate-item:hover {
-  background: #e8f7fc;
-}
-
-.city-name {
+.rp-no-data {
+  text-align: center;
+  color: #aaa;
+  padding: 60px 20px;
   font-size: 0.9rem;
-  font-weight: 500;
-  color: #1a1a2e;
 }
 
-.city-rate {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #14bdee;
+/* ── Location ── */
+.rp-location-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  max-width: 340px;
 }
 
-.quick-links {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.quick-link {
+.rp-select-wrap label {
   display: block;
-  padding: 12px 15px;
-  background: #f8f9fa;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.rp-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #d0d7e2;
   border-radius: 8px;
-  text-decoration: none;
-  color: #1a1a2e;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.quick-link:hover {
-  background: #14bdee;
-  color: #fff;
-  text-decoration: none;
-}
-
-/* Error State */
-.rate-error {
-  text-align: center;
-  padding: 60px 20px;
+  font-size: 0.88rem;
+  color: #1a2332;
   background: #fff;
-  border-radius: 12px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
 }
+.rp-select:focus { border-color: var(--mc, #D4A017); }
+.rp-select:disabled { background: #f8f9fa; color: #999; cursor: not-allowed; }
 
-.rate-error i {
-  font-size: 4rem;
-  color: #ddd;
-  margin-bottom: 20px;
-}
-
-.rate-error h2 {
-  font-size: 1.5rem;
-  color: #1a1a2e;
-  margin-bottom: 10px;
-}
-
-.rate-error p {
-  color: #666;
-  margin-bottom: 25px;
-}
-
-.btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 25px;
-  background: #14bdee;
-  color: #fff;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.btn-back:hover {
-  background: #0ea5d3;
-  color: #fff;
-  text-decoration: none;
-}
-
-/* Loading */
-.loading-container {
+.rp-location-result {
+  background: linear-gradient(135deg, #1a2332, #0d1520);
+  border-radius: 10px;
+  padding: 14px 20px;
   text-align: center;
-  padding: 60px 20px;
+  min-width: 160px;
+}
+.rp-loc-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--mc, #D4A017);
+  font-variant-numeric: tabular-nums;
+}
+.rp-loc-label {
+  font-size: 0.72rem;
+  color: #8b9bb4;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 3px;
+}
+.rp-loc-coming {
+  font-size: 0.7rem;
+  color: #5a6a80;
+  margin-top: 4px;
 }
 
-.spinner {
+.rp-location-note {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 12px 0 0;
+}
+.rp-location-note i { color: var(--mc, #D4A017); margin-right: 4px; }
+
+/* ── About Grid ── */
+.rp-about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.rp-about-item {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 3px solid var(--mc, #D4A017);
+}
+.rp-about-icon { font-size: 1.5rem; margin-bottom: 10px; }
+.rp-about-item h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a2332;
+  margin: 0 0 8px;
+}
+.rp-about-item p {
+  font-size: 0.82rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Loading / Error ── */
+.rp-loading {
+  text-align: center;
+  padding: 80px 20px;
+  color: #888;
+}
+.rp-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #14bdee;
+  border: 3px solid #e8eaf0;
+  border-top-color: #D4A017;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
+  animation: rpSpin 0.8s linear infinite;
+  margin: 0 auto 16px;
 }
+@keyframes rpSpin { to { transform: rotate(360deg); } }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.no-data {
+.rp-error {
   text-align: center;
-  color: #999;
+  padding: 80px 20px;
+  background: #fff;
+  border-radius: 12px;
+}
+.rp-error i { font-size: 3rem; color: #e0e0e0; display: block; margin-bottom: 16px; }
+.rp-error h2 { font-size: 1.4rem; color: #1a2332; margin-bottom: 8px; }
+.rp-error p  { color: #888; margin-bottom: 20px; }
+
+.rp-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #14bdee;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
   font-size: 0.9rem;
-  padding: 20px;
+}
+.rp-btn:hover { background: #0fa8d6; color: #fff; text-decoration: none; }
+
+/* ── Location + Tax 60/40 Row ── */
+.rp-loc-tax-row {
+  display: grid;
+  grid-template-columns: 60% 1fr;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+.rp-loc-tax-row .rp-card { margin-bottom: 0; }
+
+/* Location card — state on top, city below */
+.rp-location-selects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  max-height: 240px;
+}
+.rp-location-selects .rp-select { width: 100%; }
+
+/* Tax card */
+.rp-tax-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+}
+.rp-tax-list::-webkit-scrollbar { width: 4px; }
+.rp-tax-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+.dark-mode .rp-tax-list { scrollbar-color: var(--border-color) transparent; }
+.rp-tax-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+.rp-tax-row:last-child { border-bottom: none; }
+.rp-tax-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a2332;
+  flex-shrink: 0;
+  max-width: 55%;
+}
+.rp-tax-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.rp-tax-rate {
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding-right: 10px;
+  color: var(--mc, #D4A017);
+  white-space: nowrap;
+}
+.rp-tax-note-inline {
+  font-size: 0.72rem;
+  color: #888;
+  text-align: right;
+  line-height: 1.3;
+}
+.rp-tax-gov {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+.rp-tax-gov--central { background: #e8f4fd; color: #1a6fa8; }
+.rp-tax-gov--state   { background: #fef3e2; color: #a06400; }
+.rp-tax-gov--both    { background: #f0faf0; color: #276e27; }
+
+.rp-tax-note {
+  font-size: 0.78rem;
+  color: #888;
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.rp-tax-note i { margin-right: 4px; color: #aaa; }
+
+/* ── Jeweller Cards ── */
+.rp-jewellers-desc {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: -12px 0 6px;
 }
 
-/* Responsive */
+.rp-jewellers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+  padding-right: 4px;
+}
+.rp-jewellers-list::-webkit-scrollbar { width: 4px; }
+.rp-jewellers-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+.dark-mode .rp-jewellers-list { scrollbar-color: var(--border-color) transparent; }
+
+.rp-jwl-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 10px;
+  
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.rp-jwl-card:hover {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-color: var(--mc, #D4A017);
+}
+
+.rp-jwl-img-wrap {
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #eaecf0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+a.rp-jwl-img-wrap:hover {
+  border-color: var(--mc, #D4A017);
+  box-shadow: 0 0 0 3px var(--mcl, rgba(212,160,23,0.15));
+}
+.rp-jwl-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 0;
+}
+.rp-jwl-initial {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--mc, #D4A017);
+}
+
+.rp-jwl-info {
+  flex: 1;
+  min-width: 0;
+}
+.rp-jwl-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1a2332;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rp-jwl-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  background: #f0f0f0;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.rp-jwl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--mc, #D4A017);
+  border: 1.5px solid var(--mc, #D4A017);
+  border-radius: 6px;
+  padding: 5px 12px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.rp-jwl-btn:hover {
+  background: var(--mc, #D4A017);
+  color: #fff;
+  text-decoration: none;
+}
+.rp-jwl-btn--na {
+  border-color: #ddd;
+  color: #aaa;
+  cursor: default;
+  font-weight: 400;
+}
+
+.rp-jewellers-empty {
+  color: #aaa;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ── Responsive ── */
 @media (max-width: 992px) {
-  .rate-sidebar {
-    position: static;
-    margin-top: 30px;
-  }
+  .rp-table-jeweller-row,
+  .rp-loc-tax-row { grid-template-columns: 1fr; }
+  .rp-about-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 768px) {
-  .rate-title {
-    font-size: 1.5rem;
-  }
-  
-  .rate-amount {
-    font-size: 2.5rem;
-  }
-  
-  .purity-breakdown {
-    grid-template-columns: 1fr;
-  }
-  
-  .rate-display-card {
-    padding: 25px;
-  }
+  .rp-hero-top { flex-direction: column; align-items: flex-start; }
+  .rp-hero-right { text-align: left; width: 100%; }
+  .rp-price-main { font-size: 2.2rem; }
+  .rp-title { font-size: 1.4rem; }
+  .rp-location-row { grid-template-columns: 1fr; }
+  .rp-location-result { text-align: left; }
+  .rp-about-grid { grid-template-columns: 1fr; }
+  .rp-chart-header { flex-direction: column; align-items: flex-start; }
+  .rp-card { padding: 20px 16px; }
 }
-
