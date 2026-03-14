@@ -36,7 +36,7 @@
 .rp-metal-icon { font-size: 2.8rem; line-height: 1; }
 
 .rp-title {
-  font-size: 1.75rem;
+  font-size: 3.5rem;
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 6px;
@@ -44,7 +44,7 @@
 }
 
 .rp-date {
-  font-size: 0.82rem;
+  font-size: 1.2rem;
   color: #8b9bb4;
   margin: 0;
 }
@@ -55,16 +55,17 @@
 .rp-price-block { margin-bottom: 8px; }
 
 .rp-price-main {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 800;
   color: var(--mc, #D4A017);
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.5px;
+  letter-spacing: 1px;
 }
 
 .rp-price-unit {
-  font-size: 0.82rem;
+  font-size: 1.4rem;
+  padding-top: 10px;
   color: #8b9bb4;
   margin-top: 4px;
   text-transform: uppercase;
@@ -72,7 +73,8 @@
 }
 
 .rp-change {
-  font-size: 0.85rem;
+  padding-top: 10px;
+  font-size: 1.4rem;
   font-weight: 500;
 }
 .rp-up { color: #22c55e; }

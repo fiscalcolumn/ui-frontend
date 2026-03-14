@@ -253,7 +253,7 @@ class RatePageManager {
     const cls  = diff >= 0 ? 'rp-up' : 'rp-dn';
     const icon = diff >= 0 ? '▲' : '▼';
     const sign = diff >= 0 ? '+' : '';
-    return `<span class="${cls}">${icon} ${sign}${this.fmt(diff)} (${sign}${pct}%) from yesterday</span>`;
+    return `<span class="${cls}">${icon} ${sign}${this.fmt(diff)} (${sign}${pct}%) </span>`;
   }
 
   // ── Render ────────────────────────────────────────────────────────────────────

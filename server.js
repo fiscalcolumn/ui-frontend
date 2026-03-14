@@ -488,6 +488,14 @@ app.get('/app', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'coming-soon.html'));
 });
 
+// Rate pages - /gold-rate, /silver-rate (short canonical URLs)
+app.get('/gold-rate', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
+});
+app.get('/silver-rate', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
+});
+
 // Tags listing - /tags
 app.get('/tags', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'tags.html'));
