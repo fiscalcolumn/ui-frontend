@@ -2,18 +2,40 @@
  * Rate Page — Dark Mode
  */
 
-.dark-mode .rate-page-container { background: var(--bg-primary); }
+.dark-mode .rate-page-container { background: transparent; }
 
 /* Hero stays dark regardless — just lighten slightly */
 .dark-mode .rp-hero { background: linear-gradient(135deg, #0d1520 0%, #060d14 100%); }
 .dark-mode .rp-purity-tab.active { background: var(--bg-primary); }
 
-/* Cards */
-.dark-mode .rp-card {
+/* Section wrappers */
+.dark-mode .rp-section        { border-bottom-color: var(--border-color); }
+.dark-mode .rp-section--alt   { background-color: var(--bg-secondary); }
+.dark-mode .rp-card           { background: transparent; box-shadow: none; }
+.dark-mode .rp-section-title  { color: var(--text-primary); }
+
+/* Article carousel cards on rate page — force dark text colours */
+.rp-section .rca-card-title   { color: #1a1a1a; }
+.rp-section .rca-card-excerpt { color: #555; }
+.rp-section .rc-author-name   { color: #555; }
+.dark-mode .rp-section .rca-card-title   { color: #e0e0e0 !important; }
+.dark-mode .rp-section .rca-card-excerpt { color: #aaa    !important; }
+.dark-mode .rp-section .rc-author-name   { color: #bbb    !important; }
+.dark-mode .rp-section .hp-section-title { color: var(--text-primary); }
+.dark-mode .rp-section .hp-section-title a { color: var(--text-primary); }
+
+/* Location card */
+.dark-mode .rp-jewellers-col { border-left-color: var(--border-color); }
+.dark-mode .rp-location-result {
   background: var(--bg-secondary);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  border-color: var(--border-color);
 }
-.dark-mode .rp-section-title { color: var(--text-primary); }
+.dark-mode .rp-select {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+.dark-mode .rp-select:disabled { background: var(--bg-tertiary); color: var(--text-secondary); }
 
 /* Price table */
 .dark-mode .rp-price-table th {
@@ -84,3 +106,12 @@
 .dark-mode .rp-jwl-name { color: var(--text-primary); }
 .dark-mode .rp-jewellers-desc { color: var(--text-secondary); }
 .dark-mode .rp-jwl-badge { background: var(--bg-secondary); color: var(--text-secondary); }
+
+/* ── Dark mode: Articles Layout A (shared classes handle their own dark mode) ── */
+
+/* ── Dark mode: Cities ── */
+.dark-mode .rp-cities-label { color: var(--text-primary); }
+.dark-mode .rp-city-pipe    { color: #444; }
+.dark-mode .rp-city-link    { color: var(--text-secondary); }
+.dark-mode .rp-city-link:hover,
+.dark-mode .rp-city-link--active { color: var(--mc, #D4A017); }

@@ -307,35 +307,30 @@ async function generateSitemap() {
       }
     }
 
-    // Add rate pages
-    // Gold rates
+    // Rate landing pages
     xml += `  <url>
-    <loc>${SITE_URL}/gold-rates/gold-rate-today</loc>
+    <loc>${SITE_URL}/gold-rate</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/silver-rate</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 `;
 
-    // Silver rates
-    xml += `  <url>
-    <loc>${SITE_URL}/silver-rates/silver-rate-today</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-`;
-
-    // City-specific rate pages for gold
+    // City-specific rate pages (SEO-friendly URLs)
     for (const city of cities) {
-      if (city.slug && city.state) {
-        const citySlug = city.slug.toLowerCase().replace(/\s+/g, '-');
+      const citySlug = (city.slug || city.name || '').toLowerCase().replace(/\s+/g, '-');
+      if (citySlug) {
         xml += `  <url>
-    <loc>${SITE_URL}/gold-rates/gold-rate-today-in-${encodeURIComponent(citySlug)}</loc>
+    <loc>${SITE_URL}/gold-rate/${encodeURIComponent(citySlug)}</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-`;
-        xml += `  <url>
-    <loc>${SITE_URL}/silver-rates/silver-rate-today-in-${encodeURIComponent(citySlug)}</loc>
+  <url>
+    <loc>${SITE_URL}/silver-rate/${encodeURIComponent(citySlug)}</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -493,6 +488,14 @@ app.get('/gold-rate', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
 });
 app.get('/silver-rate', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
+});
+
+// City-specific rate pages - /gold-rate/mumbai, /silver-rate/delhi etc.
+app.get('/gold-rate/:city', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
+});
+app.get('/silver-rate/:city', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
 });
 

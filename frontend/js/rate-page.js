@@ -70,6 +70,14 @@ class RatePageManager {
     this.states          = [];
     this.jewellers       = [];
     this.taxes           = [];
+    this.articles        = [];
+    this.cities          = [];
+    // Detect city slug from URL: /gold-rate/mumbai → 'mumbai'
+    const urlParts = window.location.pathname.split('/').filter(Boolean);
+    this.citySlug  = urlParts.length >= 2 ? urlParts[1] : null;
+    this.cityName  = this.citySlug
+      ? this.citySlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      : null;
   }
 
   // ── Boot ────────────────────────────────────────────────────────────────────
@@ -82,13 +90,15 @@ class RatePageManager {
     document.documentElement.style.setProperty('--mcl', this.metal.colorLight);
 
     try {
-      // Parallel: current price + 1-year history + states + jewellers + taxes
+      // Parallel: all data fetched together
       await Promise.all([
         this.fetchLatestRates(),
         this.fetchHistoricalRange(365),
         this.fetchStates(),
         this.fetchJewellers(),
         this.fetchTaxes(),
+        this.fetchCategoryArticles(),
+        this.fetchAllCities(),
       ]);
       this.render();
       this.updatePageMeta();
@@ -204,6 +214,31 @@ class RatePageManager {
     } catch { this.taxes = []; }
   }
 
+  async fetchCategoryArticles() {
+    try {
+      const catSlug = this.metal.name === 'Gold' ? 'gold-rate' : 'silver-rate';
+      const url = getApiUrl(
+        `/articles?filters[category][slug][$eq]=${catSlug}` +
+        `&sort=publishedAt:desc&pagination[limit]=10` +
+        `&populate[image]=true&populate[category]=true&populate[author][populate][photo]=true`
+      );
+      const res  = await fetch(url);
+      if (!res.ok) { this.articles = []; return; }
+      const json = await res.json();
+      this.articles = json.data || [];
+    } catch { this.articles = []; }
+  }
+
+  async fetchAllCities() {
+    try {
+      const url = getApiUrl(`/cities?sort=name:asc&pagination[pageSize]=200&fields[0]=name&fields[1]=slug`);
+      const res  = await fetch(url);
+      if (!res.ok) { this.cities = []; return; }
+      const json = await res.json();
+      this.cities = json.data || [];
+    } catch { this.cities = []; }
+  }
+
   async fetchJewellers() {
     try {
       const url = getApiUrl(
@@ -311,104 +346,100 @@ class RatePageManager {
 
     this.mainEl.innerHTML = `
 
-      <!-- Row 1: Check Rate by City | Buy from Popular Jewellers -->
-      <div class="rp-loc-tax-row">
+      <!-- Section 1 (default bg): Check Rate by City | Popular Jewellers -->
+      <div class="rp-section">
+        <div class="container">
+          <div class="rp-loc-tax-row">
 
-        <!-- 60% — Check Rate by City -->
-        <div class="rp-card rp-location-card">
-          <h2 class="rp-section-title"><i class="fa fa-map-marker"></i> Check Rate by City</h2>
-          <div class="rp-location-selects">
-            <div class="rp-select-wrap">
-              <label>State</label>
-              <select class="rp-select" id="rp-state-select">
-                <option value="">All India Average</option>
-                ${stateOpts}
-              </select>
+            <div class="rp-card rp-location-card">
+              <h2 class="rp-section-title"><i class="fa fa-map-marker"></i> Check Rate by City</h2>
+              <div class="rp-location-selects">
+                <div class="rp-select-wrap">
+                  <label>State</label>
+                  <select class="rp-select" id="rp-state-select">
+                    <option value="">All India Average</option>
+                    ${stateOpts}
+                  </select>
+                </div>
+                <div class="rp-select-wrap">
+                  <label>City</label>
+                  <select class="rp-select" id="rp-city-select" disabled>
+                    <option value="">Select State first</option>
+                  </select>
+                </div>
+              </div>
+              <div class="rp-location-result" id="rp-location-result">
+                <div class="rp-loc-price">${base ? this.fmt(dispPrice) : '—'}</div>
+                <div class="rp-loc-label">All India · ${ap.label} · per ${mc.unitLabel}</div>
+              </div>
+              <p class="rp-location-note"><i class="fa fa-info-circle"></i> City-specific rates are coming soon. Currently showing national average.</p>
             </div>
-            <div class="rp-select-wrap">
-              <label>City</label>
-              <select class="rp-select" id="rp-city-select" disabled>
-                <option value="">Select State first</option>
-              </select>
+
+            <div class="rp-card rp-jewellers-col">
+              <h2 class="rp-section-title">Buy from Popular Jewellers</h2>
+              <p class="rp-jewellers-desc">Check live ${mc.name} rates from trusted jewellers.</p>
+              <div class="rp-jewellers-list">${this.renderJewellers()}</div>
             </div>
-          </div>
-          <div class="rp-location-result" id="rp-location-result">
-            <div class="rp-loc-price">${base ? this.fmt(dispPrice) : '—'}</div>
-            <div class="rp-loc-label">All India · ${ap.label} · per ${mc.unitLabel}</div>
-          </div>
-          <p class="rp-location-note"><i class="fa fa-info-circle"></i> City-specific rates are coming soon. Currently showing national average.</p>
-        </div>
 
-        <!-- 40% — Popular Jewellers -->
-        <div class="rp-card rp-jewellers-col">
-          <h2 class="rp-section-title">Buy from Popular Jewellers</h2>
-          <p class="rp-jewellers-desc">Check live ${mc.name} rates from trusted jewellers.</p>
-          <div class="rp-jewellers-list">
-            ${this.renderJewellers()}
           </div>
         </div>
-
       </div>
 
-      <!-- Row 2: Price by Weight | Taxes -->
-      <div class="rp-table-jeweller-row">
+      <!-- Section 2 (alt bg): Price by Weight | Taxes -->
+      <div class="rp-section rp-section--alt">
+        <div class="container">
+          <div class="rp-table-jeweller-row">
 
-        <!-- 60% — Price Table -->
-        <div class="rp-card rp-table-col">
-          <h2 class="rp-section-title">${mc.name} Price by Weight — ${dateStr}</h2>
-          <div class="rp-table-wrap">
-            <table class="rp-price-table">
-              <thead><tr><th>Purity</th>${tableHeaders}</tr></thead>
-              <tbody>${tableRows}</tbody>
-            </table>
+            <div class="rp-card rp-table-col">
+              <h2 class="rp-section-title">${mc.name} Price by Weight — ${dateStr}</h2>
+              <div class="rp-table-wrap">
+                <table class="rp-price-table">
+                  <thead><tr><th>Purity</th>${tableHeaders}</tr></thead>
+                  <tbody>${tableRows}</tbody>
+                </table>
+              </div>
+              <p class="rp-table-note"><i class="fa fa-info-circle"></i> Rates are indicative. Actual prices may vary at local jewellers due to taxes and making charges.</p>
+            </div>
+
+            <div class="rp-card rp-tax-card">
+              <h2 class="rp-section-title">🧾 Taxes on ${mc.name} in India</h2>
+              <div class="rp-tax-list">${this.renderTaxInfo()}</div>
+              <p class="rp-tax-note"><i class="fa fa-info-circle"></i> Tax rates are as per latest government notification. Consult a tax advisor for personal guidance.</p>
+            </div>
+
           </div>
-          <p class="rp-table-note"><i class="fa fa-info-circle"></i> Rates are indicative. Actual prices may vary at local jewellers due to taxes and making charges.</p>
         </div>
-
-        <!-- 40% — Tax Info -->
-        <div class="rp-card rp-tax-card">
-          <h2 class="rp-section-title">🧾 Taxes on ${mc.name} in India</h2>
-          <div class="rp-tax-list">
-            ${this.renderTaxInfo()}
-          </div>
-          <p class="rp-tax-note"><i class="fa fa-info-circle"></i> Tax rates are as per latest government notification. Consult a tax advisor for personal guidance.</p>
-        </div>
-
       </div>
 
-      <!-- Chart -->
-      <div class="rp-card rp-chart-card">
-        <div class="rp-chart-header">
-          <h2 class="rp-section-title">Historical Price Trend</h2>
-          <div class="rp-range-btns">
-            ${['1W','1M','3M','1Y','3Y','5Y'].map(r =>
-              `<button class="rp-range-btn ${r === '1Y' ? 'active' : ''}" data-range="${r}">${r}</button>`
-            ).join('')}
+      <!-- Section 3 (default bg): Historical Chart -->
+      <div class="rp-section">
+        <div class="container">
+          <div class="rp-card rp-chart-card">
+            <div class="rp-chart-header">
+              <h2 class="rp-section-title">Historical Price Trend</h2>
+              <div class="rp-range-btns">
+                ${['1W','1M','3M','1Y','3Y','5Y'].map(r =>
+                  `<button class="rp-range-btn ${r === '1Y' ? 'active' : ''}" data-range="${r}">${r}</button>`
+                ).join('')}
+              </div>
+            </div>
+            <div class="rp-chart-stats" id="rp-chart-stats"></div>
+            <div class="rp-chart-wrap"><canvas id="rp-chart"></canvas></div>
           </div>
         </div>
-        <div class="rp-chart-stats" id="rp-chart-stats"></div>
-        <div class="rp-chart-wrap"><canvas id="rp-chart"></canvas></div>
       </div>
 
-      <!-- About -->
-      <div class="rp-card rp-about-card">
-        <h2 class="rp-section-title">About ${mc.name} Rates in India</h2>
-        <div class="rp-about-grid">
-          <div class="rp-about-item">
-            <div class="rp-about-icon">📊</div>
-            <h3>How rates are set</h3>
-            <p>${mc.name} rates in India are influenced by international spot prices, the USD/INR exchange rate, import duties, and local taxes (GST). Rates are updated daily by bullion associations.</p>
-          </div>
-          <div class="rp-about-item">
-            <div class="rp-about-icon">🏙️</div>
-            <h3>Why prices differ by city</h3>
-            <p>Local rates vary due to transportation costs, state taxes, demand-supply dynamics, and bullion association pricing. Metro cities like Mumbai and Delhi typically reflect national averages.</p>
-          </div>
-          <div class="rp-about-item">
-            <div class="rp-about-icon">💡</div>
-            <h3>Buying tips</h3>
-            <p>Always compare making charges separately from metal price. Insist on BIS-hallmarked ${mc.name} to guarantee purity. Rates quoted here are for the metal only, excluding jewellery charges.</p>
-          </div>
+      <!-- Section 4 (alt bg): Articles carousel -->
+      <div class="rp-section rp-section--alt">
+        <div class="container">
+          ${this.renderArticlesSection()}
+        </div>
+      </div>
+
+      <!-- Section 5 (default bg): Cities -->
+      <div class="rp-section">
+        <div class="container">
+          ${this.renderCitiesSection()}
         </div>
       </div>
     `;
@@ -417,6 +448,75 @@ class RatePageManager {
     this.bindRangeButtons();
     this.bindLocationSelectors();
     setTimeout(() => this.renderChart(), 100);
+  }
+
+  // ── Articles (Layout A — matches homepage style) ──────────────────────────────
+  renderArticlesSection() {
+    if (!this.articles.length) return '';
+    const base = window.API_CONFIG?.BASE_URL || '';
+    const mc   = this.metal;
+
+    const cards = this.articles.map(a => {
+      const imgUrl  = a.image?.url ? `${base}${a.image.url}` : null;
+      const excerpt = a.excerpt || '';
+      const author  = a.author;
+      const photoUrl = author?.photo?.url ? `${base}${author.photo.url}` : null;
+      const initial  = (author?.name || 'A').charAt(0).toUpperCase();
+      const avatar   = photoUrl
+        ? `<img src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
+        : `<span class="rc-author-initial">${initial}</span>`;
+      const authorHtml = author
+        ? `<div class="rc-author">${avatar}<span class="rc-author-name">${author.name}</span></div>`
+        : '';
+      const artUrl = `/${a.category?.slug || 'article'}/${a.slug}`;
+
+      return `
+        <a href="${artUrl}" class="carousel-card rca-card">
+          <div class="rca-card-image">
+            ${imgUrl ? `<img src="${imgUrl}" alt="${a.title}" loading="lazy">` : `<div class="rca-no-img"></div>`}
+          </div>
+          <h4 class="rca-card-title">${a.title}</h4>
+          ${excerpt ? `<p class="rca-card-excerpt">${excerpt}</p>` : ''}
+          ${authorHtml}
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="hp-section-header">
+        <h3 class="hp-section-title">
+          <a href="/${mc.name.toLowerCase()}-rate">${mc.name.toUpperCase()} RATES NEWS &amp; UPDATES</a>
+        </h3>
+      </div>
+      <div class="hp-carousel">${cards}</div>`;
+  }
+
+  // ── Cities Grid ───────────────────────────────────────────────────────────────
+  renderCitiesSection() {
+    if (!this.cities.length) return '';
+    const metal    = this.metal.name.toLowerCase();
+    const basePath = `/${metal}-rate`;
+    const PER_ROW  = 10;
+
+    const items = this.cities.map(c => {
+      const slug     = c.slug || c.name.toLowerCase().replace(/\s+/g, '-');
+      const isActive = this.citySlug === slug;
+      return `<a href="${basePath}/${slug}" class="rp-city-link${isActive ? ' rp-city-link--active' : ''}">${c.name.toUpperCase()}</a>`;
+    });
+
+    // Chunk into rows of PER_ROW
+    const rows = [];
+    for (let i = 0; i < items.length; i += PER_ROW) {
+      rows.push(items.slice(i, i + PER_ROW).join('<span class="rp-city-pipe">|</span>'));
+    }
+    const rowsHtml = rows.map(r => `<div class="rp-cities-row">${r}</div>`).join('');
+
+    return `
+      <div class="rp-cities-section">
+        <div class="rp-cities-header">
+          <span class="rp-cities-label"><i class="fa fa-map-marker"></i> ${this.metal.name.toUpperCase()} RATE BY CITY</span>
+        </div>
+        ${rowsHtml}
+      </div>`;
   }
 
   // ── Jewellers ─────────────────────────────────────────────────────────────────
@@ -675,10 +775,11 @@ class RatePageManager {
 
   // ── Page Meta ─────────────────────────────────────────────────────────────────
   updatePageMeta() {
-    const mc    = this.metal;
-    const price = this.todayRate ? this.fmt(parseFloat(this.todayRate.buyingRate)) : '';
-    const title = `${mc.name} Rate Today in India ${price} | FiscalColumn`;
-    const desc  = `Today's ${mc.name} rate in India: ${price} per ${mc.unitLabel}. Purity-wise prices (${mc.purities.map(p=>p.label).join(', ')}), historical chart, city rates.`;
+    const mc       = this.metal;
+    const price    = this.todayRate ? this.fmt(parseFloat(this.todayRate.buyingRate)) : '';
+    const cityPart = this.cityName ? ` in ${this.cityName}` : ' in India';
+    const title    = `${mc.name} Rate Today${cityPart} ${price} | FiscalColumn`;
+    const desc     = `Today's ${mc.name} rate${cityPart}: ${price} per ${mc.unitLabel}. Purity-wise prices (${mc.purities.map(p=>p.label).join(', ')}), historical chart, and city rates.`;
 
     document.title = title;
     document.getElementById('meta-description')?.setAttribute('content', desc);
@@ -687,14 +788,25 @@ class RatePageManager {
     document.getElementById('twitter-title')?.setAttribute('content', title);
     document.getElementById('twitter-description')?.setAttribute('content', desc);
 
-    const canonical = `${window.location.origin}/${mc.name.toLowerCase()}-rate`;
+    const metalBase = `/${mc.name.toLowerCase()}-rate`;
+    const canonical = this.citySlug
+      ? `${window.location.origin}${metalBase}/${this.citySlug}`
+      : `${window.location.origin}${metalBase}`;
     document.getElementById('canonical-url')?.setAttribute('href', canonical);
     document.getElementById('og-url')?.setAttribute('content', canonical);
 
+    // Update hero title and date line if city-specific
+    if (this.cityName) {
+      const titleEl = document.querySelector('.rp-title');
+      if (titleEl) titleEl.textContent = `${mc.name} Rate Today in ${this.cityName}`;
+    }
+
     const catEl  = document.getElementById('breadcrumb-category');
     const pageEl = document.getElementById('breadcrumb-page');
-    if (catEl)  { catEl.textContent = `${mc.name} Rates`; catEl.href = `/${mc.name.toLowerCase()}-rate`; }
-    if (pageEl) pageEl.textContent = `${mc.name} Rate Today`;
+    if (catEl)  { catEl.textContent = `${mc.name} Rates`; catEl.href = metalBase; }
+    if (pageEl) pageEl.textContent = this.cityName
+      ? `${mc.name} Rate in ${this.cityName}`
+      : `${mc.name} Rate Today`;
   }
 }
 
