@@ -12,7 +12,7 @@
 .dark-mode .rp-section        { border-bottom-color: var(--border-color); }
 .dark-mode .rp-section--alt   { background-color: var(--bg-secondary); }
 .dark-mode .rp-card           { background: transparent; box-shadow: none; }
-.dark-mode .rp-section-title  { color: var(--text-primary); }
+.dark-mode .rp-section-title  { color: var(--text-primary); font-family: 'Merriweather', serif; }
 
 /* Article carousel cards on rate page — force dark text colours */
 .rp-section .rca-card-title   { color: #1a1a1a; }
@@ -58,9 +58,11 @@
 }
 .dark-mode .rp-range-btn:hover { color: var(--mc, #D4A017); border-color: var(--mc, #D4A017); }
 
-/* Chart stats */
-.dark-mode .rp-chart-stats { color: var(--text-muted); }
-.dark-mode .rp-chart-stats strong { color: var(--text-primary); }
+/* Chart stats panel */
+.dark-mode .rp-csp-price   { color: var(--text-primary); }
+.dark-mode .rp-csp-val     { color: var(--text-primary); }
+.dark-mode .rp-csp-divider { background: var(--border-color); }
+.dark-mode .rp-range-btn   { background: transparent; }
 
 /* Location */
 .dark-mode .rp-select {

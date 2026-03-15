@@ -28,7 +28,6 @@ const METAL_CONFIG = {
       { label: '1 Gram',   mult: 0.1   },
       { label: '10 Gram',  mult: 1     },
       { label: '100 Gram', mult: 10    },
-      { label: '1 Kg',     mult: 100   },
       { label: '1 Tola',   mult: 1.166 },
       { label: '1 Ounce',  mult: 3.11  },
     ],
@@ -49,7 +48,6 @@ const METAL_CONFIG = {
       { label: '1 Gram',   mult: 0.001  },
       { label: '10 Gram',  mult: 0.01   },
       { label: '100 Gram', mult: 0.1    },
-      { label: '1 Kg',     mult: 1      },
       { label: '1 Tola',   mult: 0.01166 },
       { label: '1 Ounce',  mult: 0.0311  },
     ],
@@ -353,7 +351,7 @@ class RatePageManager {
           <div class="rp-loc-tax-row">
 
             <div class="rp-card rp-location-card">
-              <h2 class="rp-section-title"><i class="fa fa-map-marker"></i> Check Rate by City</h2>
+              <h2 class="rp-section-title"><i class="fa fa-map-marker"></i> <span id="rp-loc-heading">Check Rate by City</span></h2>
               <div class="rp-location-inner">
                 <!-- Left: stacked dropdowns -->
                 <div class="rp-location-dropdowns">
@@ -403,7 +401,8 @@ class RatePageManager {
                   <tbody>${tableRows}</tbody>
                 </table>
               </div>
-              <p class="rp-table-note"><i class="fa fa-info-circle"></i> Rates are indicative. Actual prices may vary at local jewellers due to taxes and making charges.</p>
+              <p class="rp-table-note"><i class="fa fa-info-circle"></i> Rates are indicative. Actual prices may vary due to taxes and making charges.</p>
+              <p class="rp-table-note rp-table-note--conversions"><i class="fa fa-info-circle"></i>1 Tola = 11.664 g &nbsp;|&nbsp; 1 Troy Ounce = 31.103 g</p>
             </div>
 
             <div class="rp-card rp-tax-card">
@@ -419,17 +418,24 @@ class RatePageManager {
       <!-- Section 3 (default bg): Historical Chart -->
       <div class="rp-section">
         <div class="container">
-          <div class="rp-card rp-chart-card">
-            <div class="rp-chart-header">
-              <h2 class="rp-section-title">Historical Price Trend</h2>
+          <h2 class="rp-section-title">Historical Price Trend</h2>
+          <div class="rp-chart-layout">
+
+            <!-- Left: Stats Panel -->
+            <div class="rp-chart-stats-panel" id="rp-chart-stats">
+              <div class="rp-csp-loading">Loading…</div>
+            </div>
+
+            <!-- Right: Range buttons + canvas -->
+            <div class="rp-chart-right">
               <div class="rp-range-btns">
                 ${['1W','1M','3M','1Y','3Y','5Y'].map(r =>
                   `<button class="rp-range-btn ${r === '1Y' ? 'active' : ''}" data-range="${r}">${r}</button>`
                 ).join('')}
               </div>
+              <div class="rp-chart-wrap"><canvas id="rp-chart"></canvas></div>
             </div>
-            <div class="rp-chart-stats" id="rp-chart-stats"></div>
-            <div class="rp-chart-wrap"><canvas id="rp-chart"></canvas></div>
+
           </div>
         </div>
       </div>
@@ -635,48 +641,110 @@ class RatePageManager {
       return;
     }
 
-    const labels = rates.map(r => {
-      const d = new Date(r.date);
+    const dates  = rates.map(r => new Date(r.date));
+    const labels = dates.map(d => {
       if (['1W','1M','3M'].includes(this.activeRange))
         return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
       return d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
     });
     const values = rates.map(r => r.buyingRate);
 
-    const min  = Math.min(...values);
-    const max  = Math.max(...values);
-    const diff = values[values.length - 1] - values[0];
-    const pct  = ((diff / values[0]) * 100).toFixed(1);
+    const min      = Math.min(...values);
+    const max      = Math.max(...values);
+    const first    = values[0];
+    const last     = values[values.length - 1];
+    const diff     = last - first;
+    const pct      = ((diff / first) * 100).toFixed(2);
+    const isUp     = diff >= 0;
+    const upDn     = isUp ? 'rp-up' : 'rp-dn';
+    const arrow    = isUp ? '▲' : '▼';
+    const startDate = new Date(rates[0].date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    const endDate   = new Date(rates[rates.length - 1].date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
     const statsEl = document.getElementById('rp-chart-stats');
     if (statsEl) {
       statsEl.innerHTML = `
-        <span>High: <strong>${this.fmt(max)}</strong></span>
-        <span>Low: <strong>${this.fmt(min)}</strong></span>
-        <span>Period Change: <strong class="${diff >= 0 ? 'rp-up' : 'rp-dn'}">${diff >= 0 ? '+' : ''}${pct}%</strong></span>
+        <div class="rp-csp-price">${this.fmt(last)}</div>
+        <div class="rp-csp-change ${upDn}">${arrow} ${isUp ? '+' : ''}${pct}% <span>this period</span></div>
+        <div class="rp-csp-divider"></div>
+        <div class="rp-csp-row">
+          <span class="rp-csp-label">HIGH</span>
+          <span class="rp-csp-val rp-up">${this.fmt(max)}</span>
+        </div>
+        <div class="rp-csp-row">
+          <span class="rp-csp-label">LOW</span>
+          <span class="rp-csp-val rp-dn">${this.fmt(min)}</span>
+        </div>
+        <div class="rp-csp-row">
+          <span class="rp-csp-label">CHANGE</span>
+          <span class="rp-csp-val ${upDn}">${isUp ? '+' : ''}${this.fmt(Math.abs(Math.round(diff)))}</span>
+        </div>
+        <div class="rp-csp-divider"></div>
+        <div class="rp-csp-row">
+          <span class="rp-csp-label">FROM</span>
+          <span class="rp-csp-val">${startDate}</span>
+        </div>
+        <div class="rp-csp-row">
+          <span class="rp-csp-label">TO</span>
+          <span class="rp-csp-val">${endDate}</span>
+        </div>
+        <div class="rp-csp-divider"></div>
+        <div class="rp-csp-unit">Per ${mc.unitLabel} · ${mc.purities[this.activePurityIdx]?.label || ''}</div>
       `;
     }
 
+    // Bright chart colors
+    const brightColor = mc.name === 'Gold' ? '#F59E0B' : '#3B82F6';
+    const isDark      = document.documentElement.classList.contains('dark-mode');
+    const gridColor   = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
+    const tickColor   = isDark ? '#666' : '#999';
+
     if (this.chart) this.chart.destroy();
 
+    const lastDotPlugin = {
+      id: 'lastDot',
+      afterDatasetsDraw(chart) {
+        const ds = chart.data.datasets[0];
+        if (!ds?.data?.length) return;
+        const meta = chart.getDatasetMeta(0);
+        const lastPt = meta.data[meta.data.length - 1];
+        if (!lastPt) return;
+        const { x, y } = lastPt.getProps(['x', 'y'], true);
+        const c3 = chart.ctx;
+        c3.save();
+        c3.beginPath();
+        c3.arc(x, y, 5, 0, Math.PI * 2);
+        c3.fillStyle = ds.borderColor;
+        c3.fill();
+        c3.strokeStyle = '#fff';
+        c3.lineWidth = 2;
+        c3.stroke();
+        c3.restore();
+      }
+    };
+
     this.chart = new Chart(ctx, {
+      plugins: [lastDotPlugin],
       type: 'line',
       data: {
         labels,
         datasets: [{
           data: values,
-          borderColor: mc.color,
+          borderColor: brightColor,
           backgroundColor: (c) => {
-            const g = c.chart.ctx.createLinearGradient(0, 0, 0, 300);
-            g.addColorStop(0, mc.colorLight);
+            const g = c.chart.ctx.createLinearGradient(0, 0, 0, c.chart.height);
+            g.addColorStop(0, mc.name === 'Gold' ? 'rgba(245,158,11,0.25)' : 'rgba(59,130,246,0.25)');
             g.addColorStop(1, 'rgba(255,255,255,0)');
             return g;
           },
           borderWidth: 2.5,
           fill: true,
-          tension: 0.3,
-          pointRadius: rates.length > 60 ? 0 : 3,
-          pointHoverRadius: 5,
-          pointBackgroundColor: mc.color,
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: brightColor,
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2,
         }]
       },
       options: {
@@ -687,24 +755,39 @@ class RatePageManager {
           legend: { display: false },
           tooltip: {
             backgroundColor: '#1a2332',
-            titleColor: '#ccc',
+            titleColor: '#aaa',
             bodyColor: '#fff',
-            padding: 12,
+            padding: 14,
+            cornerRadius: 8,
+            displayColors: false,
             callbacks: {
+              title: items => {
+                const d = dates[items[0].dataIndex];
+                return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+              },
               label: ctx2 => ` ${this.fmt(ctx2.raw)} per ${mc.unitLabel}`
             }
-          }
+          },
         },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { maxTicksLimit: 8, color: '#888', font: { size: 11 } }
+            border: { display: true, color: gridColor },
+            ticks: {
+              maxTicksLimit: 7,
+              color: tickColor,
+              font: { size: 11 },
+              maxRotation: 0,
+              minRotation: 0,
+            }
           },
           y: {
+            position: 'left',
             beginAtZero: false,
-            grid: { color: 'rgba(0,0,0,0.05)' },
+            grid: { color: gridColor, drawBorder: false },
+            border: { display: false },
             ticks: {
-              color: '#888',
+              color: tickColor,
               font: { size: 11 },
               callback: v => v >= 100000 ? '₹' + (v/100000).toFixed(1) + 'L'
                           : v >= 1000   ? '₹' + (v/1000).toFixed(0)   + 'K'
@@ -749,6 +832,8 @@ class RatePageManager {
     const contextEl = document.getElementById('rp-loc-context');
     if (!stateEl) return;
 
+    const headingEl = document.getElementById('rp-loc-heading');
+
     const updatePrice = (location) => {
       const mc   = this.metal;
       const base = parseFloat(this.todayRate?.buyingRate || 0);
@@ -756,6 +841,7 @@ class RatePageManager {
       if (priceEl)   priceEl.textContent   = base ? this.fmt(Math.round(base * p.ratio)) : '—';
       if (labelEl)   labelEl.textContent   = `${p.label} · per ${mc.unitLabel}`;
       if (contextEl) contextEl.textContent = location;
+      if (headingEl) headingEl.textContent = location === 'All India' ? 'Check Rate by City' : `Rate in ${location}`;
     };
 
     const loadCitiesForState = async (stateName, autoSelectFirst = false) => {
