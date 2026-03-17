@@ -17,7 +17,7 @@ let categoriesPromise = null;
 let headerConfigCache = null;
 let headerConfigPromise = null;
 
-function getHeaderData() {
+function _getHeaderData() {
   return window.SITE_DATA?.header || {
     logoText: "FiscalColumn",
     logo: null
@@ -85,7 +85,7 @@ function setCachedData(key, data) {
 }
 
 window.getHeaderData = async function() {
-  return getHeaderData();
+  return _getHeaderData();
 };
 
 // Fetch categories from Strapi (with localStorage + in-memory caching)
@@ -147,6 +147,7 @@ async function fetchHeaderConfig() {
       const json = await response.json();
       const d = json.data || {};
       headerConfigCache = {
+        logoText: d.logoText || null,
         categoryCount: typeof d.categorycount === 'number' ? d.categorycount : DEFAULT_CATEGORY_COUNT,
         pills: Array.isArray(d.brandbar)
           ? d.brandbar
@@ -157,7 +158,7 @@ async function fetchHeaderConfig() {
       setCachedData(HEADER_CACHE_KEYS.CONFIG, headerConfigCache);
     } catch (err) {
       console.error('Error fetching header config:', err);
-      headerConfigCache = { categoryCount: DEFAULT_CATEGORY_COUNT, pills: [] };
+      headerConfigCache = { logoText: null, categoryCount: DEFAULT_CATEGORY_COUNT, pills: [] };
     }
     headerConfigPromise = null;
     return headerConfigCache;
@@ -289,7 +290,7 @@ async function renderHeader(currentPage = '') {
     return;
   }
 
-  const headerData = getHeaderData();
+  const headerData = _getHeaderData();
 
   // Fetch config and categories in parallel
   const [headerConfig, categories] = await Promise.all([
@@ -302,8 +303,9 @@ async function renderHeader(currentPage = '') {
   const brandPillsEl      = headerContainer.querySelector('.brand-rate-btns');
   const mobileMenuNav     = document.querySelector('.menu_nav ul.menu_mm');
 
-  if (logoContainer && headerData) {
-    logoContainer.innerHTML = renderLogo(headerData.logoText, headerData.logo);
+  if (logoContainer) {
+    const logoText = headerConfig.logoText || headerData.logoText;
+    logoContainer.innerHTML = renderLogo(logoText, headerData.logo);
   }
 
   if (mainNav) {

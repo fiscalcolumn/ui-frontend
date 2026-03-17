@@ -50,7 +50,7 @@
 body
 {
 	font-family: 'DM Sans', sans-serif;
-	font-size: 14px;
+	font-size: 24px;
 	font-weight: 400;
 	background: #FFFFFF;
 	color: #a5a5a5;
@@ -2158,9 +2158,10 @@ section
 
 /* Newsletter column */
 .footer-newsletter-desc {
+	font-family: 'DM Sans', sans-serif;
 	font-size: 1rem;
 	color: #3c3d3e;
-	line-height: 1.5;
+	line-height: 1.55;
 	margin: 0;
 }
 .footer-subscribe-form {
@@ -2582,6 +2583,7 @@ section
 }
 
 /* Dark Mode Footer */
+.dark-mode .footer-newsletter-desc { color: var(--text-secondary); }
 .dark-mode .footer-links-section
 {
 	background: var(--bg-secondary);

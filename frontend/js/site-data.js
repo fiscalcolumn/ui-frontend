@@ -6,10 +6,7 @@ const SITE_DATA = {
   // Header Configuration
   header: {
     logoText: "FiscalColumn",
-    logo: {
-      url: "/images/logo.png",
-      alternativeText: "FiscalColumn Logo"
-    },
+    logo: null,
     // Note: Categories are fetched from API as they change frequently
   },
 

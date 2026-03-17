@@ -142,14 +142,15 @@ class ArticlePageManager {
   }
 
   /**
-   * Fetch popular tags
+   * Fetch tags for sidebar
    */
   async fetchPopularTags() {
     try {
-      const url = getApiUrl('/popular-tag?populate[tags]=true');
+      const url = getApiUrl('/tags?sort=name:asc&pagination[pageSize]=20');
       const response = await fetch(url);
+      if (!response.ok) return [];
       const data = await response.json();
-      return data.data?.tags || [];
+      return data.data || [];
     } catch (e) {
       return [];
     }
