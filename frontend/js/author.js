@@ -219,7 +219,7 @@ class AuthorPageManager {
     const imgBase = window.API_CONFIG?.BASE_URL || '';
     const hasImage = article.image?.url;
     const imageHtml = hasImage
-      ? `<div class="featured-image"><img src="${imgBase}${article.image.url}" alt="${article.title}"></div>`
+      ? `<div class="featured-image"><img loading="lazy" src="${imgBase}${article.image.url}" alt="${article.title}"></div>`
       : '';
     const categoryName = article.category?.name || 'Article';
     const readTime = article.minutesToread || 3;
@@ -248,7 +248,7 @@ class AuthorPageManager {
     const imgBase = window.API_CONFIG?.BASE_URL || '';
     const hasImage = article.image?.url;
     const imageHtml = hasImage
-      ? `<div class="article-card-thumb"><img src="${imgBase}${article.image.url}" alt="${article.title}"></div>`
+      ? `<div class="article-card-thumb"><img loading="lazy" src="${imgBase}${article.image.url}" alt="${article.title}"></div>`
       : '<div class="article-card-thumb"><div class="article-card-thumb-placeholder"></div></div>';
     const categoryName = article.category?.name || 'Article';
     const readTime = article.minutesToread || 3;

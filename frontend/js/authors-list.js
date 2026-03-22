@@ -85,7 +85,7 @@ class AuthorsListManager {
     const fill = colors[colorIndex];
 
     const avatarHtml = photoUrl
-      ? `<img src="${photoUrl}" alt="${name}" class="author-avatar-img">`
+      ? `<img loading="lazy" src="${photoUrl}" alt="${name}" class="author-avatar-img">`
       : `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <circle cx="70" cy="70" r="70" fill="${fill}"/>
           <text x="70" y="93" text-anchor="middle" font-size="58" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">${initial}</text>

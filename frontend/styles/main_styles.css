@@ -33,7 +33,20 @@
 1. Fonts
 ***********/
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
+/* Google Fonts are loaded via <link> in the HTML head (injected by server.js) for better performance */
+
+/* Accessibility utility — visually hidden but available to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 /*********************************
 2. Body and some general stuff
@@ -53,7 +66,7 @@ body
 	font-size: 24px;
 	font-weight: 400;
 	background: #FFFFFF;
-	color: #a5a5a5;
+	color: #4a4a4a;
 }
 div
 {
@@ -74,7 +87,7 @@ p
 	font-size: 14px;
 	line-height: 1.85;
 	font-weight: 400;
-	color: #76777a;
+	color: #555555;
 	-webkit-font-smoothing: antialiased;
 	-webkit-text-shadow: rgba(0,0,0,.01) 0 0 1px;
 	text-shadow: rgba(0,0,0,.01) 0 0 1px;
@@ -490,7 +503,7 @@ section
 .shopping_cart i
 {
 	font-size: 26px;
-	color: #ada9a9;
+	color: #666666;
 	-webkit-transition: all 200ms ease;
 	-moz-transition: all 200ms ease;
 	-ms-transition: all 200ms ease;
@@ -1051,35 +1064,35 @@ section
 	font-family: 'DM Sans', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 }
 .home_search_input:-moz-placeholder
 {
 	font-family: 'DM Sans', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 }
 .home_search_input::-moz-placeholder
 {
 	font-family: 'DM Sans', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 } 
 .home_search_input:-ms-input-placeholder
 { 
 	font-family: 'DM Sans', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 }
 .home_search_input::input-placeholder
 {
 	font-family: 'DM Sans', sans-serif;
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 }
 .dropdown_item_select
 {
@@ -1296,7 +1309,7 @@ section
 	font-size: 14px;
 	font-weight: 400;
 	text-decoration: line-through;
-	color: #b5b8be;
+	color: #767676;
 	margin-right: 10px;
 }
 .courses_button
@@ -1491,35 +1504,35 @@ section
 {
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 }
 .counter_input:-moz-placeholder,
 .counter_text_input:-moz-placeholder
 {
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 }
 .counter_input::-moz-placeholder,
 .counter_text_input::-moz-placeholder
 {
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 } 
 .counter_input:-ms-input-placeholder,
 .counter_text_input:-ms-input-placeholder
 { 
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 }
 .counter_input::input-placeholder,
 .counter_text_input::input-placeholder
 {
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #b5b8be !important;
+	color: #767676 !important;
 }
 .counter_form_button
 {
@@ -1643,7 +1656,7 @@ section
 .event_info
 {
 	display: inline-block;
-	color: #b5b8be;
+	color: #767676;
 	font-size: 12px; /* Reduced from 14px */
 }
 .event_info:not(:last-child)
@@ -1889,7 +1902,7 @@ section
 {
 	font-size: 12px; /* Reduced from 14px */
 	font-weight: 400;
-	color: #b5b8be;
+	color: #767676;
 	text-transform: uppercase;
 	-webkit-transition: all 200ms ease;
 	-moz-transition: all 200ms ease;
@@ -2655,7 +2668,7 @@ section
 .footer_links_container ul li a
 {
 	font-size: 18px;
-	color: #b5b8be;
+	color: #767676;
 	white-space: nowrap;
 	-webkit-transition: all 200ms ease;
 	-moz-transition: all 200ms ease;
@@ -2697,7 +2710,7 @@ section
 .copyright div
 {
 	font-size: 14px;
-	color: #b5b8be;
+	color: #767676;
 }
 .cr_text a
 {
@@ -2719,7 +2732,7 @@ section
 .cr_list li a
 {
 	font-size: 14px;
-	color: #b5b8be;
+	color: #767676;
 	-webkit-transition: all 200ms ease;
 	-moz-transition: all 200ms ease;
 	-ms-transition: all 200ms ease;

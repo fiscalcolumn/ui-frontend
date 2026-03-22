@@ -474,7 +474,7 @@ class RatePageManager {
       const photoUrl = author?.photo?.url ? `${base}${author.photo.url}` : null;
       const initial  = (author?.name || 'A').charAt(0).toUpperCase();
       const avatar   = photoUrl
-        ? `<img src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
+        ? `<img loading="lazy" src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
         : `<span class="rc-author-initial">${initial}</span>`;
       const authorHtml = author
         ? `<div class="rc-author">${avatar}<span class="rc-author-name">${author.name}</span></div>`
@@ -484,7 +484,7 @@ class RatePageManager {
       return `
         <a href="${artUrl}" class="carousel-card rca-card">
           <div class="rca-card-image">
-            ${imgUrl ? `<img src="${imgUrl}" alt="${a.title}" loading="lazy">` : `<div class="rca-no-img"></div>`}
+            ${imgUrl ? `<img loading="lazy" src="${imgUrl}" alt="${a.title}" loading="lazy">` : `<div class="rca-no-img"></div>`}
           </div>
           <h4 class="rca-card-title">${a.title}</h4>
           ${excerpt ? `<p class="rca-card-excerpt">${excerpt}</p>` : ''}
@@ -545,7 +545,7 @@ class RatePageManager {
       const initial = j.name.charAt(0).toUpperCase();
 
       const logoInner = logoUrl
-        ? `<img src="${logoUrl}" alt="${j.name}" class="rp-jwl-logo" loading="lazy">`
+        ? `<img loading="lazy" src="${logoUrl}" alt="${j.name}" class="rp-jwl-logo" loading="lazy">`
         : `<div class="rp-jwl-initial">${initial}</div>`;
 
       const logoHtml = j.website

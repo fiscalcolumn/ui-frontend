@@ -148,7 +148,7 @@ class HomepageSectionsManager {
     const authorHtml = author?.name ? `
       <div class="ha-author">
         ${photoUrl
-          ? `<img src="${photoUrl}" alt="${author.name}" class="ha-author-avatar">`
+          ? `<img loading="lazy" src="${photoUrl}" alt="${author.name}" class="ha-author-avatar">`
           : `<div class="ha-author-avatar ha-author-initial">${author.name.charAt(0)}</div>`}
         <span class="ha-author-name">${author.name}</span>
       </div>` : '';
@@ -159,7 +159,7 @@ class HomepageSectionsManager {
           <a href="${url}" class="ha-wrapper ha-layout-b">
             <div class="ha-image">
               ${imageUrl
-                ? `<img src="${imageUrl}" alt="${article.title}" loading="lazy">`
+                ? `<img loading="lazy" src="${imageUrl}" alt="${article.title}" loading="lazy">`
                 : '<div class="ha-img-placeholder"></div>'}
             </div>
             <div class="ha-content">
@@ -215,7 +215,7 @@ class HomepageSectionsManager {
           : apiBase + cat.categoryImage.url;
         return `
           <a href="/${cat.slug}" class="browse-cat-card">
-            <img src="${imgUrl}" alt="${label}" loading="lazy">
+            <img loading="lazy" src="${imgUrl}" alt="${label}" loading="lazy">
             <div class="browse-cat-label">${label}</div>
           </a>`;
       }
@@ -274,7 +274,7 @@ class HomepageSectionsManager {
       return `
         <a href="${url}" class="rcb-item">
           <div class="rcb-item-image">
-            ${imgUrl ? `<img src="${imgUrl}" alt="${a.title}">` : `<div class="rca-no-img"></div>`}
+            ${imgUrl ? `<img loading="lazy" src="${imgUrl}" alt="${a.title}">` : `<div class="rca-no-img"></div>`}
           </div>
           <div class="rcb-item-content">
             <h4 class="rcb-item-title">${a.title}</h4>
@@ -294,7 +294,7 @@ class HomepageSectionsManager {
             <a href="${featuredUrl}" class="rcb-featured">
               <div class="rcb-featured-image">
                 ${featuredImgUrl
-                  ? `<img src="${featuredImgUrl}" alt="${featured.title}">`
+                  ? `<img loading="lazy" src="${featuredImgUrl}" alt="${featured.title}">`
                   : `<div class="rca-no-img"></div>`}
               </div>
               <h3 class="rcb-featured-title">${featured.title}</h3>
@@ -348,14 +348,14 @@ class HomepageSectionsManager {
     const avatarHtml = author ? `
       <div class="bento-avatar" title="${author.name || ''}">
         ${photoUrl
-          ? `<img src="${photoUrl}" alt="${author.name}">`
+          ? `<img loading="lazy" src="${photoUrl}" alt="${author.name}">`
           : `<span>${(author.name || 'A').charAt(0).toUpperCase()}</span>`}
       </div>` : '';
 
     return `
       <a href="${url}" class="bento-tile ${sizeClass}">
         ${imgUrl
-          ? `<img src="${imgUrl}" alt="${article.title}" class="bento-img">`
+          ? `<img loading="lazy" src="${imgUrl}" alt="${article.title}" class="bento-img">`
           : `<div class="bento-no-img"></div>`}
         <div class="bento-overlay">
           <div class="bento-body">
@@ -482,7 +482,7 @@ class HomepageSectionsManager {
     const authorHtml = author ? `
       <div class="rc-author">
         ${photoUrl
-          ? `<img src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
+          ? `<img loading="lazy" src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
           : `<span class="rc-author-initial">${(author.name || 'A').charAt(0).toUpperCase()}</span>`}
         <span class="rc-author-name">${author.name}</span>
       </div>` : '';
@@ -491,7 +491,7 @@ class HomepageSectionsManager {
       <a href="${url}" class="carousel-card rca-card">
         <div class="rca-card-image">
           ${imgUrl
-            ? `<img src="${imgUrl}" alt="${article.title}">`
+            ? `<img loading="lazy" src="${imgUrl}" alt="${article.title}">`
             : `<div class="rca-no-img"></div>`}
         </div>
         <h4 class="rca-card-title">${article.title}</h4>

@@ -382,7 +382,7 @@ class CategoryPageManager {
     const photoUrl = author.photo?.url ? `${imgBase}${author.photo.url}` : null;
     const initial = (author.name || 'A').charAt(0).toUpperCase();
     const avatar = photoUrl
-      ? `<img src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
+      ? `<img loading="lazy" src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
       : `<span class="rc-author-initial">${initial}</span>`;
     return `<div class="rc-author">${avatar}<span class="rc-author-name">${author.name}</span></div>`;
   }
@@ -429,7 +429,7 @@ class CategoryPageManager {
       <a href="${this.rcArticleUrl(article)}" class="rca-card">
         <div class="rca-card-image">
           ${imgUrl
-            ? `<img src="${imgUrl}" alt="${article.title}">`
+            ? `<img loading="lazy" src="${imgUrl}" alt="${article.title}">`
             : `<div class="rca-no-img"></div>`}
         </div>
         ${this.rcCategoryBadge(article)}
@@ -453,7 +453,7 @@ class CategoryPageManager {
             <a href="${this.rcArticleUrl(featured)}" class="rcb-featured">
               <div class="rcb-featured-image">
                 ${this.rcImageUrl(featured)
-                  ? `<img src="${this.rcImageUrl(featured)}" alt="${featured.title}">`
+                  ? `<img loading="lazy" src="${this.rcImageUrl(featured)}" alt="${featured.title}">`
                   : `<div class="rca-no-img"></div>`}
               </div>
               ${this.rcCategoryBadge(featured)}
@@ -477,7 +477,7 @@ class CategoryPageManager {
       <a href="${this.rcArticleUrl(article)}" class="rcb-item">
         <div class="rcb-item-image">
           ${imgUrl
-            ? `<img src="${imgUrl}" alt="${article.title}">`
+            ? `<img loading="lazy" src="${imgUrl}" alt="${article.title}">`
             : `<div class="rca-no-img"></div>`}
         </div>
         <div class="rcb-item-content">
@@ -773,7 +773,7 @@ class CategoryPageManager {
     const categoryName = article.category?.name || this.category?.name || '';
     const initial = categoryName.charAt(0).toUpperCase() || article.title.charAt(0).toUpperCase();
     const imageHtml = hasImage
-      ? `<div class="featured-image"><img src="${API_CONFIG.BASE_URL}${imageUrl}" alt="${article.title}"></div>`
+      ? `<div class="featured-image"><img loading="lazy" src="${API_CONFIG.BASE_URL}${imageUrl}" alt="${article.title}"></div>`
       : `<div class="featured-image featured-image--placeholder">
            <div class="featured-placeholder-inner">
              <span class="featured-placeholder-initial">${initial}</span>
@@ -828,7 +828,7 @@ class CategoryPageManager {
   renderArticleCard(article) {
     const hasImage = article.image?.url;
     const imageHtml = hasImage
-      ? `<div class="card-thumb"><img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
+      ? `<div class="card-thumb"><img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
       : this.articlePlaceholder('card-thumb', article);
     
     const readTime = Utils.getReadTime(article);
@@ -939,7 +939,7 @@ class CategoryPageManager {
   renderMiniCard(article) {
     const hasImage = article.image?.url;
     const imageHtml = hasImage
-      ? `<div class="mini-card-image"><img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
+      ? `<div class="mini-card-image"><img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
       : this.articlePlaceholder('mini-card-image', article);
     
     const excerpt = article.excerpt || Utils.truncateText(article.content, 60);

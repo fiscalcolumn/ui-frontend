@@ -260,7 +260,7 @@ class TagPageManager {
   renderFeaturedArticle(article) {
     const hasImage = article.image?.url;
     const imageHtml = hasImage 
-      ? `<div class="featured-image"><img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
+      ? `<div class="featured-image"><img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
       : '';
     
     const categoryName = article.category?.name || 'Article';
@@ -292,7 +292,7 @@ class TagPageManager {
   renderArticleCard(article) {
     const hasImage = article.image?.url;
     const imageHtml = hasImage 
-      ? `<div class="article-card-thumb"><img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
+      ? `<div class="article-card-thumb"><img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
       : '<div class="article-card-thumb"><div class="article-card-thumb-placeholder"></div></div>';
     
     const categoryName = article.category?.name || 'Article';

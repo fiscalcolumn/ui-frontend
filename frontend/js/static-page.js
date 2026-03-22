@@ -118,7 +118,7 @@ class StaticPageManager {
           <div class="sp-info-content">
             <div class="sp-info-avatar">
               ${hasImage
-                ? `<img src="${imageUrl}" alt="${this.page.title}" class="sp-info-img">`
+                ? `<img loading="lazy" src="${imageUrl}" alt="${this.page.title}" class="sp-info-img">`
                 : `<div class="sp-info-icon-circle" style="background:${fb.color}">
                      <i class="fa ${fb.icon}"></i>
                    </div>`

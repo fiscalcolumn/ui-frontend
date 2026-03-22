@@ -33,7 +33,7 @@ function haAuthorHtml(author) {
   return `
     <div class="ha-author">
       ${photoUrl
-        ? `<img src="${photoUrl}" alt="${author.name}" class="ha-author-avatar">`
+        ? `<img loading="lazy" src="${photoUrl}" alt="${author.name}" class="ha-author-avatar">`
         : `<div class="ha-author-avatar ha-author-initial">${author.name.charAt(0)}</div>`}
       <span class="ha-author-name">${author.name}</span>
     </div>`;
@@ -55,12 +55,12 @@ function haCardHtml(article, layout = 'ha-layout-a') {
     <a href="${url}" class="ha-wrapper ${layout}">
       <div class="ha-image">
         ${imageUrl
-          ? `<img src="${imageUrl}" alt="${article.title}" loading="lazy">`
+          ? `<img loading="eager" fetchpriority="high" src="${imageUrl}" alt="${article.title}">`
           : '<div class="ha-img-placeholder"></div>'}
       </div>
       <div class="ha-content">
         <div class="ha-category">${categoryName.toUpperCase()}</div>
-        <h2 class="ha-title">${article.title || ''}</h2>
+        <h2 class="ha-title" role="heading" aria-level="2">${article.title || ''}</h2>
         <p class="ha-excerpt">${article.excerpt || ''}</p>
         <div class="ha-footer">
           ${haAuthorHtml(article.author)}

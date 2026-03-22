@@ -47,7 +47,7 @@
 
 .rp-date {
   font-size: 1.2rem;
-  color: #8b9bb4;
+  color: #616e85;
   margin: 0;
 }
 .rp-date i { margin-right: 4px; color: var(--mc, #D4A017); }
@@ -69,7 +69,7 @@
 .rp-price-unit {
   font-size: 1.4rem;
   padding-top: 10px;
-  color: #8b9bb4;
+  color: #616e85;
   margin-top: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -197,11 +197,11 @@
 .rp-price-table td:first-child { text-align: left; }
 .rp-price-table tbody tr:hover td { background: #f9fbfd; }
 .rp-table-purity { font-weight: 600; color: #1a2332 !important; }
-.rp-table-purity small { font-weight: 400; color: #888; margin-left: 4px; }
+.rp-table-purity small { font-weight: 400; color: #666; margin-left: 4px; }
 
 .rp-table-note {
   font-size: 0.78rem;
-  color: #888;
+  color: #666;
   margin: 12px 0 0;
 }
 .rp-table-note i { margin-right: 4px; color: var(--mc, #D4A017); }
@@ -228,7 +228,7 @@
   gap: 0;
   padding: 4px 0;
 }
-.rp-csp-loading { color: #aaa; font-size: 0.85rem; }
+.rp-csp-loading { color: #767676; font-size: 0.85rem; }
 .rp-csp-price {
   font-size: 1.5rem;
   font-weight: 700;
@@ -244,7 +244,7 @@
   font-weight: 600;
   margin-bottom: 16px;
 }
-.rp-csp-change span { font-weight: 400; font-size: 0.8rem; color: #888; }
+.rp-csp-change span { font-weight: 400; font-size: 0.8rem; color: #666; }
 .rp-csp-divider {
   height: 1px;
   background: var(--border-color, #eee);
@@ -261,7 +261,7 @@
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #999;
+  color: #767676;
 }
 .rp-csp-val {
   font-size: 0.85rem;
@@ -306,7 +306,7 @@
 
 .rp-no-data {
   text-align: center;
-  color: #aaa;
+  color: #767676;
   padding: 60px 20px;
   font-size: 1.2rem;
 }
@@ -347,7 +347,7 @@
   background-position: right 12px center;
 }
 .rp-select:focus { border-color: var(--mc, #D4A017); }
-.rp-select:disabled { background: #f8f9fa; color: #999; cursor: not-allowed; }
+.rp-select:disabled { background: #f8f9fa; color: #767676; cursor: not-allowed; }
 
 .rp-location-result {
   display: flex;
@@ -387,7 +387,7 @@
 
 .rp-location-note {
   font-size: 0.78rem;
-  color: #888;
+  color: #666;
   margin: 12px 0 0;
 }
 .rp-location-note i { color: var(--mc, #D4A017); margin-right: 4px; }
@@ -423,7 +423,7 @@
 .rp-loading {
   text-align: center;
   padding: 80px 20px;
-  color: #888;
+  color: #666;
 }
 .rp-spinner {
   width: 40px;
@@ -444,7 +444,7 @@
 }
 .rp-error i { font-size: 3rem; color: #e0e0e0; display: block; margin-bottom: 16px; }
 .rp-error h2 { font-size: 1.4rem; color: #1a2332; margin-bottom: 8px; }
-.rp-error p  { color: #888; margin-bottom: 20px; }
+.rp-error p  { color: #666; margin-bottom: 20px; }
 
 .rp-btn {
   display: inline-block;
@@ -528,7 +528,7 @@
 }
 .rp-tax-note-inline {
   font-size: 0.72rem;
-  color: #888;
+  color: #666;
   text-align: right;
   line-height: 1.3;
 }
@@ -549,11 +549,11 @@
 
 .rp-tax-note {
   font-size: 1rem;
-  color: #888;
+  color: #666;
   margin-top: 14px;
   line-height: 1.5;
 }
-.rp-tax-note i { margin-right: 4px; color: #aaa; }
+.rp-tax-note i { margin-right: 4px; color: #767676; }
 
 /* ── Jeweller Cards ── */
 .rp-jewellers-desc {
@@ -670,13 +670,13 @@ a.rp-jwl-img-wrap:hover {
 }
 .rp-jwl-btn--na {
   border-color: #ddd;
-  color: #aaa;
+  color: #767676;
   cursor: default;
   font-weight: 400;
 }
 
 .rp-jewellers-empty {
-  color: #aaa;
+  color: #767676;
   font-size: 0.9rem;
   text-align: center;
   padding: 24px 0;

@@ -78,7 +78,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #999;
+  color: #767676;
   margin: 0 0 24px;
   font-family: 'DM Sans', sans-serif;
 }
@@ -100,7 +100,7 @@
 }
 .sp-about-meta {
   font-size: 0.78rem;
-  color: #8b9bb4;
+  color: #616e85;
   letter-spacing: 0.04em;
 }
 
@@ -242,7 +242,7 @@
 }
 .sp-nl-tagline { font-size: 1.1rem; color: #e8d5a3; line-height: 1.6; margin-bottom: 14px; max-width: 620px; }
 .sp-nl-meta    { display: flex; gap: 20px; flex-wrap: wrap; }
-.sp-nl-meta span { font-size: 0.8rem; color: #8b9bb4; }
+.sp-nl-meta span { font-size: 0.8rem; color: #616e85; }
 .sp-nl-meta .fa { color: #22c55e; margin-right: 5px; }
 
 .sp-nl-form-wrap {
@@ -275,7 +275,7 @@
 
 .sp-nl-panel--hidden { display: none; }
 
-.sp-nl-form-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin-bottom: 10px; }
+.sp-nl-form-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #767676; margin-bottom: 10px; }
 .sp-nl-form {
   display: flex;
   gap: 0;
@@ -309,7 +309,7 @@
 .sp-nl-btn:disabled      { opacity: 0.6; cursor: not-allowed; }
 .sp-nl-btn--unsub        { background: #6c757d; }
 .sp-nl-btn--unsub:hover  { background: #545b62; }
-.sp-nl-privacy { font-size: 0.75rem; color: #aaa; margin-top: 8px; }
+.sp-nl-privacy { font-size: 0.75rem; color: #767676; margin-top: 8px; }
 .sp-nl-privacy a { color: #b8860b; }
 .sp-nl-msg { font-size: 0.82rem; margin-top: 6px; min-height: 20px; }
 .sp-nl-msg--success { color: #22c55e; }
@@ -405,7 +405,7 @@
   transition: background 0.15s;
 }
 .sp-adv-cta-btn:hover { background: #9a7009; color: #fff; text-decoration: none; }
-.sp-adv-cta-note { margin-top: 12px; font-size: 0.75rem; color: #8b9bb4; }
+.sp-adv-cta-note { margin-top: 12px; font-size: 0.75rem; color: #616e85; }
 
 /* ── Contact Us (department grid) ────────────────────────────────────────────── */
 .cus-section { margin-bottom: 40px; }
@@ -426,7 +426,7 @@
 .cus-card:last-child   { border-right: none; padding-right: 0; }
 .cus-card:not(:first-child) { padding-left: 28px; }
 .cus-card-top  { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-.cus-icon      { font-size: 1rem; color: #999; }
+.cus-icon      { font-size: 1rem; color: #767676; }
 .cus-label     { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1a2e; }
 .cus-email     { font-size: 0.88rem; font-weight: 600; color: #b8860b; text-decoration: none; }
 .cus-email:hover { color: #8a6408; text-decoration: underline; }
@@ -438,7 +438,7 @@
 /* ── Legal Pages ──────────────────────────────────────────────────────────────── */
 .sp-legal-updated {
   font-size: 0.78rem;
-  color: #999;
+  color: #767676;
   margin-bottom: 24px;
   display: flex;
   align-items: center;

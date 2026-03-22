@@ -296,7 +296,7 @@ class ArticlePageManager {
     const authorInitial = author.charAt(0).toUpperCase();
     const authorPhotoUrl = authorObj?.photo?.url ? `${window.API_CONFIG?.BASE_URL || ''}${authorObj.photo.url}` : null;
     const authorAvatarSvg = authorPhotoUrl
-      ? `<img src="${authorPhotoUrl}" alt="${author}" class="author-avatar-img" width="32" height="32">`
+      ? `<img loading="lazy" src="${authorPhotoUrl}" alt="${author}" class="author-avatar-img" width="32" height="32">`
       : `<svg class="author-avatar-svg" width="32" height="32" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <circle cx="18" cy="18" r="18" fill="#1a2332"/>
       <text x="18" y="23" text-anchor="middle" font-size="15" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">${authorInitial}</text>
@@ -324,7 +324,7 @@ class ArticlePageManager {
       <!-- ── FEATURED IMAGE ── -->
       ${hasImage ? `
       <div class="article-featured-image">
-        <img src="${imageUrl}" alt="${this.article.title}">
+        <img loading="eager" fetchpriority="high" src="${imageUrl}" alt="${this.article.title}">
       </div>` : ''}
 
       <!-- ── DESCRIPTION / EXCERPT ── -->
@@ -450,7 +450,7 @@ class ArticlePageManager {
   renderSidebarArticle(article) {
     const hasImage = article.image?.url;
     const imageHtml = hasImage
-      ? `<img src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}">`
+      ? `<img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}">`
       : '<div class="latest-article-image-placeholder"></div>';
     const categorySlug = article.category?.slug || 'article';
     const date = Utils.formatDateLong(article.publishedDate);
