@@ -67,33 +67,89 @@ app.get('/config.js', (req, res) => {
 };`);
 });
 
-// Helper function to add version query params to script tags in HTML (cache busting)
-function addVersionToScripts(htmlContent) {
-  return htmlContent.replace(
-    /<script\s+src=["']([^"']+)["']/g,
-    (match, src) => {
-      // Skip external URLs (CDN) and config.js (already has version logic)
-      if (src.startsWith('http') || src.startsWith('//') || src === '/config.js') {
-        return match;
-      }
-      // Skip if already has version parameter
-      if (src.includes('?v=') || src.includes('&v=')) {
-        return match;
-      }
-      const separator = src.includes('?') ? '&' : '?';
-      return `<script src="${src}${separator}v=${APP_VERSION}"`;
-    }
-  );
+// Google Fonts — preconnect early, load stylesheet non-blocking (display=optional = no CLS)
+const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=optional';
+
+// Preconnect hints injected at the very top of <head> — establishes TCP/TLS early
+const PRECONNECT_HINTS = `<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>`;
+
+// Substrings that identify non-critical CSS links to defer
+const DEFERRABLE_CSS_MARKERS = [
+  'font-awesome',
+  'owl.carousel',
+  'owl.theme',
+  'animate.css',
+];
+
+// Convert a blocking <link rel="stylesheet"> to a non-blocking deferred one
+function deferLinkTag(tag) {
+  if (tag.includes('media="print"')) return tag; // already deferred
+  // Remove type="text/css" (redundant in HTML5)
+  let deferred = tag.replace(/\s*type=["']text\/css["']/, '');
+  // Add media="print" + onload swap — browser fetches async, applies when done
+  deferred = deferred.replace(/rel=["']stylesheet["']/, `rel="stylesheet" media="print" onload="this.media='all'"`);
+  return `${deferred}\n<noscript>${tag}</noscript>`;
 }
 
-// Helper function to send HTML file with versioned script tags
+// Optimise HTML: preconnects, non-blocking CSS, version scripts, defer app scripts
+function optimizeHtml(htmlContent) {
+  let html = htmlContent;
+
+  // 1. Strip existing preconnect tags — will re-inject at the very top
+  html = html.replace(/<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">\n?/g, '');
+  html = html.replace(/<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>\n?/g, '');
+
+  // 2. Inject preconnect hints right after <head> (earliest possible TCP handshake)
+  html = html.replace('<head>', `<head>\n${PRECONNECT_HINTS}`);
+
+  // 3. Inject Google Fonts as non-blocking before </head>
+  if (!html.includes('fonts.googleapis.com/css2')) {
+    const fontsDeferred =
+      `<link rel="stylesheet" href="${GOOGLE_FONTS_URL}" media="print" onload="this.media='all'">\n` +
+      `<noscript><link rel="stylesheet" href="${GOOGLE_FONTS_URL}"></noscript>`;
+    html = html.replace('</head>', `${fontsDeferred}\n</head>`);
+  }
+
+  // 4. Defer non-critical CSS line-by-line (reliable: no complex regex)
+  html = html.split('\n').map(line => {
+    const trimmed = line.trim();
+    // Only process <link ...stylesheet... > lines
+    if (!trimmed.startsWith('<link') || !trimmed.includes('stylesheet')) return line;
+    // Check if this line contains a deferrable CSS path
+    const shouldDefer = DEFERRABLE_CSS_MARKERS.some(marker => line.includes(marker));
+    if (!shouldDefer) return line;
+    return deferLinkTag(trimmed);
+  }).join('\n');
+
+  // 5. Version local script src tags (cache busting)
+  html = html.replace(
+    /<script\s+src=["']([^"']+)["']/g,
+    (match, src) => {
+      if (src.startsWith('http') || src.startsWith('//') || src === '/config.js') return match;
+      if (src.includes('?v=') || src.includes('&v=')) return match;
+      const sep = src.includes('?') ? '&' : '?';
+      return `<script src="${src}${sep}v=${APP_VERSION}"`;
+    }
+  );
+
+  return html;
+}
+
+// Helper function to send HTML file with optimisations and cache headers
 function sendVersionedHtml(res, filePath) {
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       return res.status(500).send('Error loading page');
     }
-    const processedHtml = addVersionToScripts(data);
-    res.setHeader('Content-Type', 'text/html');
+    const processedHtml = optimizeHtml(data);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    // HTML: allow short cache + stale-while-revalidate for fast repeat visits
+    if (NODE_ENV === 'production') {
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=3600');
+    } else {
+      res.setHeader('Cache-Control', 'no-store');
+    }
     res.send(processedHtml);
   });
 }
@@ -103,17 +159,21 @@ function sendVersionedHtml(res, filePath) {
 app.use(express.static(path.join(__dirname, 'frontend'), {
   maxAge: NODE_ENV === 'production' ? '1y' : '0', // Cache static assets in production
   etag: true,
-  lastModified: true
+  lastModified: true,
+  index: false, // Prevent express.static from auto-serving index.html for '/'
+                // so our app.get('/') route handler runs and applies optimizeHtml()
 }));
 
 // Robots.txt
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
   res.send(`User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
 Sitemap: ${SITE_URL}/sitemap.xml
-Feed: ${SITE_URL}/feed.xml
 `);
 });
 
@@ -262,7 +322,7 @@ async function generateSitemap() {
       if (calc.slug) {
         const lastmod = calc.updatedAt ? calc.updatedAt.split('T')[0] : new Date().toISOString().split('T')[0];
         xml += `  <url>
-    <loc>${SITE_URL}/calculators/${encodeURIComponent(calc.slug)}</loc>
+    <loc>${SITE_URL}/calculator/${encodeURIComponent(calc.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -543,8 +603,13 @@ STATIC_PAGE_SLUGS.forEach(slug => {
   });
 });
 
-// Calculator pages - /calculators/:slug
-app.get('/calculators/:slug', (req, res) => {
+// Calculators hub - /calculator
+app.get('/calculator', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'calculators-hub.html'));
+});
+
+// Calculator pages - /calculator/:slug
+app.get('/calculator/:slug', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'calculator.html'));
 });
 

@@ -52,7 +52,7 @@ class CalculatorPageManager {
   }
 
   /**
-   * Get slug from URL path (/calculators/:slug)
+   * Get slug from URL path (/calculator/:slug)
    */
   getSlugFromUrl() {
     const path = window.location.pathname;
@@ -136,7 +136,7 @@ class CalculatorPageManager {
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": window.location.origin },
-        { "@type": "ListItem", "position": 2, "name": "Calculators", "item": `${window.location.origin}/calculators` },
+        { "@type": "ListItem", "position": 2, "name": "Calculators", "item": `${window.location.origin}/calculator` },
         { "@type": "ListItem", "position": 3, "name": this.calculator.title, "item": url }
       ]
     };
@@ -237,29 +237,48 @@ class CalculatorPageManager {
     // Map slug to registration type
     // This maps the URL slug to the type used in registerCalculator(type, CalculatorClass)
     const slugToTypeMap = {
-      'sip-calculator': 'sip',
-      'bmi-calculator': 'bmi',
-      'bmr-calculator': 'bmr',
-      'calorie-calculator': 'calorie',
-      'walk-calorie-burn-calculator': 'walk-calorie-burn',
+      // Finance & Loans
       'emi-calculator': 'emi',
       'home-loan-emi-calculator': 'home-loan-emi',
       'car-loan-emi-calculator': 'car-loan-emi',
       'personal-loan-emi-calculator': 'personal-loan-emi',
-      'fd-calculator': 'fd',
-      'rd-calculator': 'rd',
-      'ppf-calculator': 'ppf',
-      'nps-calculator': 'nps',
-      'compound-interest-calculator': 'compound-interest',
-      'simple-interest-calculator': 'simple-interest',
-      'retirement-calculator': 'retirement',
       'loan-eligibility-calculator': 'loan-eligibility',
       'loan-prepayment-calculator': 'loan-prepayment',
+      'credit-card-calculator': 'credit-card',
+      'education-loan-emi-calculator': 'education-loan-emi',
+      // Investment & Savings
+      'sip-calculator': 'sip',
+      'lumpsum-calculator': 'lumpsum',
+      'step-up-sip-calculator': 'step-up-sip',
+      'fd-calculator': 'fd',
+      'rd-calculator': 'rd',
+      'compound-interest-calculator': 'compound-interest',
+      'simple-interest-calculator': 'simple-interest',
+      'nsc-calculator': 'nsc',
+      // Tax & Government Schemes
       'income-tax-calculator': 'income-tax',
+      'gst-calculator': 'gst',
+      'hra-calculator': 'hra',
+      'tds-calculator': 'tds',
+      'ppf-calculator': 'ppf',
+      'nps-calculator': 'nps',
+      'sukanya-samriddhi-calculator': 'sukanya-samriddhi',
+      'epf-calculator': 'epf',
+      // Retirement & Planning
+      'retirement-calculator': 'retirement',
       'gratuity-calculator': 'gratuity',
+      // Health & Fitness
+      'bmi-calculator': 'bmi',
+      'bmr-calculator': 'bmr',
+      'calorie-calculator': 'calorie',
+      'walk-calorie-burn-calculator': 'walk-calorie-burn',
       'ideal-weight-calculator': 'ideal-weight',
       'child-height-calculator': 'child-height',
-      'diabetes-risk-calculator': 'diabetes-risk'
+      'diabetes-risk-calculator': 'diabetes-risk',
+      // Salary & Business
+      'take-home-salary-calculator': 'take-home-salary',
+      // Home & Property
+      'rent-vs-buy-calculator': 'rent-vs-buy',
     };
     
     // Check if there's a mapping for this slug
@@ -287,7 +306,7 @@ class CalculatorPageManager {
     // Map slug (from URL) to actual script filename
     // Add new calculators here if slug doesn't match filename
     const slugToFileMap = {
-      'walk-calorie-burn-calculator': 'walk-calorie-calculator.js' // Slug mismatch example
+      'walk-calorie-burn-calculator': 'walk-calorie-calculator.js',
     };
     
     // Check if there's a mapping for this slug
@@ -484,7 +503,7 @@ class CalculatorPageManager {
         <div class="sidebar-section sidebar-cta">
           <h3 class="sidebar-title">All Calculators</h3>
           <p>Browse our full collection of financial and health calculators.</p>
-          <a href="/calculators" class="sidebar-btn">
+          <a href="/calculator" class="sidebar-btn">
             <i class="fa fa-th-large"></i> View All Calculators
           </a>
         </div>
@@ -505,7 +524,7 @@ class CalculatorPageManager {
 
       const categoryName = this.formatCategoryName(calculatorCategoryName || '');
       const relatedHtml = categoryCalculators.length > 0 ? categoryCalculators.map(calc => `
-        <a href="/calculators/${calc.slug}" class="sidebar-calc-item">
+        <a href="/calculator/${calc.slug}" class="sidebar-calc-item">
           <div class="sidebar-calc-icon" style="color: ${calc.iconColor || '#14bdee'}">
             <i class="fa ${calc.icon || 'fa-calculator'}"></i>
           </div>
@@ -524,32 +543,12 @@ class CalculatorPageManager {
           </div>
         </div>
 
-        <div class="sidebar-section sidebar-ad">
-          <div class="sidebar-ad-box">
-            <span class="ad-label">Advertisement</span>
-            <div class="ad-placeholder">
-              <i class="fa fa-bullhorn"></i>
-              <span>Ad Space</span>
-            </div>
-          </div>
-        </div>
-
         <div class="sidebar-section sidebar-cta">
           <h3 class="sidebar-title">All Calculators</h3>
           <p>Browse our full collection of financial and health calculators.</p>
-          <a href="/calculators" class="sidebar-btn">
+          <a href="/calculator" class="sidebar-btn">
             <i class="fa fa-th-large"></i> View All Calculators
           </a>
-        </div>
-
-        <div class="sidebar-section sidebar-ad">
-          <div class="sidebar-ad-box">
-            <span class="ad-label">Advertisement</span>
-            <div class="ad-placeholder">
-              <i class="fa fa-bullhorn"></i>
-              <span>Ad Space</span>
-            </div>
-          </div>
         </div>
       `;
     } catch (error) {
@@ -559,7 +558,7 @@ class CalculatorPageManager {
         <div class="sidebar-section sidebar-cta">
           <h3 class="sidebar-title">All Calculators</h3>
           <p>Browse our full collection of financial and health calculators.</p>
-          <a href="/calculators" class="sidebar-btn">
+          <a href="/calculator" class="sidebar-btn">
             <i class="fa fa-th-large"></i> View All Calculators
           </a>
         </div>
@@ -610,7 +609,7 @@ class CalculatorPageManager {
         <i class="fa fa-exclamation-circle"></i>
         <h2>Calculator Not Found</h2>
         <p>${message}</p>
-        <a href="/calculators" class="btn-back">
+        <a href="/calculator" class="btn-back">
           <i class="fa fa-arrow-left"></i> Back to Calculators
         </a>
       </div>

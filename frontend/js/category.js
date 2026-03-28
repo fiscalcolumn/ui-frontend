@@ -271,7 +271,7 @@ class CategoryPageManager {
     const isFeatured = calculator.isFeatured;
 
     return `
-      <a href="/calculators/${calculator.slug}" class="calculator-card ${isFeatured ? 'featured' : ''}">
+      <a href="/calculator/${calculator.slug}" class="calculator-card ${isFeatured ? 'featured' : ''}">
         <div class="calculator-card-icon" style="background-color: ${iconColor}20; color: ${iconColor};">
           <i class="fa ${icon}"></i>
         </div>
