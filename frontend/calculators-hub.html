@@ -128,7 +128,10 @@
 				<div class="ch-header-search">
 					<div class="ch-search-box">
 						<i class="fa fa-search ch-search-icon"></i>
-						<input type="text" id="ch-search-input" class="ch-search-input" placeholder='Search — "SIP", "GST", "HRA"...'>
+						<input type="text" id="ch-search-input" class="ch-search-input" placeholder='Search calculators...'>
+						<div class="ch-search-kbd">
+							<kbd>⌘</kbd><kbd>K</kbd>
+						</div>
 						<div class="ch-search-dropdown" id="ch-search-dropdown"></div>
 					</div>
 				</div>
@@ -151,14 +154,17 @@
 
 			<!-- Trending Section -->
 			<section class="ch-section" id="ch-trending-section">
-				<div class="ch-section-header">
-					<h2 class="ch-section-title">
-						<span class="ch-section-title-icon"><i class="fa fa-fire"></i></span>
-						Trending
-					</h2>
-				</div>
-				<div class="ch-trending-grid" id="ch-trending-grid">
-					<div class="ch-loading"><div class="spinner"></div></div>
+				<div class="ch-trending-wrap">
+					<div class="ch-trending-header">
+						<h2 class="ch-trending-title">
+							<span class="ch-trending-title-icon"><i class="fa fa-fire"></i></span>
+							Trending Now
+						</h2>
+						<span class="ch-trending-badge">Most Popular</span>
+					</div>
+					<div class="ch-trending-grid" id="ch-trending-grid">
+						<div class="ch-loading ch-loading--dark"><div class="spinner spinner--light"></div></div>
+					</div>
 				</div>
 			</section>
 
@@ -170,6 +176,7 @@
 						All Calculators
 					</h2>
 				</div>
+
 				<div id="ch-categories-container">
 					<div class="ch-loading"><div class="spinner"></div></div>
 				</div>

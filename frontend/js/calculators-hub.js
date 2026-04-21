@@ -122,22 +122,21 @@ class CalculatorsHub {
 
   renderTrendingCards(calcs, container) {
     if (!calcs.length) {
-      container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">No calculators found.</p>';
+      container.innerHTML = '<p style="color:rgba(255,255,255,0.4);text-align:center;padding:20px;">No calculators found.</p>';
       return;
     }
     container.innerHTML = calcs.map(calc => {
-      const color = calc.iconColor || '#14bdee';
+      const color = calc.iconColor || '#10B981';
       const icon = calc.icon || 'fa-calculator';
       return `
         <a href="/calculator/${calc.slug}" class="ch-trending-card" style="--card-color: ${color}">
-          <div class="ch-trending-card-icon" style="background: ${color}18; color: ${color}">
+          <div class="ch-trending-card-icon" style="background: linear-gradient(135deg, ${color}55, ${color}25); color: ${color}; border: 1px solid ${color}45; box-shadow: 0 2px 10px ${color}30">
             <i class="fa ${icon}"></i>
           </div>
           <div class="ch-trending-card-info">
             <div class="ch-trending-card-name">${calc.title}</div>
             <div class="ch-trending-card-desc">${calc.excerpt || 'Calculate now'}</div>
           </div>
-          <i class="fa fa-chevron-right ch-trending-card-arrow"></i>
         </a>
       `;
     }).join('');
@@ -187,7 +186,7 @@ class CalculatorsHub {
       return `
         <div class="ch-category-group" data-cat-id="${catDocId}" id="cat-group-${catDocId}">
           <div class="ch-category-group-header">
-            <div class="ch-category-group-icon" style="background: ${catInfo.color}18; color: ${catInfo.color}">
+            <div class="ch-category-group-icon" style="background: linear-gradient(135deg, ${catInfo.color}22, ${catInfo.color}0d); color: ${catInfo.color}; border: 1px solid ${catInfo.color}28">
               <i class="fa ${catInfo.icon}"></i>
             </div>
             <span class="ch-category-group-name">${catName}</span>
@@ -202,18 +201,17 @@ class CalculatorsHub {
   }
 
   calcCardHtml(calc) {
-    const color = calc.iconColor || '#14bdee';
+    const color = calc.iconColor || '#10B981';
     const icon = calc.icon || 'fa-calculator';
     return `
       <a href="/calculator/${calc.slug}" class="ch-calc-card" style="--card-color: ${color}">
-        <div class="ch-calc-card-icon" style="background: ${color}18; color: ${color}">
+        <div class="ch-calc-card-icon" style="background: linear-gradient(135deg, ${color}22, ${color}0d); color: ${color}; border: 1px solid ${color}28; box-shadow: 0 2px 8px ${color}18">
           <i class="fa ${icon}"></i>
         </div>
         <div class="ch-calc-card-body">
           <div class="ch-calc-card-name">${calc.title}</div>
           ${calc.excerpt ? `<div class="ch-calc-card-desc">${calc.excerpt}</div>` : ''}
         </div>
-        <i class="fa fa-chevron-right ch-calc-card-arrow"></i>
       </a>
     `;
   }
@@ -265,6 +263,15 @@ class CalculatorsHub {
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { dropdown.classList.remove('open'); input.blur(); }
     });
+
+    // ⌘K / Ctrl+K to focus search
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        input.focus();
+        input.select();
+      }
+    });
   }
 
   initCategoryFilter() {
@@ -309,7 +316,7 @@ class CalculatorsHub {
     if (n.includes('home') || n.includes('property') || n.includes('real')) return { icon: 'fa-home', color: '#795548' };
     if (n.includes('salary') || n.includes('business') || n.includes('work')) return { icon: 'fa-briefcase', color: '#607d8b' };
     if (n.includes('education') || n.includes('student')) return { icon: 'fa-graduation-cap', color: '#00bcd4' };
-    return { icon: 'fa-calculator', color: '#14bdee' };
+    return { icon: 'fa-calculator', color: '#10B981' };
   }
 
   formatCatName(name) {
