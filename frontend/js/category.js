@@ -9,7 +9,7 @@ class CategoryPageManager {
     this.paginationContainer = document.getElementById('pagination-container');
     this.pagination = document.getElementById('pagination');
     this.currentPage = 1;
-    this.pageSize = 21;
+    this.pageSize = 30;
     this.cardsLimit = 6; // Articles 2-7 shown as cards (after featured)
     this.category = null;
     this.totalArticles = 0;
