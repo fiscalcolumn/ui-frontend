@@ -13,6 +13,7 @@ class GSTCalculator {
   render() {
     this.container.innerHTML = `
       <div class="calc-form">
+
         <div class="calc-input-group">
           <label>GST Mode</label>
           <div class="calc-radio-group">
@@ -35,22 +36,25 @@ class GSTCalculator {
         </div>
 
         <div class="calc-input-group">
-          <label>GST Rate</label>
-          <div class="calc-radio-group" style="flex-wrap:wrap; gap:8px;">
-            ${[0, 0.1, 0.25, 1, 1.5, 3, 5, 6, 7.5, 12, 18, 28].map(r =>
-              `<label class="calc-radio-label">
-                <input type="radio" name="gst-rate" value="${r}" ${r === 18 ? 'checked' : ''}>
-                <span>${r}%</span>
-              </label>`
-            ).join('')}
+          <label for="gst-rate-input">GST Rate (%)</label>
+          <div class="gst-rate-wrapper">
+            <div class="calc-input-wrapper">
+              <input type="number" id="gst-rate-input" class="calc-input" value="${this.gstRate}"
+                     min="0" max="100" step="0.01" placeholder="e.g. 18">
+              <span class="calc-input-unit">%</span>
+            </div>
+            <div class="gst-quick-rates">
+              <span class="gst-rate-label">Quick:</span>
+              ${[0, 5, 12, 18, 28].map(r =>
+                `<button type="button" class="gst-quick-btn${r === this.gstRate ? ' active' : ''}" data-rate="${r}">${r}%</button>`
+              ).join('')}
+            </div>
           </div>
         </div>
 
-        <div style="text-align:center; margin-top:10px;">
-          <button class="calc-btn" id="gst-calculate">
-            <i class="fa fa-calculator"></i> Calculate GST
-          </button>
-        </div>
+        <button class="calc-btn" id="gst-calculate">
+          <i class="fa fa-calculator"></i> Calculate GST
+        </button>
 
         <div class="calc-results" id="gst-results" style="display:none;">
           <h4 class="calc-results-title">GST Breakdown</h4>
@@ -59,19 +63,19 @@ class GSTCalculator {
               <div class="calc-result-label" id="gst-orig-label">Original Amount</div>
               <div class="calc-result-value" id="gst-orig" style="color:#2196f3">₹0</div>
             </div>
-            <div class="calc-result-box" style="border-color:#ff9800">
+            <div class="calc-result-box" style="border-color:#f59e0b">
               <div class="calc-result-label">GST Amount</div>
-              <div class="calc-result-value" id="gst-amount-result" style="color:#ff9800">₹0</div>
-              <div class="calc-result-sublabel" id="gst-breakdown"></div>
+              <div class="calc-result-value" id="gst-amount-result" style="color:#f59e0b">₹0</div>
             </div>
-            <div class="calc-result-box" style="border-color:#4caf50">
+            <div class="calc-result-box" style="border-color:#10B981">
               <div class="calc-result-label" id="gst-final-label">Total Amount</div>
-              <div class="calc-result-value" id="gst-final" style="color:#4caf50">₹0</div>
+              <div class="calc-result-value" id="gst-final" style="color:#10B981">₹0</div>
             </div>
           </div>
 
           <div class="gst-detail-table" id="gst-detail-table" style="margin-top:16px;"></div>
         </div>
+
       </div>
     `;
 
@@ -83,17 +87,39 @@ class GSTCalculator {
     document.querySelectorAll('input[name="gst-mode"]').forEach(r =>
       r.addEventListener('change', e => { this.mode = e.target.value; this.calculate(); })
     );
-    document.querySelectorAll('input[name="gst-rate"]').forEach(r =>
-      r.addEventListener('change', e => { this.gstRate = parseFloat(e.target.value); this.calculate(); })
-    );
+
+    const rateInput = document.getElementById('gst-rate-input');
+    rateInput.addEventListener('input', e => {
+      this.gstRate = parseFloat(e.target.value) || 0;
+      this.syncQuickButtons();
+      this.calculate();
+    });
+
     document.getElementById('gst-amount').addEventListener('input', e => {
       this.amount = parseFloat(e.target.value) || 0;
     });
+
+    document.querySelectorAll('.gst-quick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rate = parseFloat(btn.dataset.rate);
+        this.gstRate = rate;
+        rateInput.value = rate;
+        this.syncQuickButtons();
+        this.calculate();
+      });
+    });
+
     document.getElementById('gst-calculate').addEventListener('click', () => this.calculate());
   }
 
+  syncQuickButtons() {
+    document.querySelectorAll('.gst-quick-btn').forEach(btn => {
+      btn.classList.toggle('active', parseFloat(btn.dataset.rate) === this.gstRate);
+    });
+  }
+
   calculate() {
-    const amt = this.amount || parseFloat(document.getElementById('gst-amount').value) || 0;
+    const amt = parseFloat(document.getElementById('gst-amount').value) || 0;
     const rate = this.gstRate / 100;
     let baseAmount, gstAmount, totalAmount;
 
@@ -114,7 +140,6 @@ class GSTCalculator {
     document.getElementById('gst-orig').textContent = CalculatorUtils.formatCurrency(baseAmount, 2);
     document.getElementById('gst-amount-result').textContent = CalculatorUtils.formatCurrency(gstAmount, 2);
     document.getElementById('gst-final').textContent = CalculatorUtils.formatCurrency(totalAmount, 2);
-
     document.getElementById('gst-orig-label').textContent = this.mode === 'add' ? 'Original Amount' : 'Pre-GST Amount';
     document.getElementById('gst-final-label').textContent = this.mode === 'add' ? 'Total (with GST)' : 'Total Paid';
 
@@ -129,16 +154,16 @@ class GSTCalculator {
     document.getElementById('gst-detail-table').innerHTML = `
       <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
         <thead>
-          <tr style="background:#f5f5f5;">
-            <th style="padding:8px 12px; text-align:left; border-bottom:1px solid #e0e0e0;">Description</th>
-            <th style="padding:8px 12px; text-align:right; border-bottom:1px solid #e0e0e0;">Amount</th>
+          <tr>
+            <th style="padding:9px 14px; text-align:left; border-bottom:2px solid var(--calc-border); color:var(--calc-slate-light); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.4px;">Description</th>
+            <th style="padding:9px 14px; text-align:right; border-bottom:2px solid var(--calc-border); color:var(--calc-slate-light); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.4px;">Amount</th>
           </tr>
         </thead>
         <tbody>
           ${rows.map((r, i) => `
-            <tr style="${i === rows.length - 1 ? 'font-weight:700; background:#f9f9f9' : ''}">
-              <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0;">${r[0]}</td>
-              <td style="padding:8px 12px; border-bottom:1px solid #f0f0f0; text-align:right;">${r[1]}</td>
+            <tr style="${i === rows.length - 1 ? 'font-weight:700;' : ''}">
+              <td style="padding:9px 14px; border-bottom:1px solid var(--calc-border-soft); color:${i === rows.length - 1 ? 'var(--calc-slate)' : 'var(--calc-slate-light)'};">${r[0]}</td>
+              <td style="padding:9px 14px; border-bottom:1px solid var(--calc-border-soft); text-align:right; color:${i === rows.length - 1 ? '#10B981' : 'var(--calc-slate)'};">${r[1]}</td>
             </tr>
           `).join('')}
         </tbody>

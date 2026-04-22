@@ -215,8 +215,8 @@ const CalculatorUtils = {
       <div class="calc-input-group calc-input-compact">
         <div class="calc-input-header">
           <label for="${id}">${label}</label>
-          <div class="calc-slider-value-inline">
-            <span class="prefix">${prefix}</span><span id="${id}-value">${this.formatIndianNumber(value)}</span><span class="unit">${unit}</span>
+          <div class="calc-slider-value-inline" title="Click to edit">
+            <span class="prefix">${prefix}</span><span id="${id}-value" contenteditable="true" inputmode="decimal" spellcheck="false" data-min="${min}" data-max="${max}" data-step="${step}">${this.formatIndianNumber(value)}</span><span class="unit">${unit}</span>
           </div>
         </div>
         <input type="range" id="${id}" class="calc-slider" 
@@ -319,30 +319,78 @@ const CalculatorUtils = {
     const val = parseFloat(slider.value);
     const percent = ((val - min) / (max - min)) * 100;
     const isDark = document.body.classList.contains('dark-mode');
-    const trackColor = isDark ? '#3a3a4a' : '#e0e0e0';
-    slider.style.background = `linear-gradient(to right, #14bdee ${percent}%, ${trackColor} ${percent}%)`;
+    const trackColor = isDark ? '#30363D' : '#E2E8F0';
+    slider.style.background = `linear-gradient(to right, #10B981 ${percent}%, ${trackColor} ${percent}%)`;
   },
 
   /**
-   * Initialize all sliders on the page to show progress
+   * Initialize all sliders on the page to show progress.
+   * Also wires up the contenteditable value box so users can type precise values.
    */
   initSliderProgress() {
     document.querySelectorAll('.calc-slider').forEach(slider => {
       this.updateSliderProgress(slider);
       slider.addEventListener('input', () => this.updateSliderProgress(slider));
+
+      // Wire up the editable value span → slider sync
+      const valueSpan = document.getElementById(slider.id + '-value');
+      if (!valueSpan || valueSpan.contentEditable !== 'true') return;
+
+      // Clicking anywhere in the wrapper (padding included) focuses the span
+      const wrapper = valueSpan.closest('.calc-slider-value-inline');
+      if (wrapper) {
+        wrapper.addEventListener('click', () => valueSpan.focus());
+      }
+
+      // Select all text when focused for easy overtyping
+      valueSpan.addEventListener('focus', () => {
+        requestAnimationFrame(() => {
+          const range = document.createRange();
+          range.selectNodeContents(valueSpan);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        });
+      });
+
+      // Only allow numeric input and control keys
+      valueSpan.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); valueSpan.blur(); return; }
+        if (e.key === 'Escape') { valueSpan.blur(); return; }
+        // Allow: digits, dot, backspace, delete, arrows, tab, home, end
+        const allowed = /^[0-9.]$/.test(e.key) ||
+          ['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Tab','Home','End'].includes(e.key) ||
+          (e.ctrlKey || e.metaKey); // allow ctrl/cmd shortcuts
+        if (!allowed) e.preventDefault();
+      });
+
+      // On blur, parse value, clamp to min/max, update slider + fire recalc
+      valueSpan.addEventListener('blur', () => {
+        const raw = valueSpan.textContent.replace(/[^0-9.]/g, '');
+        let val = parseFloat(raw);
+        if (isNaN(val)) { val = parseFloat(slider.value); }
+
+        const min = parseFloat(slider.min);
+        const max = parseFloat(slider.max);
+
+        // Only clamp to range — do NOT round to step so typed values stay exact
+        val = Math.min(max, Math.max(min, val));
+
+        // Update slider position + progress
+        slider.value = val;
+        this.updateSliderProgress(slider);
+
+        // Fire input then change so calculators that listen to either event both update display and recalculate
+        slider.dispatchEvent(new Event('input', { bubbles: true }));
+        slider.dispatchEvent(new Event('change', { bubbles: true }));
+      });
     });
 
-    // Listen for dark mode changes
-    const darkModeSwitch = document.getElementById('darkModeSwitch');
-    if (darkModeSwitch) {
-      darkModeSwitch.addEventListener('change', () => {
-        setTimeout(() => {
-          document.querySelectorAll('.calc-slider').forEach(slider => {
-            this.updateSliderProgress(slider);
-          });
-        }, 50);
-      });
-    }
+    // Re-sync slider colors when dark mode toggles
+    const observer = new MutationObserver(() => {
+      document.querySelectorAll('.calc-slider').forEach(s => this.updateSliderProgress(s));
+    });
+    observer.observe(document.body, { attributeFilter: ['class'] });
   }
 };
 
