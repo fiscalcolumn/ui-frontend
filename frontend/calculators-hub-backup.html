@@ -40,7 +40,7 @@
 <link rel="stylesheet" type="text/css" href="/styles/main_styles.css">
 <link rel="stylesheet" type="text/css" href="/styles/responsive.css">
 <link rel="stylesheet" href="/styles/cookie-consent.css">
-<link rel="stylesheet" type="text/css" href="/styles/calculators-hub-v2.css">
+<link rel="stylesheet" type="text/css" href="/styles/calculators-hub.css">
 </head>
 <body>
 <div class="super_container">
@@ -109,8 +109,8 @@
 		</nav>
 	</div>
 
-	<!-- Hero Section -->
-	<div class="ch-hero">
+	<!-- Page Header -->
+	<div class="ch-page-header">
 		<div class="container">
 			<nav aria-label="breadcrumb" class="ch-breadcrumb-nav">
 				<ol class="breadcrumb">
@@ -118,40 +118,32 @@
 					<li class="breadcrumb-item active">Calculators</li>
 				</ol>
 			</nav>
-
-			<div class="ch-hero-content">
-				<div class="ch-hero-text">
-					<h1 class="ch-hero-title">Financial Calculators</h1>
-					<p class="ch-hero-subtitle">Make smarter financial decisions with our suite of professional calculators</p>
-				</div>
-
-				<!-- Main Search Bar -->
-				<div class="ch-hero-search">
-					<div class="ch-search-box">
-						<i class="fa fa-search ch-search-icon"></i>
-						<input type="text" id="ch-search-input" class="ch-search-input" placeholder="Search calculators... (⌘K)" autocomplete="off">
-						<div class="ch-search-dropdown" id="ch-search-dropdown"></div>
+			<div class="ch-header-main">
+				<div class="ch-header-text">
+					<h1 class="ch-page-title">Financial Calculators for India</h1>
+					<div class="ch-popular-tags" id="ch-popular-tags">
+						<span class="ch-tag-label">Popular:</span>
 					</div>
 				</div>
-
-				<!-- Popular Quick Links -->
-				<div class="ch-quick-links" id="ch-quick-links">
-					<span class="ch-quick-label">Popular:</span>
+				<div class="ch-header-search">
+					<div class="ch-search-box">
+						<i class="fa fa-search ch-search-icon"></i>
+						<input type="text" id="ch-search-input" class="ch-search-input" placeholder='Search calculators...'>
+						<div class="ch-search-kbd">
+							<kbd>⌘</kbd><kbd>K</kbd>
+						</div>
+						<div class="ch-search-dropdown" id="ch-search-dropdown"></div>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<!-- Category Filter Pills -->
-	<div class="ch-filter-bar">
+	<!-- Category Filter Strip -->
+	<div class="ch-filter-strip">
 		<div class="container">
-			<div class="ch-filter-scroll">
-				<div class="ch-category-pills" id="ch-category-pills">
-					<button class="ch-pill active" data-category="all">
-						<i class="fa fa-th"></i>
-						<span>All Calculators</span>
-					</button>
-				</div>
+			<div class="ch-category-filter" id="ch-category-filter">
+				<button class="ch-filter-pill active" data-category="all">All</button>
 			</div>
 		</div>
 	</div>
@@ -160,46 +152,33 @@
 	<main class="ch-main">
 		<div class="container">
 
-			<!-- Featured/Trending Bento Grid -->
-			<section class="ch-featured-section" id="ch-featured-section">
+			<!-- Trending Section -->
+			<section class="ch-section" id="ch-trending-section">
+				<div class="ch-trending-wrap">
+					<div class="ch-trending-header">
+						<h2 class="ch-trending-title">
+							<span class="ch-trending-title-icon"><i class="fa fa-fire"></i></span>
+							Trending Now
+						</h2>
+						<span class="ch-trending-badge">Most Popular</span>
+					</div>
+					<div class="ch-trending-grid" id="ch-trending-grid">
+						<div class="ch-loading ch-loading--dark"><div class="spinner spinner--light"></div></div>
+					</div>
+				</div>
+			</section>
+
+			<!-- All Calculators by Category -->
+			<section class="ch-section" id="ch-all-section">
 				<div class="ch-section-header">
 					<h2 class="ch-section-title">
-						<i class="fa fa-fire"></i>
-						Trending Calculators
+						<span class="ch-section-title-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)"><i class="fa fa-th-large"></i></span>
+						All Calculators
 					</h2>
-					<span class="ch-section-badge">Most Used</span>
 				</div>
-				<div class="ch-bento-grid" id="ch-bento-grid">
-					<div class="ch-bento-loader">
-						<div class="spinner"></div>
-					</div>
-				</div>
-			</section>
 
-			<!-- Calculator Categories (Clean List) -->
-			<section class="ch-categories-section" id="ch-categories-section">
 				<div id="ch-categories-container">
-					<div class="ch-categories-loader">
-						<div class="spinner"></div>
-					</div>
-				</div>
-			</section>
-
-			<!-- Stats Section (Optional) -->
-			<section class="ch-stats-section">
-				<div class="ch-stats-card">
-					<div class="ch-stat">
-						<div class="ch-stat-value" id="ch-stat-calculators">36+</div>
-						<div class="ch-stat-label">Calculators</div>
-					</div>
-					<div class="ch-stat">
-						<div class="ch-stat-value">100K+</div>
-						<div class="ch-stat-label">Monthly Users</div>
-					</div>
-					<div class="ch-stat">
-						<div class="ch-stat-value">Free</div>
-						<div class="ch-stat-label">Always</div>
-					</div>
+					<div class="ch-loading"><div class="spinner"></div></div>
 				</div>
 			</section>
 
@@ -258,7 +237,7 @@
 <script src="/js/header.js"></script>
 <script src="/js/footer.js"></script>
 <script src="/js/dark-mode.js"></script>
-<script src="/js/calculators-hub-v2.js"></script>
+<script src="/js/calculators-hub.js"></script>
 <script src="/js/seo-preview.js"></script>
 <script src="/js/custom.js"></script>
 <script src="/js/cookie-consent.js"></script>
