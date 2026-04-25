@@ -211,16 +211,21 @@ const CalculatorUtils = {
    * Create a range slider input with value display (compact version)
    */
   createSlider(id, label, min, max, value, step, unit = '', prefix = '') {
+    const fmtMin = this.formatIndianNumber(min);
+    const fmtMax = this.formatIndianNumber(max);
     return `
-      <div class="calc-input-group calc-input-compact">
+      <div class="calc-input-group calc-input-compact" id="${id}-group">
         <div class="calc-input-header">
           <label for="${id}">${label}</label>
-          <div class="calc-slider-value-inline" title="Click to edit">
+          <div class="calc-slider-value-inline" id="${id}-chip" title="Click to type a value">
             <span class="prefix">${prefix}</span><span id="${id}-value" contenteditable="true" inputmode="decimal" spellcheck="false" data-min="${min}" data-max="${max}" data-step="${step}">${this.formatIndianNumber(value)}</span><span class="unit">${unit}</span>
           </div>
         </div>
-        <input type="range" id="${id}" class="calc-slider" 
+        <input type="range" id="${id}" class="calc-slider"
                min="${min}" max="${max}" value="${value}" step="${step}">
+        <div class="calc-field-error" id="${id}-error">
+          Enter a value between ${prefix}${fmtMin}${unit} and ${prefix}${fmtMax}${unit}
+        </div>
       </div>
     `;
   },
@@ -364,25 +369,45 @@ const CalculatorUtils = {
         if (!allowed) e.preventDefault();
       });
 
-      // On blur, parse value, clamp to min/max, update slider + fire recalc
+      // On blur, parse value, validate, update slider + fire recalc
       valueSpan.addEventListener('blur', () => {
         const raw = valueSpan.textContent.replace(/[^0-9.]/g, '');
         let val = parseFloat(raw);
         if (isNaN(val)) { val = parseFloat(slider.value); }
 
-        const min = parseFloat(slider.min);
-        const max = parseFloat(slider.max);
+        const min   = parseFloat(slider.min);
+        const max   = parseFloat(slider.max);
+        const chip  = document.getElementById(slider.id + '-chip');
+        const error = document.getElementById(slider.id + '-error');
 
-        // Only clamp to range — do NOT round to step so typed values stay exact
-        val = Math.min(max, Math.max(min, val));
+        // Allow any typed value — only clamp the SLIDER position (not the displayed value)
+        // Show an inline error if out of range, but still calculate with clamped value.
+        const clamped = Math.min(max, Math.max(min, val));
+        const outOfRange = val < min || val > max;
 
-        // Update slider position + progress
-        slider.value = val;
+        if (error) {
+          error.classList.toggle('visible', outOfRange);
+        }
+        if (chip) {
+          chip.classList.toggle('has-error', outOfRange);
+        }
+
+        // Display the typed value exactly, update the slider to the nearest valid position
+        valueSpan.textContent = this.formatIndianNumber(val);
+        slider.value = clamped;
         this.updateSliderProgress(slider);
 
-        // Fire input then change so calculators that listen to either event both update display and recalculate
+        // Fire events so the calculator recalculates with the clamped value
         slider.dispatchEvent(new Event('input', { bubbles: true }));
         slider.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      // Clear error as soon as user starts typing again
+      valueSpan.addEventListener('focus', () => {
+        const chip  = document.getElementById(slider.id + '-chip');
+        const error = document.getElementById(slider.id + '-error');
+        if (chip)  chip.classList.remove('has-error');
+        if (error) error.classList.remove('visible');
       });
     });
 
