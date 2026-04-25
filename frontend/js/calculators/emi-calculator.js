@@ -27,13 +27,13 @@ class EMICalculator {
         <div class="calc-results" id="emi-results" style="display: none;">
           <h4 class="calc-results-title">Loan Summary</h4>
           <div class="calc-results-grid">
-            <div class="calc-result-box" style="border-color: #3F51B5">
+            <div class="calc-result-box" style="border-color: #205b7a">
               <div class="calc-result-label">Monthly EMI</div>
-              <div class="calc-result-value" id="emi-monthly" style="color: #3F51B5">₹0</div>
+              <div class="calc-result-value" id="emi-monthly" style="color: #205b7a">₹0</div>
             </div>
-            <div class="calc-result-box" style="border-color: #FF5722">
+            <div class="calc-result-box" style="border-color: #a2bbcf">
               <div class="calc-result-label">Total Interest</div>
-              <div class="calc-result-value" id="emi-interest" style="color: #FF5722">₹0</div>
+              <div class="calc-result-value" id="emi-interest" style="color: #a2bbcf">₹0</div>
             </div>
             <div class="calc-result-box" style="border-color: #4CAF50">
               <div class="calc-result-label">Total Payment</div>
@@ -42,20 +42,11 @@ class EMICalculator {
           </div>
 
           <div class="calc-chart-container">
-            <h5 class="calc-chart-title">Principal vs Interest Breakdown</h5>
+            <h5 class="calc-chart-title">Payment Breakdown</h5>
             <div class="calc-chart-wrapper">
               <canvas id="emi-chart"></canvas>
             </div>
-            <div class="calc-chart-legend">
-              <div class="calc-legend-item">
-                <span class="calc-legend-dot" style="background: #3F51B5"></span>
-                <span>Principal</span>
-              </div>
-              <div class="calc-legend-item">
-                <span class="calc-legend-dot" style="background: #FF5722"></span>
-                <span>Interest</span>
-              </div>
-            </div>
+            <div class="donut-legend" id="emi-legend"></div>
           </div>
         </div>
       </div>
@@ -89,9 +80,9 @@ class EMICalculator {
     this.tenure = parseInt(document.getElementById('emi-tenure').value);
 
     const monthlyRate = this.interestRate / 12 / 100;
-    const emi = this.loanAmount * monthlyRate * Math.pow(1 + monthlyRate, this.tenure) / 
+    const emi = this.loanAmount * monthlyRate * Math.pow(1 + monthlyRate, this.tenure) /
                 (Math.pow(1 + monthlyRate, this.tenure) - 1);
-    
+
     const totalPayment = emi * this.tenure;
     const totalInterest = totalPayment - this.loanAmount;
 
@@ -100,45 +91,15 @@ class EMICalculator {
     document.getElementById('emi-interest').textContent = CalculatorUtils.formatCurrency(totalInterest);
     document.getElementById('emi-total').textContent = CalculatorUtils.formatCurrency(totalPayment);
 
-    this.renderChart(totalInterest);
-  }
-
-  renderChart(totalInterest) {
-    const ctx = document.getElementById('emi-chart').getContext('2d');
     if (this.chart) this.chart.destroy();
-
-    this.chart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Principal', 'Interest'],
-        datasets: [{
-          data: [this.loanAmount, totalInterest],
-          backgroundColor: ['#3F51B5', '#FF5722'],
-          borderWidth: 0,
-          hoverOffset: 10
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '60%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const value = context.raw;
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percent = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${CalculatorUtils.formatCurrency(value)} (${percent}%)`;
-              }
-            }
-          }
-        }
-      }
+    this.chart = CalculatorUtils.createDoughnutChart('emi-chart', 'emi-legend', {
+      labels: ['Principal', 'Interest'],
+      values: [this.loanAmount, totalInterest],
+      colors: ['#205b7a', '#e8724a'],
+      centerLabel: 'Total Payment',
+      centerValue: CalculatorUtils.formatCurrency(totalPayment),
     });
   }
 }
 
 registerCalculator('emi', EMICalculator);
-

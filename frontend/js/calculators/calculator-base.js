@@ -280,7 +280,7 @@ const CalculatorUtils = {
   /**
    * Create result display box
    */
-  createResultBox(label, value, color = '#14bdee', sublabel = '') {
+  createResultBox(label, value, color = '#205b7a', sublabel = '') {
     return `
       <div class="calc-result-box" style="border-color: ${color}">
         <div class="calc-result-label">${label}</div>
@@ -319,8 +319,8 @@ const CalculatorUtils = {
     const val = parseFloat(slider.value);
     const percent = ((val - min) / (max - min)) * 100;
     const isDark = document.body.classList.contains('dark-mode');
-    const trackColor = isDark ? '#30363D' : '#E2E8F0';
-    slider.style.background = `linear-gradient(to right, #10B981 ${percent}%, ${trackColor} ${percent}%)`;
+    const trackColor = isDark ? '#30363D' : '#cfdee9';
+    slider.style.background = `linear-gradient(to right, #205b7a ${percent}%, ${trackColor} ${percent}%)`;
   },
 
   /**
@@ -392,6 +392,90 @@ const CalculatorUtils = {
     });
     observer.observe(document.body, { attributeFilter: ['class'] });
   }
+};
+
+// ── Doughnut Center-Text Plugin ───────────────────────────────────
+// Registered globally so it's available for all calculator charts
+if (typeof Chart !== 'undefined') {
+  Chart.register({
+    id: 'doughnutCenterText',
+    afterDraw(chart) {
+      const opts = chart.config?.options?.plugins?.doughnutCenterText;
+      if (!opts?.display) return;
+      const { ctx, chartArea } = chart;
+      if (!chartArea) return;
+      const cx = (chartArea.left + chartArea.right) / 2;
+      const cy = (chartArea.top + chartArea.bottom) / 2;
+      ctx.save();
+      // Small label above center
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.font = '500 11px system-ui, -apple-system, sans-serif';
+      ctx.fillStyle = opts.labelColor || '#6b8fa4';
+      ctx.fillText(opts.label || '', cx, cy);
+      // Bold value below center
+      ctx.textBaseline = 'top';
+      ctx.font = `bold ${opts.valueFontSize || 17}px system-ui, -apple-system, sans-serif`;
+      ctx.fillStyle = opts.valueColor || '#1a3545';
+      ctx.fillText(opts.value || '', cx, cy + 4);
+      ctx.restore();
+    }
+  });
+}
+
+// ── Shared Doughnut Chart Factory ─────────────────────────────────
+// Creates a styled donut with center text + static legend below
+CalculatorUtils.createDoughnutChart = function(canvasId, legendContainerId, { labels, values, colors, centerLabel, centerValue }) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return null;
+  const ctx = canvas.getContext('2d');
+
+  const chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderWidth: 3,
+        borderColor: document.body.classList.contains('dark-mode') ? '#161B22' : '#fff',
+        hoverOffset: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      animation: { animateRotate: true, duration: 600 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+        doughnutCenterText: {
+          display: true,
+          label: centerLabel || 'Total',
+          value: centerValue || '',
+          labelColor: '#6b8fa4',
+          valueColor: document.body.classList.contains('dark-mode') ? '#C9D1D9' : '#1a3545',
+        }
+      }
+    }
+  });
+
+  // Render static legend
+  const legendEl = document.getElementById(legendContainerId);
+  if (legendEl) {
+    legendEl.innerHTML = labels.map((label, i) => `
+      <div class="donut-legend-item">
+        <span class="donut-legend-dot" style="background:${colors[i]}"></span>
+        <div class="donut-legend-info">
+          <span class="donut-legend-name">${label}</span>
+          <span class="donut-legend-val">${CalculatorUtils.formatCurrency(values[i])}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  return chart;
 };
 
 // Calculator registry - maps calculatorType to calculator class

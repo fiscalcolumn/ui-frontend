@@ -54,10 +54,11 @@ class PersonalLoanEMICalculator {
           </div>
 
           <div class="calc-chart-container">
-            <h5 class="calc-chart-title">Payment Distribution</h5>
+            <h5 class="calc-chart-title">Payment Breakdown</h5>
             <div class="calc-chart-wrapper" style="height: 220px;">
               <canvas id="pl-chart"></canvas>
             </div>
+            <div class="donut-legend" id="pl-legend"></div>
           </div>
         </div>
       </div>
@@ -83,17 +84,11 @@ class PersonalLoanEMICalculator {
         .breakdown-value {
           font-size: 1.4rem;
           font-weight: 700;
-          color: #673AB7;
+          color: #205b7a;
         }
-        .dark-mode .breakdown-item {
-          background: var(--bg-tertiary);
-        }
-        .dark-mode .breakdown-label {
-          color: var(--text-secondary);
-        }
-        .dark-mode .breakdown-value {
-          color: #b39ddb;
-        }
+        .dark-mode .breakdown-item { background: #1C2128; }
+        .dark-mode .breakdown-label { color: #6E7681; }
+        .dark-mode .breakdown-value { color: #a2bbcf; }
         @media (max-width: 576px) {
           .pl-breakdown {
             grid-template-columns: 1fr;
@@ -147,47 +142,17 @@ class PersonalLoanEMICalculator {
     document.getElementById('pl-percent').textContent = `${interestPercent}%`;
     document.getElementById('pl-effective').textContent = `${effectiveRate.toFixed(1)}%`;
 
-    this.renderChart(totalInterest);
+    this.renderChart(totalInterest, totalPayment);
   }
 
-  renderChart(totalInterest) {
-    const ctx = document.getElementById('pl-chart').getContext('2d');
+  renderChart(totalInterest, totalPayment) {
     if (this.chart) this.chart.destroy();
-
-    this.chart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Principal', 'Interest'],
-        datasets: [{
-          data: [this.loanAmount, totalInterest],
-          backgroundColor: ['#673AB7', '#E91E63'],
-          borderWidth: 2,
-          borderColor: '#fff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: {
-              padding: 20,
-              usePointStyle: true
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const value = context.raw;
-                const total = this.loanAmount + totalInterest;
-                const percent = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${CalculatorUtils.formatCurrency(value)} (${percent}%)`;
-              }
-            }
-          }
-        }
-      }
+    this.chart = CalculatorUtils.createDoughnutChart('pl-chart', 'pl-legend', {
+      labels: ['Principal', 'Interest'],
+      values: [this.loanAmount, totalInterest],
+      colors: ['#205b7a', '#e8724a'],
+      centerLabel: 'Total Payment',
+      centerValue: CalculatorUtils.formatCurrency(totalPayment),
     });
   }
 }

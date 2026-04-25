@@ -37,17 +37,17 @@ class CarLoanEMICalculator {
           </div>
 
           <div class="calc-results-grid">
-            <div class="calc-result-box" style="border-color: #FF5722">
+            <div class="calc-result-box" style="border-color: #205b7a">
               <div class="calc-result-label">Monthly EMI</div>
-              <div class="calc-result-value" id="cl-emi" style="color: #FF5722">₹0</div>
+              <div class="calc-result-value" id="cl-emi" style="color: #205b7a">₹0</div>
             </div>
-            <div class="calc-result-box" style="border-color: #9C27B0">
+            <div class="calc-result-box" style="border-color: #a2bbcf">
               <div class="calc-result-label">Total Interest</div>
-              <div class="calc-result-value" id="cl-interest" style="color: #9C27B0">₹0</div>
+              <div class="calc-result-value" id="cl-interest" style="color: #a2bbcf">₹0</div>
             </div>
-            <div class="calc-result-box" style="border-color: #3F51B5">
+            <div class="calc-result-box" style="border-color: #4caf8a">
               <div class="calc-result-label">Total Payment</div>
-              <div class="calc-result-value" id="cl-total" style="color: #3F51B5">₹0</div>
+              <div class="calc-result-value" id="cl-total" style="color: #4caf8a">₹0</div>
             </div>
           </div>
 
@@ -56,6 +56,7 @@ class CarLoanEMICalculator {
             <div class="calc-chart-wrapper" style="height: 250px;">
               <canvas id="cl-chart"></canvas>
             </div>
+            <div class="donut-legend" id="cl-legend"></div>
           </div>
         </div>
       </div>
@@ -68,24 +69,16 @@ class CarLoanEMICalculator {
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-          padding: 12px 25px;
+          background: linear-gradient(135deg, #e8f2f8, #d0e3ee);
+          padding: 10px 22px;
           border-radius: 50px;
-          font-size: 1rem;
+          font-size: 0.95rem;
+          border: 1px solid rgba(32,91,122,0.15);
         }
-        .loan-pill strong {
-          color: #e65100;
-          font-size: 1.3rem;
-        }
-        .dark-mode .loan-pill {
-          background: linear-gradient(135deg, rgba(255, 87, 34, 0.15), rgba(255, 87, 34, 0.25));
-        }
-        .dark-mode .loan-pill span {
-          color: var(--text-secondary);
-        }
-        .dark-mode .loan-pill strong {
-          color: #ff7043;
-        }
+        .loan-pill strong { color: #205b7a; font-size: 1.2rem; font-weight: 700; }
+        .dark-mode .loan-pill { background: rgba(32,91,122,0.15); border-color: rgba(162,187,207,0.2); }
+        .dark-mode .loan-pill span { color: #8B949E; }
+        .dark-mode .loan-pill strong { color: #a2bbcf; }
       </style>
     `;
     this.bindEvents();
@@ -135,44 +128,13 @@ class CarLoanEMICalculator {
   }
 
   renderChart(loanAmount, totalInterest, downPayment) {
-    const ctx = document.getElementById('cl-chart').getContext('2d');
     if (this.chart) this.chart.destroy();
-
-    this.chart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Down Payment', 'Principal', 'Interest'],
-        datasets: [{
-          data: [downPayment, loanAmount, totalInterest],
-          backgroundColor: ['#4CAF50', '#3F51B5', '#FF5722'],
-          borderWidth: 0,
-          hoverOffset: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '55%',
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              padding: 15,
-              usePointStyle: true
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const value = context.raw;
-                const total = this.carPrice + totalInterest;
-                const percent = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${CalculatorUtils.formatCurrency(value)} (${percent}%)`;
-              }
-            }
-          }
-        }
-      }
+    this.chart = CalculatorUtils.createDoughnutChart('cl-chart', 'cl-legend', {
+      labels: ['Down Payment', 'Principal', 'Interest'],
+      values: [downPayment, loanAmount, totalInterest],
+      colors: ['#4caf8a', '#205b7a', '#e8724a'],
+      centerLabel: 'Total Cost',
+      centerValue: CalculatorUtils.formatCurrency(this.carPrice + totalInterest),
     });
   }
 }

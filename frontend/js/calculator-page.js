@@ -6,7 +6,7 @@
 class CalculatorPageManager {
   constructor() {
     this.mainContainer = document.getElementById('calculator-main');
-    this.sidebarContainer = document.getElementById('calculator-sidebar');
+    this.belowContainer = document.getElementById('calc-below-sections');
     this.calculator = null;
   }
 
@@ -43,7 +43,7 @@ class CalculatorPageManager {
 
       this.updatePageMeta();
       this.renderCalculator();
-      this.renderSidebar();
+      this.renderBelowSections();
 
     } catch (error) {
       console.error('Error loading calculator:', error);
@@ -156,24 +156,15 @@ class CalculatorPageManager {
   }
 
   /**
-   * Render the calculator
+   * Render the calculator header + pre-defined two-panel widget
    */
   renderCalculator() {
     const icon = this.calculator.icon || 'fa-calculator';
-    const iconColor = this.calculator.iconColor || '#14bdee';
     const views = this.calculator.views || 0;
-    
-    // Format description
-    const descriptionHtml = this.formatMarkdown(this.calculator.description || '');
-    const howToUseHtml = this.formatMarkdown(this.calculator.howToUse || '');
-    const formulaHtml = this.formatMarkdown(this.calculator.formulaExplanation || '');
-    
-    // Render FAQs
-    const faqsHtml = this.renderFAQs(this.calculator.faqs || []);
 
     this.mainContainer.innerHTML = `
       <div class="calculator-header">
-        <div class="calculator-icon" style="background-color: ${iconColor}20; color: ${iconColor};">
+        <div class="calculator-icon" style="background-color: rgba(32,91,122,0.12); color: #205b7a;">
           <i class="fa ${icon}"></i>
         </div>
         <div class="calculator-header-content">
@@ -186,45 +177,227 @@ class CalculatorPageManager {
         </div>
       </div>
 
-      <div class="calculator-widget" id="calculator-widget">
-        <!-- Calculator widget will be loaded here -->
-        <div class="calculator-loading">
-          <div class="spinner"></div>
-          <p>Loading calculator...</p>
+      <div class="calc-two-panel" id="calculator-widget">
+        <div class="calc-panel-inputs" id="calc-input-section">
+          <div class="calculator-loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
+        <div class="calc-panel-results" id="calc-output-section">
+          <div class="calc-output-placeholder">
+            <i class="fa fa-pie-chart"></i>
+            <p>Results will appear here</p>
+          </div>
         </div>
       </div>
-
-      ${this.calculator.disclaimer ? `
-      <div class="calculator-disclaimer">
-        <i class="fa fa-info-circle"></i>
-        <p>${this.calculator.disclaimer}</p>
-      </div>
-      ` : ''}
-
-      ${descriptionHtml ? `
-      <div class="calculator-section">
-        <h2>About This Calculator</h2>
-        <div class="calculator-content">${descriptionHtml}</div>
-      </div>
-      ` : ''}
-
-      ${howToUseHtml ? `
-      <div class="calculator-section">
-        <div class="calculator-content">${howToUseHtml}</div>
-      </div>
-      ` : ''}
-
-      ${formulaHtml ? `
-      <div class="calculator-section">
-        <div class="calculator-content">${formulaHtml}</div>
-      </div>
-      ` : ''}
-
-      ${faqsHtml}
     `;
 
-    // Load the specific calculator widget
     this.loadCalculatorWidget();
+  }
+
+  /**
+   * Render all below-fold sections: trending, related, FAQs, disclaimer, about
+   */
+  async renderBelowSections() {
+    if (!this.belowContainer) return;
+
+    const [trendingCalcs, relatedCalcs] = await Promise.all([
+      this.fetchTrendingCalculators(),
+      this.fetchRelatedCalculators(),
+    ]);
+
+    const faqsHtml = this.renderFAQs(this.calculator.faqs || []);
+    const descriptionHtml = this.formatMarkdown(this.calculator.description || '');
+    const howToUseHtml = this.formatMarkdown(this.calculator.howToUse || '');
+    const formulaHtml = this.formatMarkdown(this.calculator.formulaExplanation || '');
+
+    this.belowContainer.innerHTML = `
+      ${this.buildTrendingHtml(trendingCalcs)}
+      ${this.buildRelatedHtml(relatedCalcs)}
+      ${faqsHtml ? `<div class="calc-section-card">${faqsHtml}</div>` : ''}
+      ${this.calculator.disclaimer ? `
+        <div class="calc-section-card calc-disclaimer-card">
+          <i class="fa fa-info-circle"></i>
+          <p>${this.calculator.disclaimer}</p>
+        </div>
+      ` : ''}
+      ${descriptionHtml || howToUseHtml || formulaHtml ? `
+        <div class="calc-section-card calc-about-card">
+          ${descriptionHtml ? `
+            <div class="calculator-section">
+              <h2>About This Calculator</h2>
+              <div class="calculator-content">${descriptionHtml}</div>
+            </div>` : ''}
+          ${howToUseHtml ? `
+            <div class="calculator-section">
+              <div class="calculator-content">${howToUseHtml}</div>
+            </div>` : ''}
+          ${formulaHtml ? `
+            <div class="calculator-section">
+              <div class="calculator-content">${formulaHtml}</div>
+            </div>` : ''}
+        </div>
+      ` : ''}
+    `;
+  }
+
+  /**
+   * Fetch trending calculators (isTrending = true)
+   */
+  async fetchTrendingCalculators() {
+    try {
+      const url = getApiUrl(
+        `/calculators?filters[isTrending][$eq]=true&filters[enableCalculator][$ne]=false&pagination[limit]=6&sort=order:asc`
+      );
+      const response = await fetch(url);
+      const data = await response.json();
+      return (data.data || []).filter(c => c.slug !== this.calculator.slug);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /**
+   * Fetch related calculators from the same category
+   */
+  async fetchRelatedCalculators() {
+    const catDocId = this.calculator.calculatorcategory?.documentId;
+    if (!catDocId) return [];
+    try {
+      const url = getApiUrl(
+        `/calculators?filters[calculatorcategory][documentId][$eq]=${catDocId}&filters[slug][$ne]=${this.calculator.slug}&filters[enableCalculator][$ne]=false&populate[calculatorcategory]=true&pagination[limit]=10&sort=order:asc`
+      );
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.data || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /**
+   * Vibrant-but-balanced accent palette — alternating hues so adjacent
+   * tiles always differ in tone. Each tile uses its accent for background tint,
+   * border, icon, and hover glow.
+   */
+  getTileAccent(index) {
+    const accents = [
+      '#3b82f6', // blue
+      '#f97316', // orange
+      '#10b981', // emerald
+      '#8b5cf6', // violet
+      '#ec4899', // pink
+      '#14b8a6', // teal
+      '#f59e0b', // amber
+      '#6366f1', // indigo
+      '#ef4444', // red
+      '#84cc16', // lime
+      '#06b6d4', // cyan
+      '#d946ef', // fuchsia
+    ];
+    return accents[index % accents.length];
+  }
+
+  /**
+   * Build a single calculator tile (square, icon-driven)
+   */
+  buildTileHtml(c, accent) {
+    const icon = c.icon || 'fa-calculator';
+    const cat = this.formatCategoryName(c.calculatorcategory?.calculatorcategory || 'Calculator');
+    return `
+      <a href="/calculator/${c.slug}" class="calc-tile" style="--tile-accent: ${accent};">
+        <div class="calc-tile-icon">
+          <i class="fa ${icon}"></i>
+        </div>
+        <div class="calc-tile-body">
+          <div class="calc-tile-title">${c.title}</div>
+          <div class="calc-tile-sub">${cat}</div>
+        </div>
+        <div class="calc-tile-cta">
+          <span>Open</span>
+          <i class="fa fa-arrow-right"></i>
+        </div>
+      </a>
+    `;
+  }
+
+  /**
+   * Build trending calculators section HTML
+   */
+  buildTrendingHtml(calcs) {
+    if (!calcs.length) return '';
+    const tiles = calcs.map((c, i) => this.buildTileHtml(c, this.getTileAccent(i))).join('');
+    return `
+      <hr class="calc-section-divider" />
+      <div class="calc-section-card calc-trending-section">
+        <h3 class="calc-section-title">
+          <i class="fa fa-fire"></i> Trending Calculators
+        </h3>
+        <div class="calc-tile-row">${tiles}</div>
+      </div>
+    `;
+  }
+
+  /**
+   * Build related calculators tile row + view-all button
+   */
+  buildRelatedHtml(calcs) {
+    const catName = this.formatCategoryName(
+      this.calculator.calculatorcategory?.calculatorcategory || ''
+    );
+
+    if (!calcs.length) {
+      return `
+        <div class="calc-section-card calc-related-section">
+          <h3 class="calc-section-title">Related Calculators</h3>
+          <p class="calc-no-related">No other calculators in this category.</p>
+        </div>
+      `;
+    }
+
+    const tiles = calcs.map((c, i) => this.buildTileHtml(c, this.getTileAccent(i + 2))).join('');
+
+    return `
+      <div class="calc-section-card calc-related-section">
+        <div class="calc-section-title-row">
+          <h3 class="calc-section-title calc-section-title--inline">
+            ${catName ? catName + ' — ' : ''}Related Calculators
+          </h3>
+          <a href="/calculator" class="calc-view-all-link">
+            <i class="fa fa-th-large"></i> View All
+          </a>
+        </div>
+        <div class="calc-tile-row">${tiles}</div>
+      </div>
+    `;
+  }
+
+  /**
+   * Move .calc-results from the input section into the pre-defined output section
+   */
+  restructureWidget() {
+    const inputSection = document.getElementById('calc-input-section');
+    const outputSection = document.getElementById('calc-output-section');
+    if (!inputSection || !outputSection) return;
+
+    const form = inputSection.querySelector('.calc-form');
+    if (!form) return;
+    const results = form.querySelector('.calc-results');
+    if (!results) return;
+
+    // Detach results from form (leaving only inputs + button in input section)
+    form.removeChild(results);
+
+    // Clean up any inline display/spacing overrides
+    results.style.removeProperty('display');
+    results.style.removeProperty('margin-top');
+    results.style.removeProperty('border-top');
+    results.style.removeProperty('padding-top');
+
+    // Place results in the pre-built output section
+    outputSection.innerHTML = '';
+    outputSection.appendChild(results);
   }
 
   /**
@@ -357,14 +530,15 @@ class CalculatorPageManager {
    * Load the specific calculator widget based on calculator slug
    */
   async loadCalculatorWidget() {
-    const widgetContainer = document.getElementById('calculator-widget');
+    // Render calculator inputs into the pre-defined input section
+    const inputSection = document.getElementById('calc-input-section');
     const slug = this.calculator.slug;
-    
+
     // Get calculator type from slug (maps to registration type)
     const calcType = this.getCalculatorTypeFromSlug(slug);
-    
+
     if (!calcType) {
-      widgetContainer.innerHTML = `
+      inputSection.innerHTML = `
         <div class="calculator-coming-soon">
           <i class="fa fa-wrench"></i>
           <h3>Calculator Not Found</h3>
@@ -376,13 +550,12 @@ class CalculatorPageManager {
 
     // First check if calculator is already registered (might be pre-loaded)
     let CalculatorClass = getCalculator(calcType);
-    
+
     if (!CalculatorClass) {
-      // Calculator not registered yet, need to load script dynamically
       const scriptPath = this.getCalculatorScriptPath(slug);
-      
+
       if (!scriptPath) {
-        widgetContainer.innerHTML = `
+        inputSection.innerHTML = `
           <div class="calculator-coming-soon">
             <i class="fa fa-wrench"></i>
             <h3>Calculator Not Found</h3>
@@ -393,30 +566,23 @@ class CalculatorPageManager {
       }
 
       try {
-        // Show loading state
-        widgetContainer.innerHTML = `
+        inputSection.innerHTML = `
           <div class="calculator-loading">
             <div class="spinner"></div>
             <p>Loading calculator...</p>
           </div>
         `;
 
-        // Load the calculator script
         await this.loadScript(`/js/calculators/${scriptPath}`);
-        
-        // Wait a bit for the script to register itself
         await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Try to get the calculator class again using the mapped type
         CalculatorClass = getCalculator(calcType);
       } catch (error) {
         console.error('Error loading calculator script:', error);
-        widgetContainer.innerHTML = `
+        inputSection.innerHTML = `
           <div class="calculator-coming-soon">
             <i class="fa fa-exclamation-triangle"></i>
             <h3>Error Loading Calculator</h3>
             <p>Failed to load calculator script. Please try refreshing the page.</p>
-            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">Error: ${error.message}</p>
           </div>
         `;
         return;
@@ -424,10 +590,13 @@ class CalculatorPageManager {
     }
     
     if (CalculatorClass) {
-      const calculator = new CalculatorClass(widgetContainer);
+      const calculator = new CalculatorClass(inputSection);
       calculator.render();
-      // Initialize slider progress bars
-      setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
+      // Initialize slider progress bars + move results to output section
+      setTimeout(() => {
+        CalculatorUtils.initSliderProgress();
+        this.restructureWidget();
+      }, 80);
     } else {
       // Fallback - show coming soon
       console.error(`Calculator type "${calcType}" not found in registry after loading script.`);
@@ -489,82 +658,6 @@ class CalculatorPageManager {
     `;
   }
 
-  /**
-   * Render sidebar with related calculators
-   */
-  async renderSidebar() {
-    // Get the calculator category from the relation
-    const calculatorCategoryDocId = this.calculator.calculatorcategory?.documentId;
-    const calculatorCategoryName = this.calculator.calculatorcategory?.calculatorcategory;
-    
-    if (!calculatorCategoryDocId) {
-      // If no category, show generic sidebar
-      this.sidebarContainer.innerHTML = `
-        <div class="sidebar-section sidebar-cta">
-          <h3 class="sidebar-title">All Calculators</h3>
-          <p>Browse our full collection of financial and health calculators.</p>
-          <a href="/calculator" class="sidebar-btn">
-            <i class="fa fa-th-large"></i> View All Calculators
-          </a>
-        </div>
-      `;
-      return;
-    }
-
-    // Fetch ALL enabled calculators from same calculatorcategory (excluding current and disabled)
-    // Filter by the calculatorcategory relation's documentId
-    const url = getApiUrl(
-      `/calculators?filters[calculatorcategory][documentId][$eq]=${calculatorCategoryDocId}&filters[slug][$ne]=${this.calculator.slug}&filters[enableCalculator][$ne]=false&populate[calculatorcategory]=true&pagination[limit]=100&sort=order:asc`
-    );
-    
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      const categoryCalculators = data.data || [];
-
-      const categoryName = this.formatCategoryName(calculatorCategoryName || '');
-      const relatedHtml = categoryCalculators.length > 0 ? categoryCalculators.map(calc => `
-        <a href="/calculator/${calc.slug}" class="sidebar-calc-item">
-          <div class="sidebar-calc-icon" style="color: ${calc.iconColor || '#14bdee'}">
-            <i class="fa ${calc.icon || 'fa-calculator'}"></i>
-          </div>
-          <div class="sidebar-calc-info">
-            <span class="sidebar-calc-title">${calc.title}</span>
-          </div>
-          <i class="fa fa-chevron-right sidebar-calc-arrow"></i>
-        </a>
-      `).join('') : '<p class="no-related">No other calculators in this category</p>';
-
-      this.sidebarContainer.innerHTML = `
-        <div class="sidebar-section sidebar-related">
-          <h3 class="sidebar-title">${categoryName} Calculators <span class="calc-count">(${categoryCalculators.length})</span></h3>
-          <div class="sidebar-calc-list sidebar-calc-scroll">
-            ${relatedHtml}
-          </div>
-        </div>
-
-        <div class="sidebar-section sidebar-cta">
-          <h3 class="sidebar-title">All Calculators</h3>
-          <p>Browse our full collection of financial and health calculators.</p>
-          <a href="/calculator" class="sidebar-btn">
-            <i class="fa fa-th-large"></i> View All Calculators
-          </a>
-        </div>
-      `;
-    } catch (error) {
-      console.error('Error loading sidebar calculators:', error);
-      // Show fallback sidebar on error
-      this.sidebarContainer.innerHTML = `
-        <div class="sidebar-section sidebar-cta">
-          <h3 class="sidebar-title">All Calculators</h3>
-          <p>Browse our full collection of financial and health calculators.</p>
-          <a href="/calculator" class="sidebar-btn">
-            <i class="fa fa-th-large"></i> View All Calculators
-          </a>
-        </div>
-      `;
-    }
-  }
 
   /**
    * Format markdown to HTML
