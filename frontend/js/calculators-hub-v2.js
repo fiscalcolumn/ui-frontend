@@ -3,14 +3,7 @@
  * Enhanced with Bento Grid, Clean List, and Stats
  */
 
-const TRENDING_SLUGS = [
-  'sip-calculator',
-  'emi-calculator',
-  'income-tax-calculator',
-  'ppf-calculator',
-  'gst-calculator',
-  'hra-calculator',
-];
+// Trending calculators are driven by the isTrending field in Strapi (set via admin panel or seed data)
 
 const POPULAR_QUICK_LINKS = [
   { label: 'SIP', slug: 'sip-calculator', icon: 'fa-line-chart' },
@@ -133,13 +126,12 @@ class CalculatorsHubV2 {
     const container = document.getElementById('ch-bento-grid');
     if (!container) return;
 
-    // Get trending calculators
-    let trending = TRENDING_SLUGS
-      .map(slug => this.allCalculators.find(c => c.slug === slug))
-      .filter(Boolean);
-
+    // Get trending calculators from isTrending field, fall back to first 6 by views
+    let trending = this.allCalculators.filter(c => c.isTrending);
     if (trending.length === 0) {
-      trending = this.allCalculators.slice(0, 6);
+      trending = [...this.allCalculators]
+        .sort((a, b) => (Number(b.views) || 0) - (Number(a.views) || 0))
+        .slice(0, 6);
     } else {
       trending = trending.slice(0, 6);
     }
@@ -225,26 +217,47 @@ class CalculatorsHubV2 {
       const catDocId = group.meta.documentId;
       const catName = this.formatCatName(group.meta.calculatorcategory);
       const catInfo = this.getCategoryInfo(group.meta.calculatorcategory);
+      const hasMore = group.calcs.length > 5;
+      const extraCount = group.calcs.length - 5;
 
       const calcsHtml = group.calcs.map(calc => this.renderCalcItem(calc)).join('');
 
       return `
         <div class="ch-category-section" data-cat-id="${catDocId}">
-          <div class="ch-category-header">
-            <div class="ch-category-icon" style="background: ${catInfo.color}15; color: ${catInfo.color}">
+          <div class="ch-category-header" style="--cat-color: ${catInfo.color}">
+            <div class="ch-category-icon">
               <i class="fa ${catInfo.icon}"></i>
             </div>
             <h2 class="ch-category-name">${catName}</h2>
             <span class="ch-category-count">${group.calcs.length}</span>
           </div>
-          <div class="ch-calc-list">
+          <div class="ch-calc-list" id="list-${catDocId}">
             ${calcsHtml}
           </div>
+          ${hasMore ? `
+            <button class="ch-show-more" data-list="list-${catDocId}" style="--cat-color: ${catInfo.color}">
+              <i class="fa fa-chevron-down"></i>
+              Show ${extraCount} more
+            </button>
+          ` : ''}
         </div>
       `;
     }).join('');
 
     container.innerHTML = html;
+
+    // Wire up show-more buttons
+    container.querySelectorAll('.ch-show-more').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const list = document.getElementById(btn.dataset.list);
+        const expanded = list.classList.toggle('expanded');
+        btn.classList.toggle('expanded', expanded);
+        const extraCount = list.querySelectorAll('.ch-calc-item').length - 5;
+        btn.innerHTML = expanded
+          ? `<i class="fa fa-chevron-up"></i> Show less`
+          : `<i class="fa fa-chevron-down"></i> Show ${extraCount} more`;
+      });
+    });
   }
 
   renderCalcItem(calc) {
