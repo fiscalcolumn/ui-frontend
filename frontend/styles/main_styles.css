@@ -2096,46 +2096,59 @@ section
 	width: 100%;
 }
 
-/* Dark info bar — top section */
+/* Info bar — top section (brand · newsletter · app) */
 .footer-info-bar
 {
-	background: #f2f4f4;
-	padding: 56px 0 48px;
+	background: linear-gradient(180deg, #fafbfc 0%, #f4f6f8 100%);
+	border-top: 1px solid #ececec;
+	padding: 64px 0 56px;
+	position: relative;
+}
+.footer-info-bar::before {
+	content: '';
+	position: absolute;
+	top: 0; left: 0; right: 0;
+	height: 2px;
+	background: linear-gradient(90deg, transparent 0%, #b8860b 50%, transparent 100%);
+	opacity: 0.55;
 }
 .footer-info-grid
 {
 	display: grid;
-	grid-template-columns: 1fr 1.5fr 1fr;
-	gap: 150px;
+	grid-template-columns: 1.3fr 1.4fr 1fr;
+	gap: 64px;
 	align-items: flex-start;
 }
-.footer-col { display: flex; flex-direction: column; gap: 16px; }
+.footer-col { display: flex; flex-direction: column; gap: 18px; }
 
 /* Brand column */
 .footer-brand-text
 {
 	font-family: 'Merriweather', serif;
-	font-size: 25px;
-	font-weight: 400;
-	color: #4c4a4a;
-	line-height: 1;
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: #1a2332;
+	line-height: 1.1;
+	letter-spacing: -0.01em;
 }
 .footer-brand-desc
 {
-	font-family: 'Merriweather', serif;
-	font-size: 15px;
-	line-height: 1;
-	color: #010d22;
-	max-width: 400px;
+	font-family: 'DM Sans', sans-serif;
+	font-size: 0.95rem;
+	line-height: 1.65;
+	color: #555;
+	max-width: 420px;
+	margin: 0;
 }
 
-/* Social icons */
+/* Social icons — subtle pills, gold on hover */
 .footer-social-list
 {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 10px;
 	list-style: none;
-	margin: 4px 0 0;
+	margin: 6px 0 0;
 	padding: 0;
 }
 .footer-social-list li a
@@ -2143,110 +2156,149 @@ section
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 50px;
-	height: 50px;
-	border-radius: 10%;
-	background: #3d5170;
-	color: #ffffff;
-	font-size: 25px;
-	transition: background 200ms ease;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: #ffffff;
+	border: 1px solid #e2e6eb;
+	color: #6b7280;
+	font-size: 16px;
+	transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
-.footer-social-list li a:hover { background: #14bdee; }
-.footer-social-list li a[aria-label="RSS Feed"] { background: #e8611a; }
-.footer-social-list li a[aria-label="RSS Feed"]:hover { background: #c0501a; }
+.footer-social-list li a:hover
+{
+	background: #b8860b;
+	border-color: #b8860b;
+	color: #ffffff;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(184, 134, 11, 0.25);
+}
+.footer-social-list li a[aria-label="RSS Feed"]:hover
+{
+	background: #e8611a;
+	border-color: #e8611a;
+	box-shadow: 0 4px 12px rgba(232, 97, 26, 0.25);
+}
 
-/* Column titles */
+/* Column titles — small uppercase kicker with gold accent */
 .footer-col-title
 {
-	font-family: 'Merriweather', serif;
-	font-size: 15px;
-	font-weight: 500;
-	color: #444343;
+	font-family: 'DM Sans', sans-serif;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: #1a2332;
 	text-transform: uppercase;
-	letter-spacing: 1px;
-	margin-bottom: 4px;
-	font-style: bold;
-	
+	letter-spacing: 0.14em;
+	margin: 0 0 4px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.footer-col-title::before {
+	content: '';
+	display: inline-block;
+	width: 24px;
+	height: 2px;
+	background: #b8860b;
+	border-radius: 1px;
+	flex-shrink: 0;
 }
 
 /* Newsletter column */
 .footer-newsletter-desc {
 	font-family: 'DM Sans', sans-serif;
-	font-size: 1rem;
-	color: #3c3d3e;
-	line-height: 1.55;
+	font-size: 0.95rem;
+	color: #555;
+	line-height: 1.6;
 	margin: 0;
+	max-width: 400px;
 }
 .footer-subscribe-form {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 8px;
+	max-width: 420px;
 }
 .footer-subscribe-input-wrap {
-	position: relative;
+	display: flex;
+	align-items: stretch;
+	background: #ffffff;
+	border: 1.5px solid #d8dee5;
+	border-radius: 10px;
+	overflow: hidden;
+	transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.footer-subscribe-input-wrap:focus-within {
+	border-color: #b8860b;
+	box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.12);
 }
 .footer-subscribe-input {
-	width: 100%;
-	padding: 10px 14px;
-	border: 1.5px solid #d0d7e2;
-	border-radius: 2px;
-	font-size: 1rem;
-	text-transform: uppercase;
+	flex: 1;
+	min-width: 0;
+	padding: 12px 16px;
+	border: none;
+	font-size: 0.95rem;
 	font-family: 'DM Sans', sans-serif;
 	color: #1a2332;
-	background: #fff;
+	background: transparent;
 	outline: none;
 	box-sizing: border-box;
-	transition: border-color 0.2s;
+	text-transform: none;
 }
-.footer-subscribe-input:focus {
-	border-color: #14bdee;
-}
+.footer-subscribe-input::placeholder { color: #9aa1ad; }
 .footer-subscribe-btn {
-	padding: 10px 20px;
-	background: #838585;
+	padding: 0 22px;
+	background: #1a2332;
 	color: #fff;
 	border: none;
-	text-transform: uppercase;
-	border-radius: 2px;
-	font-size: 1rem;
+	font-size: 0.92rem;
 	font-weight: 600;
 	font-family: 'DM Sans', sans-serif;
 	cursor: pointer;
-	transition: background 0.2s;
-	letter-spacing: 0.3px;
+	transition: background 0.18s ease;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+	text-transform: none;
+	border-radius: 0;
 }
-.footer-subscribe-btn:hover  { background: #0fa8d6; }
-.footer-subscribe-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.footer-subscribe-btn:hover  { background: #b8860b; }
+.footer-subscribe-btn:disabled { opacity: 0.7; cursor: not-allowed; background: #1a2332; }
 .footer-subscribe-msg {
-	font-size: 0.82rem;
+	font-size: 0.85rem;
 	margin: 0;
 	min-height: 1.2em;
+	padding-left: 4px;
 }
 .footer-subscribe-msg--success { color: #1aab60; }
 .footer-subscribe-msg--error   { color: #e03e3e; }
 
 
-/* Mobile / App badges column */
+/* Mobile / App badges column — render badges at intrinsic ratio */
 .footer-app-badges
 {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+	align-items: flex-start;
 }
 .footer-badge-link
 {
 	display: inline-block;
-	transition: opacity 180ms ease;
+	border-radius: 8px;
+	overflow: hidden;
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
-.footer-badge-link:hover { opacity: 0.85; }
+.footer-badge-link:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
 .footer-badge-img
 {
-	width: 150px;
-	height: 50px;
+	width: auto;
+	height: 44px;
 	display: block;
-	border-radius: 8px;
-	background: #000;
+	background: transparent;
+	border-radius: 0;
 }
 
 /* White links bar — bottom section */
@@ -2595,8 +2647,61 @@ section
 	color: var(--text-primary);
 }
 
-/* Dark Mode Footer */
-.dark-mode .footer-newsletter-desc { color: var(--text-secondary); }
+/* Dark Mode Footer — info bar */
+.dark-mode .footer-info-bar {
+	background: linear-gradient(180deg, #15181d 0%, #0f1216 100%);
+	border-top-color: #2a2f36;
+}
+.dark-mode .footer-info-bar::before {
+	background: linear-gradient(90deg, transparent 0%, #d4a017 50%, transparent 100%);
+	opacity: 0.45;
+}
+.dark-mode .footer-brand-text { color: #f5f5f5; }
+.dark-mode .footer-brand-desc { color: #b8bdc7; }
+
+.dark-mode .footer-social-list li a {
+	background: rgba(255, 255, 255, 0.04);
+	border-color: rgba(255, 255, 255, 0.1);
+	color: #c9ced6;
+}
+.dark-mode .footer-social-list li a:hover {
+	background: #d4a017;
+	border-color: #d4a017;
+	color: #1a1a1a;
+	box-shadow: 0 4px 12px rgba(212, 160, 23, 0.3);
+}
+.dark-mode .footer-social-list li a[aria-label="RSS Feed"]:hover {
+	background: #e8611a;
+	border-color: #e8611a;
+	color: #ffffff;
+	box-shadow: 0 4px 12px rgba(232, 97, 26, 0.35);
+}
+
+.dark-mode .footer-col-title { color: #f5f5f5; }
+.dark-mode .footer-col-title::before { background: #d4a017; }
+
+.dark-mode .footer-newsletter-desc { color: #b8bdc7; }
+.dark-mode .footer-subscribe-input-wrap {
+	background: rgba(255, 255, 255, 0.04);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+.dark-mode .footer-subscribe-input-wrap:focus-within {
+	border-color: #d4a017;
+	box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.18);
+}
+.dark-mode .footer-subscribe-input {
+	color: #f5f5f5;
+	background: transparent;
+}
+.dark-mode .footer-subscribe-input::placeholder { color: #6c7280; }
+.dark-mode .footer-subscribe-btn {
+	background: #d4a017;
+	color: #1a1a1a;
+}
+.dark-mode .footer-subscribe-btn:hover  { background: #b78a13; }
+.dark-mode .footer-subscribe-btn:disabled { background: #d4a017; }
+
+/* Dark Mode Footer — links bar (unchanged structurally) */
 .dark-mode .footer-links-section
 {
 	background: var(--bg-secondary);
