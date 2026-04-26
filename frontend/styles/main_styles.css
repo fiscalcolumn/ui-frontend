@@ -2253,6 +2253,7 @@ section
 	gap: 8px;
 	max-width: 420px;
 }
+/* Button now lives inside input-wrap — form just wraps the pill + message */
 .footer-subscribe-input-wrap {
 	display: flex;
 	align-items: stretch;
@@ -2281,11 +2282,11 @@ section
 }
 .footer-subscribe-input::placeholder { color: #9aa1ad; }
 .footer-subscribe-btn {
-	padding: 0 22px;
-	background: #1a2332;
+	padding: 0 20px;
+	background: #b8860b;
 	color: #fff;
 	border: none;
-	font-size: 0.92rem;
+	font-size: 0.9rem;
 	font-weight: 600;
 	font-family: 'DM Sans', sans-serif;
 	cursor: pointer;
@@ -2293,10 +2294,12 @@ section
 	letter-spacing: 0.02em;
 	white-space: nowrap;
 	text-transform: none;
-	border-radius: 0;
+	border-radius: 0 8px 8px 0;
+	flex-shrink: 0;
+	align-self: stretch;
 }
-.footer-subscribe-btn:hover  { background: #b8860b; }
-.footer-subscribe-btn:disabled { opacity: 0.7; cursor: not-allowed; background: #1a2332; }
+.footer-subscribe-btn:hover  { background: #9a6f09; }
+.footer-subscribe-btn:disabled { opacity: 0.7; cursor: not-allowed; background: #b8860b; }
 .footer-subscribe-msg {
 	font-size: 0.85rem;
 	margin: 0;
@@ -2552,6 +2555,38 @@ section
 	border-bottom-color: #404040;
 }
 
+/* Dark mode — nav search panel */
+.dark-mode .header_search_container
+{
+	background: rgba(20, 22, 28, 0.96);
+	border-bottom-color: rgba(255,255,255,0.08);
+}
+.dark-mode .search_input
+{
+	background: rgba(255,255,255,0.08);
+	color: #e0e0e0;
+	border-color: rgba(255,255,255,0.15);
+}
+.dark-mode .search_input::placeholder
+{
+	color: #5a6070;
+}
+.dark-mode .search_input:focus
+{
+	background: rgba(255,255,255,0.12);
+	border-color: #d4a017;
+	outline: none;
+}
+.dark-mode .header_search_button
+{
+	background: #d4a017;
+	color: #1a1a1a;
+}
+.dark-mode .header_search_button:hover
+{
+	background: #b78a13;
+}
+
 .dark-mode .logo_text
 {
 	color: var(--text-primary);
@@ -2576,13 +2611,13 @@ section
 .dark-mode .search_button i,
 .dark-mode .hamburger i
 {
-	color: var(--text-primary);
+	color: #ffffff;
 }
 
 .dark-mode .search_button:hover i,
 .dark-mode .hamburger:hover i
 {
-	color: #f0f0f0;
+	color: #d4a017;
 }
 
 /* Dark Mode Content Sections */
@@ -2719,7 +2754,7 @@ section
 	background: #d4a017;
 	color: #1a1a1a;
 }
-.dark-mode .footer-subscribe-btn:hover  { background: #b78a13; }
+.dark-mode .footer-subscribe-btn:hover { background: #b78a13; }
 .dark-mode .footer-subscribe-btn:disabled { background: #d4a017; }
 
 /* Dark Mode Footer — links bar (unchanged structurally) */
