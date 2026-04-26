@@ -1,5 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <circle cx="32" cy="32" r="30" fill="#b8860b"/>
-  <circle cx="32" cy="32" r="26" fill="#d4a017" stroke="#b8860b" stroke-width="0.5"/>
-  <text x="32" y="42" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="#fff" text-anchor="middle">FC</text>
+  <!-- Teal background circle -->
+  <circle cx="32" cy="32" r="32" fill="#1a5252"/>
+  <!-- White inner circle (the badge) -->
+  <circle cx="32" cy="32" r="26" fill="#ffffff"/>
+  <!-- FC in teal — matches header badge exactly -->
+  <text x="32" y="40" font-family="Georgia, serif" font-size="22" font-weight="bold"
+        fill="#1a5252" text-anchor="middle" letter-spacing="-1">FC</text>
 </svg>

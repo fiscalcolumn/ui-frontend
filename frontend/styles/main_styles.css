@@ -2502,8 +2502,8 @@ section
 /* White links bar — bottom section */
 .footer-links-section
 {
-	background: #5f9090;
-	border-top: 1px solid rgba(255, 255, 255, 0.2);
+	background: #1a5252;
+	border-top: 1px solid rgba(255, 255, 255, 0.12);
 	padding: 20px 0 16px;
 }
 .footer-nav-bar
@@ -2698,7 +2698,7 @@ section
 /* Dark Mode Header */
 .dark-mode .header_brand_bar
 {
-	background: #008080;
+	background: #1a5252;
 }
 
 .dark-mode .theme-toggle
