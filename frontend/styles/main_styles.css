@@ -279,7 +279,7 @@ section
 }
 .header_brand_content
 {
-	height: 80px;
+	height: 88px;
 }
 
 /* ── Editorial stacked wordmark ── */
@@ -344,66 +344,92 @@ section
 	margin-right: 12px;
 }
 
-/* Brand bar rate CTA buttons */
+/* Brand bar quick-links — icon stacked above label */
+.brand-rate-btns
+{
+	display: flex;
+	align-items: center;
+	gap: 0;
+}
 .brand-rate-btn
 {
 	display: inline-flex;
+	flex-direction: column;
 	align-items: center;
-	padding: 10px 20px;
-	border-radius: 2px;
+	gap: 5px;
+	padding: 0 20px;
+	background: transparent;
+	border: none;
+	border-right: 1px solid rgba(255, 255, 255, 0.15);
 	font-family: 'DM Sans', sans-serif;
-	font-size: 16px;
-	font-weight: 550;
-	letter-spacing: 0.4px;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.6px;
 	text-transform: uppercase;
-	color: #3b3a3a;
+	color: rgba(255, 255, 255, 0.8);
 	text-decoration: none;
-	margin-right: 10px;
-	-webkit-transition: opacity 200ms ease;
-	transition: opacity 200ms ease;
+	white-space: nowrap;
+	-webkit-transition: color 160ms ease;
+	transition: color 160ms ease;
+}
+.brand-rate-btn:last-of-type
+{
+	border-right: none;
 }
 .brand-rate-btn:hover
 {
 	color: #ffffff;
-	opacity: 0.82;
 	text-decoration: none;
 }
-.brand-rate-btn.gold
+.brand-rate-icon
 {
-	background: #c8922a;
-}
-.brand-rate-btn.silver
-{
-	background: #14bdee;
+	font-size: 40px;
+	font-weight: 800;
+	line-height: 1;
+	display: block;
 }
 
-/* Theme toggle button */
+/* Theme toggle — same vertical stack style */
 .theme-toggle
 {
 	display: inline-flex;
+	flex-direction: column;
 	align-items: center;
-	justify-content: center;
-	width: 36px;
-	height: 36px;
-	border-radius: 50%;
-	border: 1.5px solid rgba(255,255,255,0.25);
-	background: rgba(255,255,255,0.08);
-	color: rgba(255,255,255,0.9);
+	gap: 5px;
+	padding: 0 20px;
+	border: none;
+	border-left: 1px solid rgba(255, 255, 255, 0.15);
+	background: transparent;
+	font-family: 'DM Sans', sans-serif;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.6px;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.8);
 	cursor: pointer;
-	margin-left: 4px;
-	-webkit-transition: all 200ms ease;
-	transition: all 200ms ease;
 	flex-shrink: 0;
+	-webkit-transition: color 160ms ease;
+	transition: color 160ms ease;
 }
 .theme-toggle:hover
 {
-	background: rgba(255,255,255,0.18);
-	border-color: rgba(255,255,255,0.45);
+	color: #ffffff;
 }
 .theme-toggle i
 {
-	font-size: 15px;
+	font-size: 30px;
+	font-weight: 800;
 	line-height: 1;
+	display: block;
+}
+.theme-toggle::after
+{
+	content: 'Theme';
+	font-family: 'DM Sans', sans-serif;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.6px;
+	text-transform: uppercase;
 }
 
 /*********************************

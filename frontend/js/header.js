@@ -317,10 +317,19 @@ async function renderHeader(currentPage = '') {
   if (brandPillsEl) {
     brandPillsEl.innerHTML = headerConfig.pills
       .map(p => {
-        const style = p.brandcolor ? ` style="background:${p.brandcolor}"` : '';
-        // Ensure URL is absolute (starts with /) to avoid relative-path issues
-        const url = p.brandurl.startsWith('/') ? p.brandurl : '/' + p.brandurl;
-        return `<a href="${url}" class="brand-rate-btn"${style}>${p.displayname}</a>`;
+        const url  = p.brandurl.startsWith('/') ? p.brandurl : '/' + p.brandurl;
+        const name = (p.displayname || '').toLowerCase();
+        const icon = name.includes('gold')       ? 'fa-sun-o'
+                   : name.includes('silver')     ? 'fa-moon-o'
+                   : name.includes('calc')       ? 'fa-calculator'
+                   : name.includes('rate')       ? 'fa-line-chart'
+                   : name.includes('news')       ? 'fa-newspaper-o'
+                   : name.includes('market')     ? 'fa-bar-chart'
+                   :                              'fa-link';
+        const iconColor = p.brandcolor ? ` style="color:${p.brandcolor}"` : '';
+        return `<a href="${url}" class="brand-rate-btn">
+          <i class="fa ${icon} brand-rate-icon"${iconColor} aria-hidden="true"></i>${p.displayname}
+        </a>`;
       })
       .join('');
   }
