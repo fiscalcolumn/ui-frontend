@@ -64,7 +64,7 @@
     });
   }
 
-  // Search Panel Toggle
+  // Search Panel Toggle + Submit
   function initSearchPanel() {
     const searchButton = document.querySelector('.search_button');
     const searchPanel = document.querySelector('.header_search_container');
@@ -77,13 +77,10 @@
       e.preventDefault();
       searchPanel.classList.toggle('active');
       
-      // Focus on search input when panel opens
       if (searchPanel.classList.contains('active')) {
         const searchInput = searchPanel.querySelector('.search_input');
         if (searchInput) {
-          setTimeout(function() {
-            searchInput.focus();
-          }, 100);
+          setTimeout(function() { searchInput.focus(); }, 100);
         }
       }
     });
@@ -95,6 +92,33 @@
           searchPanel.classList.remove('active');
         }
       }
+    });
+
+    // Wire all search forms (header panel + mobile menu) to navigate to /search?q=
+    document.querySelectorAll('.header_search_form').forEach(function(form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var input = form.querySelector('.search_input');
+        var q = input ? input.value.trim() : '';
+        if (q.length > 0) {
+          window.location.href = '/search?q=' + encodeURIComponent(q);
+        } else {
+          if (input) input.focus();
+        }
+      });
+    });
+
+    // Also allow pressing Enter in any search input that might not be in a form
+    document.querySelectorAll('.search_input').forEach(function(input) {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var q = input.value.trim();
+          if (q.length > 0) {
+            window.location.href = '/search?q=' + encodeURIComponent(q);
+          }
+        }
+      });
     });
   }
 

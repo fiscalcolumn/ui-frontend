@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title id="page-title">Tag Group | FiscalColumn</title>
+<title id="page-title">Search | FiscalColumn</title>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="description" content="" id="meta-description">
+<meta name="description" content="Search FiscalColumn for articles, categories, and topics." id="meta-description">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="" id="canonical-url">
+<meta name="robots" content="noindex, follow">
 
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -17,43 +16,20 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <meta name="theme-color" content="#b8860b">
 
-<!-- Open Graph / Facebook -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="" id="og-url">
-<meta property="og:title" content="" id="og-title">
-<meta property="og:description" content="" id="og-description">
-<meta property="og:image" content="/images/og-default.jpg" id="og-image">
-<meta property="og:site_name" content="FiscalColumn">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary">
-<meta name="twitter:site" content="@FiscalColumn">
-<meta name="twitter:title" content="" id="twitter-title">
-<meta name="twitter:description" content="" id="twitter-description">
-<meta name="twitter:image" content="/images/og-default.jpg" id="twitter-image">
-
-<!-- Structured Data -->
-<script type="application/ld+json" id="schema-breadcrumb"></script>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <!-- Core Styles -->
 <link rel="stylesheet" type="text/css" href="/styles/bootstrap4/bootstrap.min.css">
 <link href="/plugins/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/owl.carousel.css">
-<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/owl.theme.default.css">
-<link rel="stylesheet" type="text/css" href="/plugins/OwlCarousel2-2.2.1/animate.css">
 
 <!-- Main Styles -->
 <link rel="stylesheet" type="text/css" href="/styles/main_styles.css">
 <link rel="stylesheet" type="text/css" href="/styles/responsive.css">
 <link rel="stylesheet" href="/styles/cookie-consent.css">
 
-<!-- Tag Group Page Styles -->
-<link rel="stylesheet" type="text/css" href="/styles/tag/tag-group.css">
-<link rel="stylesheet" type="text/css" href="/styles/tag/articles.css">
-<link rel="stylesheet" type="text/css" href="/styles/tag/dark-mode.css">
+<!-- Search Page Styles -->
+<link rel="stylesheet" type="text/css" href="/styles/search.css">
 
 </head>
 <body>
@@ -85,8 +61,7 @@
 			<div class="container">
 				<div class="header_nav_content d-flex flex-row align-items-center">
 					<nav class="main_nav_contaner">
-						<ul class="main_nav">
-						</ul>
+						<ul class="main_nav"></ul>
 					</nav>
 					<div class="header_nav_right d-flex align-items-center ml-auto">
 						<div class="search_button"><i class="fa fa-search" aria-hidden="true"></i></div>
@@ -117,70 +92,68 @@
 		</div>
 	</header>
 
+	<!-- Menu -->
+	<div class="menu d-flex flex-column align-items-end justify-content-start text-right menu_mm trans_400">
+		<div class="menu_close_container"><div class="menu_close"><div></div><div></div></div></div>
+		<div class="search">
+			<form action="/search" class="header_search_form menu_mm">
+				<input type="search" class="search_input menu_mm" placeholder="Search" required="required">
+				<button class="header_search_button d-flex flex-column align-items-center justify-content-center menu_mm" aria-label="Search">
+					<i class="fa fa-search menu_mm" aria-hidden="true"></i>
+				</button>
+			</form>
+		</div>
+		<nav class="menu_nav">
+			<ul class="menu_mm">
+				<li class="menu_mm"><a href="/">Home</a></li>
+			</ul>
+		</nav>
+	</div>
+
 	<!-- Breadcrumb -->
 	<div class="breadcrumb-container">
 		<div class="container">
 			<nav aria-label="breadcrumb">
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item"><a href="/">Home</a></li>
-					<li class="breadcrumb-item"><a href="/tags">Tags</a></li>
-					<li class="breadcrumb-item active" id="breadcrumb-group">Loading...</li>
+					<li class="breadcrumb-item"><a href="/search">Search</a></li>
+					<li class="breadcrumb-item active" id="breadcrumb-search"></li>
 				</ol>
 			</nav>
 		</div>
 	</div>
 
-	<!-- Tag Group Info Bar -->
-	<div class="tg-info-bar">
+	<!-- Search Bar -->
+	<div class="sr-topbar">
 		<div class="container">
-			<div class="tg-info-content">
-				<div class="tg-icon-wrap">
-					<i class="fa fa-folder-open-o"></i>
+			<form class="sr-search-form" id="sr-search-form">
+				<div class="sr-search-wrap">
+					<i class="fa fa-search sr-search-icon"></i>
+					<input
+						type="search"
+						class="sr-search-input"
+						id="sr-search-input"
+						placeholder="Search articles, topics, categories…"
+						autocomplete="off"
+						autocorrect="off"
+						spellcheck="false"
+					>
+					<button type="submit" class="sr-search-btn">Search</button>
 				</div>
-				<div class="tg-info-text">
-					<h1 class="tg-info-name" id="group-name">Loading...</h1>
-					<div class="tg-info-desc" id="group-desc" style="display:none;"></div>
-					<div class="tg-info-stats">
-						<span class="tg-info-stat" id="group-article-count">
-							<i class="fa fa-newspaper-o"></i> <span>0</span> articles
-						</span>
-						<span class="tg-info-stat" id="group-tag-count">
-							<i class="fa fa-tags"></i> <span>0</span> tags
-						</span>
-					</div>
-					<!-- Tags inside this group -->
-					<div class="tg-tags-row" id="group-tags-row"></div>
-				</div>
-			</div>
+			</form>
+			<p class="sr-result-summary" id="sr-result-summary"></p>
 		</div>
 	</div>
 
-	<!-- Main Content Area -->
-	<div class="articles-main-container">
+	<!-- Results (two-column layout injected by JS) -->
+	<div class="sr-body">
 		<div class="container">
-			<!-- Featured Article -->
-			<div class="featured-with-sidebar" id="featured-with-sidebar">
-				<div class="featured-article-wrapper" id="featured-article-wrapper">
+			<div id="sr-results">
+				<div class="sr-loading" id="sr-loading" style="display:none;">
+					<div class="sr-spinner"></div>
+					<p>Searching…</p>
 				</div>
 			</div>
-
-			<!-- Other Articles -->
-			<div id="articles-container">
-				<div class="loading-container">
-					<div class="spinner"></div>
-					<p>Loading articles...</p>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Pagination -->
-	<div class="pagination-container" id="pagination-container" style="display: none;">
-		<div class="container">
-			<nav aria-label="Page navigation">
-				<ul class="pagination" id="pagination">
-				</ul>
-			</nav>
 		</div>
 	</div>
 
@@ -189,25 +162,22 @@
 		<div class="footer-info-bar">
 			<div class="container">
 				<div class="footer-info-grid">
-					<!-- Col 1: Brand -->
 					<div class="footer-col footer-col-brand">
 						<div class="footer-brand-text"></div>
 						<div class="footer-brand-desc"></div>
 						<ul class="footer-social-list"></ul>
 					</div>
-				<!-- Col 2: Newsletter -->
-				<div class="footer-col footer-col-newsletter">
-					<div class="footer-col-title">Newsletter</div>
-					<p class="footer-newsletter-desc">Get the latest finance insights delivered to your inbox.</p>
-					<form class="footer-subscribe-form" id="footer-subscribe-form" novalidate>
-						<div class="footer-subscribe-input-wrap">
-							<input type="email" id="footer-subscribe-email" class="footer-subscribe-input" placeholder="Your email address" autocomplete="email" required>
-						</div>
-						<button type="submit" class="footer-subscribe-btn">Subscribe</button>
-						<p class="footer-subscribe-msg" id="footer-subscribe-msg" aria-live="polite"></p>
-					</form>
-				</div>
-					<!-- Col 3: Mobile -->
+					<div class="footer-col footer-col-newsletter">
+						<div class="footer-col-title">Newsletter</div>
+						<p class="footer-newsletter-desc">Get the latest finance insights delivered to your inbox.</p>
+						<form class="footer-subscribe-form" id="footer-subscribe-form" novalidate>
+							<div class="footer-subscribe-input-wrap">
+								<input type="email" id="footer-subscribe-email" class="footer-subscribe-input" placeholder="Your email address" autocomplete="email" required>
+								<button type="submit" class="footer-subscribe-btn">Subscribe</button>
+							</div>
+							<p class="footer-subscribe-msg" id="footer-subscribe-msg" aria-live="polite"></p>
+						</form>
+					</div>
 					<div class="footer-col footer-col-mobile">
 						<div class="footer-col-title footer-mobile-title"></div>
 						<div class="footer-app-badges"></div>
@@ -234,7 +204,6 @@
 <script src="/js/jquery-3.2.1.min.js"></script>
 <script src="/styles/bootstrap4/popper.js"></script>
 <script src="/styles/bootstrap4/bootstrap.min.js"></script>
-<script src="/plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
 
 <!-- Strapi API Integration -->
 <script src="/config.js"></script>
@@ -244,8 +213,8 @@
 <script src="/js/header.js"></script>
 <script src="/js/footer.js"></script>
 <script src="/js/dark-mode.js"></script>
-<script src="/js/tag-group.js"></script>
-
+<script src="/js/search.js"></script>
+<script src="/js/custom.js"></script>
 <script src="/js/cookie-consent.js"></script>
 </body>
 </html>
