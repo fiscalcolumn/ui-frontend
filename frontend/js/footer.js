@@ -224,8 +224,11 @@ async function renderFooter() {
     const name = (data.logoText || 'Fiscal Column').replace(/^the\s+/i, '').trim();
     brandTextEl.innerHTML = `
       <a href="/" class="footer-logo-masthead" aria-label="The Fiscal Column — Home">
-        <span class="footer-logo-eyebrow">The</span>
-        <span class="footer-logo-name">${name}</span>
+        <span class="footer-logo-badge" aria-hidden="true">FC</span>
+        <span class="footer-logo-wordmark">
+          <span class="footer-logo-eyebrow">The</span>
+          <span class="footer-logo-name">${name}</span>
+        </span>
       </a>`;
   }
   if (brandDescEl)  brandDescEl.textContent  = data.description;

@@ -217,7 +217,7 @@ function renderMobileMenuLinks(categories) {
   return html;
 }
 
-// Render logo — editorial stacked wordmark, no icon
+// Render logo — FC badge mark + editorial stacked wordmark
 function renderLogo(logoText, logoImage) {
   // If a custom image logo is explicitly set by CMS, honour it
   if (logoImage && logoImage.url) {
@@ -228,12 +228,14 @@ function renderLogo(logoText, logoImage) {
       </a>`;
   }
 
-  // Editorial stacked wordmark
   const name = (logoText || 'Fiscal Column').replace(/^the\s+/i, '').trim();
   return `
     <a href="/" class="logo-masthead" aria-label="The Fiscal Column — Home">
-      <span class="logo-eyebrow">The</span>
-      <span class="logo-name">${name}</span>
+      <span class="logo-badge" aria-hidden="true">FC</span>
+      <span class="logo-wordmark">
+        <span class="logo-eyebrow">The</span>
+        <span class="logo-name">${name}</span>
+      </span>
     </a>`;
 }
 

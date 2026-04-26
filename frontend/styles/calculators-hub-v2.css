@@ -271,38 +271,41 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0;
 }
 
 .ch-quick-label {
   font-size: 13px;
   color: var(--ch-text-tertiary);
   font-weight: 500;
-  margin-right: 6px;
+  margin-right: 12px;
 }
 
 .ch-quick-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  background: var(--ch-bg);
-  border: 1px solid var(--ch-border);
-  border-radius: 20px;
-  font-size: 14px;
+  padding: 4px 14px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--ch-border);
+  border-radius: 0;
+  font-size: 13px;
   font-weight: 500;
   color: var(--ch-text-secondary);
   text-decoration: none;
-  transition: all var(--ch-transition);
+  transition: color var(--ch-transition);
 }
 
+.ch-quick-link:last-child { border-right: none; }
+
 .ch-quick-link:hover {
-  background: var(--ch-surface);
-  border-color: var(--ch-primary);
-  color: var(--ch-primary);
+  background: transparent;
+  border-color: var(--ch-border);
+  color: #1a5252;
   text-decoration: none;
-  transform: translateY(-1px);
-  box-shadow: var(--ch-shadow-sm);
+  transform: none;
+  box-shadow: none;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -331,43 +334,50 @@
 
 .ch-category-pills {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 0;
   min-width: max-content;
 }
 
 .ch-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: 7px;
+  padding: 6px 18px;
   background: transparent;
-  border: 1.5px solid var(--ch-border);
-  border-radius: 24px;
-  font-size: 14px;
-  font-weight: 600;
+  border: none;
+  border-right: 1px solid var(--ch-border);
+  border-radius: 0;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--ch-text-secondary);
   cursor: pointer;
-  transition: all var(--ch-transition);
+  transition: color var(--ch-transition);
   white-space: nowrap;
   font-family: inherit;
   outline: none;
+  box-shadow: none;
 }
 
+.ch-pill:first-child { padding-left: 0; }
+.ch-pill:last-child  { border-right: none; }
+
 .ch-pill i {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .ch-pill:hover {
-  background: var(--ch-bg);
-  border-color: var(--ch-primary);
-  color: var(--ch-primary);
+  background: transparent;
+  border-color: var(--ch-border);
+  color: #1a5252;
 }
 
 .ch-pill.active {
-  background: var(--ch-primary);
-  border-color: var(--ch-primary);
-  color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.25);
+  background: transparent;
+  border-color: var(--ch-border);
+  color: #1a5252;
+  font-weight: 700;
+  box-shadow: none;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -590,45 +600,45 @@
 .ch-category-header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   margin-bottom: 20px;
-  padding: 14px 20px;
-  border-radius: var(--ch-radius-md);
-  background: linear-gradient(135deg, var(--cat-color, var(--ch-primary)) 0%, color-mix(in srgb, var(--cat-color, var(--ch-primary)) 80%, #000) 100%);
-  border-left: 5px solid color-mix(in srgb, var(--cat-color, var(--ch-primary)) 60%, #000);
-  box-shadow: 0 3px 12px color-mix(in srgb, var(--cat-color, var(--ch-primary)) 25%, transparent);
+  padding: 0 0 14px 0;
+  border-bottom: 2px solid #e8ecf0;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .ch-category-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--ch-radius-sm);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  background: rgba(255,255,255,0.2);
-  color: #fff;
+  font-size: 16px;
+  background: #f2f6f6;
+  color: #1a5252;
   flex-shrink: 0;
 }
 
 .ch-category-name {
   font-size: 17px;
   font-weight: 700;
-  color: #fff;
+  color: var(--ch-text);
   margin: 0;
   flex: 1;
   letter-spacing: 0.01em;
 }
 
 .ch-category-count {
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.9);
-  padding: 4px 12px;
-  background: rgba(255,255,255,0.2);
+  font-size: 11px;
+  font-weight: 600;
+  color: #8a93a4;
+  padding: 3px 10px;
+  background: #f2f4f7;
   border-radius: 20px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 /* Calculator List (Clean Cards) */
@@ -907,8 +917,8 @@
   }
 
   .ch-pill {
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 5px 14px;
+    font-size: 24px;
   }
 
   .ch-bento-grid {
