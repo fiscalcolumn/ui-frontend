@@ -136,7 +136,7 @@ class SearchPageManager {
       // Exact-match redirects only on page 1
       if (this.currentPage === 1) {
         const ec = this._exactMatch(categories, this.query);
-        if (ec) { window.location.replace(`/category/${ec.slug}`); return; }
+        if (ec) { window.location.replace(`/${ec.slug}`); return; }
         const eg = this._exactMatch(tagGroups, this.query);
         if (eg) { window.location.replace(`/tag-group/${eg.slug}`); return; }
         const et = this._exactMatch(tags, this.query);
@@ -197,7 +197,7 @@ class SearchPageManager {
 
     if (categories.length > 0) {
       const links = categories.map(c => `
-        <a href="/category/${c.slug}" class="sr-side-link">
+        <a href="/${c.slug}" class="sr-side-link">
           <i class="fa fa-folder-o"></i>
           <span>${this._esc(c.name)}</span>
         </a>`).join('');

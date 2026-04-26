@@ -73,6 +73,13 @@
       return;
     }
 
+    // On the search results page, hide the nav search icon since the page has its own bar
+    if (window.location.pathname === '/search') {
+      if (searchButton) searchButton.style.display = 'none';
+      searchPanel.classList.remove('active');
+      return;
+    }
+
     searchButton.addEventListener('click', function(e) {
       e.preventDefault();
       searchPanel.classList.toggle('active');
