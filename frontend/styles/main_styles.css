@@ -275,22 +275,61 @@ section
 .header_brand_bar
 {
 	width: 100%;
-	background: #9b6f92;
+	background: #1a5252;
 }
 .header_brand_content
 {
-	height: 90px;
+	height: 80px;
 }
 
-/* Logo in brand bar */
+/* ── Editorial stacked wordmark ── */
+.logo-masthead
+{
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 3px;
+	padding-left: 14px;
+	border-left: 2px solid #c8a046;
+	text-decoration: none;
+	line-height: 1;
+	transition: opacity 220ms ease;
+}
+.logo-masthead:hover
+{
+	opacity: 0.82;
+	text-decoration: none;
+}
+.logo-eyebrow
+{
+	font-family: 'DM Sans', sans-serif;
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 5px;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.55);
+	line-height: 1;
+}
+.logo-name
+{
+	font-family: 'Merriweather', serif;
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: 2.5px;
+	text-transform: uppercase;
+	color: #ffffff;
+	line-height: 1;
+}
+
+/* Fallback: image logo + text (CMS override) */
 .header_brand_bar .logo_text
 {
 	font-family: 'Merriweather', serif;
-	font-size:40px;
-	font-weight: 300;
-	letter-spacing: 1.5px;
+	font-size: 28px;
+	font-weight: 700;
+	letter-spacing: 2px;
+	text-transform: uppercase;
 	color: #ffffff;
-	-webkit-transition: color 200ms ease;
 	transition: color 200ms ease;
 }
 .header_brand_bar .logo_container a:hover .logo_text
@@ -2129,8 +2168,8 @@ section
 /* Info bar — top section (brand · newsletter · app) */
 .footer-info-bar
 {
-	background: linear-gradient(180deg, #fafbfc 0%, #f4f6f8 100%);
-	border-top: 1px solid #ececec;
+	background: #77a6a6;
+	border-top: none;
 	padding: 64px 0 56px;
 	position: relative;
 }
@@ -2139,8 +2178,8 @@ section
 	position: absolute;
 	top: 0; left: 0; right: 0;
 	height: 2px;
-	background: linear-gradient(90deg, transparent 0%, #b8860b 50%, transparent 100%);
-	opacity: 0.55;
+	background: linear-gradient(90deg, transparent 0%, #f5e2a3 50%, transparent 100%);
+	opacity: 0.7;
 }
 .footer-info-grid
 {
@@ -2154,21 +2193,59 @@ section
 /* Brand column */
 .footer-brand-text
 {
+	line-height: 1;
+}
+
+/* Editorial stacked wordmark — mirrors the header treatment */
+.footer-logo-masthead
+{
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+	padding-left: 14px;
+	border-left: 2px solid #f5e2a3;
+	text-decoration: none;
+	line-height: 1;
+	transition: opacity 220ms ease;
+}
+.footer-logo-masthead:hover
+{
+	opacity: 0.82;
+	text-decoration: none;
+}
+.footer-logo-eyebrow
+{
+	font-family: 'DM Sans', sans-serif;
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 5px;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.55);
+	line-height: 1;
+}
+.footer-logo-name
+{
 	font-family: 'Merriweather', serif;
-	font-size: 1.75rem;
+	font-size: 26px;
 	font-weight: 700;
-	color: #1a2332;
-	line-height: 1.1;
-	letter-spacing: -0.01em;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	color: #ffffff;
+	line-height: 1;
 }
 .footer-brand-desc
 {
-	font-family: 'DM Sans', sans-serif;
-	font-size: 0.95rem;
-	line-height: 1.65;
-	color: #555;
-	max-width: 420px;
+	font-family: 'Merriweather', serif;
+	font-style: italic;
+	font-size: 1rem;
+	font-weight: 300;
+	line-height: 1.6;
+	color: rgba(255, 255, 255, 0.75);
+	letter-spacing: 0.2px;
 	margin: 0;
+	padding-left: 14px;
+	border-left: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 /* Social icons — brand color squares */
@@ -2220,7 +2297,7 @@ section
 	font-family: 'DM Sans', sans-serif;
 	font-size: 0.75rem;
 	font-weight: 700;
-	color: #1a2332;
+	color: #ffffff;
 	text-transform: uppercase;
 	letter-spacing: 0.14em;
 	margin: 0 0 4px;
@@ -2233,7 +2310,7 @@ section
 	display: inline-block;
 	width: 24px;
 	height: 2px;
-	background: #b8860b;
+	background: #f5e2a3;
 	border-radius: 1px;
 	flex-shrink: 0;
 }
@@ -2242,7 +2319,7 @@ section
 .footer-newsletter-desc {
 	font-family: 'DM Sans', sans-serif;
 	font-size: 0.95rem;
-	color: #555;
+	color: rgba(255, 255, 255, 0.82);
 	line-height: 1.6;
 	margin: 0;
 	max-width: 400px;
@@ -2257,15 +2334,15 @@ section
 .footer-subscribe-input-wrap {
 	display: flex;
 	align-items: stretch;
-	background: #ffffff;
-	border: 1.5px solid #d8dee5;
+	background: rgba(255, 255, 255, 0.18);
+	border: 1.5px solid rgba(255, 255, 255, 0.35);
 	border-radius: 10px;
 	overflow: hidden;
 	transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 .footer-subscribe-input-wrap:focus-within {
-	border-color: #b8860b;
-	box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.12);
+	border-color: #f5e2a3;
+	box-shadow: 0 0 0 3px rgba(245, 226, 163, 0.22);
 }
 .footer-subscribe-input {
 	flex: 1;
@@ -2274,13 +2351,13 @@ section
 	border: none;
 	font-size: 0.95rem;
 	font-family: 'DM Sans', sans-serif;
-	color: #1a2332;
+	color: #ffffff;
 	background: transparent;
 	outline: none;
 	box-sizing: border-box;
 	text-transform: none;
 }
-.footer-subscribe-input::placeholder { color: #9aa1ad; }
+.footer-subscribe-input::placeholder { color: rgba(255, 255, 255, 0.55); }
 .footer-subscribe-btn {
 	padding: 0 20px;
 	background: #b8860b;
@@ -2306,8 +2383,8 @@ section
 	min-height: 1.2em;
 	padding-left: 4px;
 }
-.footer-subscribe-msg--success { color: #1aab60; }
-.footer-subscribe-msg--error   { color: #e03e3e; }
+.footer-subscribe-msg--success { color: #d4f0d4; }
+.footer-subscribe-msg--error   { color: #ffd6d6; }
 
 
 /* Mobile / App badges column — render badges at intrinsic ratio */
@@ -2341,8 +2418,8 @@ section
 /* White links bar — bottom section */
 .footer-links-section
 {
-	background: #ffffff;
-	border-top: 1px solid #e2e2e2;
+	background: #5f9090;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
 	padding: 20px 0 16px;
 }
 .footer-nav-bar
@@ -2356,7 +2433,7 @@ section
 	scrollbar-width: none;
 	gap: 12px;
 	padding-bottom: 16px;
-	border-bottom: 1px solid #e8e8e8;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.22);
 }
 .footer-nav-bar::-webkit-scrollbar { display: none; }
 .footer-nav-left,
@@ -2379,7 +2456,7 @@ section
 	font-weight: 500;
 	letter-spacing: 1.2px;
 	text-transform: uppercase;
-	color: #3a3a4a;
+	color: rgba(255, 255, 255, 0.78);
 	padding: 4px 14px;
 	white-space: nowrap;
 	transition: color 180ms ease;
@@ -2389,10 +2466,10 @@ section
 .footer-nav-left li:not(:last-child) a,
 .footer-nav-right li:not(:last-child) a
 {
-	border-right: 1px solid #d8d8d8;
+	border-right: 1px solid rgba(255, 255, 255, 0.25);
 }
 .footer-nav-left li a:hover,
-.footer-nav-right li a:hover { color: #1a2332; }
+.footer-nav-right li a:hover { color: #ffffff; }
 .footer-bottom
 {
 	padding-top: 14px;
@@ -2402,7 +2479,7 @@ section
 {
 	font-family: 'DM Sans', sans-serif;
 	font-size: 13px;
-	color: #888;
+	color: rgba(255, 255, 255, 0.6);
 }
 
 /*********************************
@@ -2412,9 +2489,10 @@ section
 .browse-by-category-section
 {
 	padding: 48px 0;
-	background: #e2cfd9;
-	border-top: 1px solid #d4b8c6;
-	border-bottom: 1px solid #d4b8c6;
+	background: #77a6a6;
+	border-color: #77a6a6;
+	border-top: 1px solid #77a6a6;
+	border-bottom: 1px solid #77a6a6;
 }
 .browse-cat-header
 {
@@ -2591,8 +2669,20 @@ section
 {
 	color: var(--text-primary);
 }
-
 .dark-mode .header_brand_bar .logo_text
+{
+	color: #ffffff;
+}
+/* Editorial wordmark — stays white on dark, gold rule stays */
+.dark-mode .logo-masthead
+{
+	border-left-color: #d4a017;
+}
+.dark-mode .logo-eyebrow
+{
+	color: rgba(255, 255, 255, 0.5);
+}
+.dark-mode .logo-name
 {
 	color: #ffffff;
 }
@@ -2726,8 +2816,13 @@ section
 	background: linear-gradient(90deg, transparent 0%, #d4a017 50%, transparent 100%);
 	opacity: 0.45;
 }
-.dark-mode .footer-brand-text { color: #f5f5f5; }
-.dark-mode .footer-brand-desc { color: #b8bdc7; }
+.dark-mode .footer-brand-desc { color: #9aa0aa; border-left-color: var(--border-color); }
+.dark-mode .footer-col-title  { color: #f5f5f5; }
+.dark-mode .footer-col-title::before { background: #d4a017; }
+.dark-mode .footer-newsletter-desc { color: #b8bdc7; }
+.dark-mode .footer-logo-masthead { border-left-color: #d4a017; }
+.dark-mode .footer-logo-eyebrow  { color: rgba(255, 255, 255, 0.45); }
+.dark-mode .footer-logo-name     { color: #ffffff; }
 
 /* Dark mode: brand colors stay, just slightly dimmed */
 .dark-mode .footer-social-list li a { opacity: 0.88; }
@@ -2770,7 +2865,8 @@ section
 .dark-mode .footer-nav-right li:not(:last-child) a { border-right-color: var(--border-color); }
 .dark-mode .footer-nav-left li a:hover,
 .dark-mode .footer-nav-right li a:hover { color: var(--text-primary); }
-.dark-mode .cr_text { color: var(--text-secondary); }
+.dark-mode .cr_text { color: var(--text-muted); }
+.dark-mode .footer-subscribe-input { color: #f5f5f5; }
 
 /* Dark Mode Dropdown */
 .dark-mode .main_nav li.dropdown .dropdown-menu

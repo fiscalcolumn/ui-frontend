@@ -315,6 +315,20 @@
 	{
 		font-size: 20px;
 	}
+	.logo-eyebrow
+	{
+		font-size: 9px;
+		letter-spacing: 4px;
+	}
+	.logo-name
+	{
+		font-size: 17px;
+		letter-spacing: 2px;
+	}
+	.logo-masthead
+	{
+		padding-left: 10px;
+	}
 	.footer-nav-bar
 	{
 		flex-direction: row;

@@ -217,22 +217,24 @@ function renderMobileMenuLinks(categories) {
   return html;
 }
 
-// Render logo - shows image and/or text side by side
+// Render logo — editorial stacked wordmark, no icon
 function renderLogo(logoText, logoImage) {
-  let logoHTML = '<a href="/" class="d-flex flex-row align-items-center">';
-  
+  // If a custom image logo is explicitly set by CMS, honour it
   if (logoImage && logoImage.url) {
-    logoHTML += `<img src="${logoImage.url}" alt="${logoImage.alternativeText || logoText || 'Logo'}" class="logo_image">`;
+    return `
+      <a href="/" class="d-flex flex-row align-items-center">
+        <img src="${logoImage.url}" alt="${logoImage.alternativeText || logoText || 'Logo'}" class="logo_image">
+        ${logoText ? `<div class="logo_text">${logoText}</div>` : ''}
+      </a>`;
   }
-  
-  if (logoText) {
-    logoHTML += `<div class="logo_text">${logoText}</div>`;
-  } else if (!logoImage || !logoImage.url) {
-    logoHTML += '<div class="logo_text">THE FISCAL COLUMN</div>';
-  }
-  
-  logoHTML += '</a>';
-  return logoHTML;
+
+  // Editorial stacked wordmark
+  const name = (logoText || 'Fiscal Column').replace(/^the\s+/i, '').trim();
+  return `
+    <a href="/" class="logo-masthead" aria-label="The Fiscal Column — Home">
+      <span class="logo-eyebrow">The</span>
+      <span class="logo-name">${name}</span>
+    </a>`;
 }
 
 // Normalize URL for comparison

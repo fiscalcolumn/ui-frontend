@@ -220,7 +220,14 @@ async function renderFooter() {
   const brandDescEl  = footer.querySelector('.footer-brand-desc');
   const socialListEl = footer.querySelector('.footer-social-list');
 
-  if (brandTextEl)  brandTextEl.textContent  = data.logoText;
+  if (brandTextEl) {
+    const name = (data.logoText || 'Fiscal Column').replace(/^the\s+/i, '').trim();
+    brandTextEl.innerHTML = `
+      <a href="/" class="footer-logo-masthead" aria-label="The Fiscal Column — Home">
+        <span class="footer-logo-eyebrow">The</span>
+        <span class="footer-logo-name">${name}</span>
+      </a>`;
+  }
   if (brandDescEl)  brandDescEl.textContent  = data.description;
   if (socialListEl) {
     socialListEl.innerHTML = renderSocialLinks(data.socialLinks);
