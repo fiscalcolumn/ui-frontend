@@ -603,6 +603,11 @@ STATIC_PAGE_SLUGS.forEach(slug => {
   });
 });
 
+// Search results page - /search?q=...
+app.get('/search', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'search.html'));
+});
+
 // Calculators hub - /calculator
 app.get('/calculator', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'calculators-hub.html'));

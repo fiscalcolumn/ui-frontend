@@ -51,7 +51,7 @@
 
 .dark-mode .loading-sections .spinner {
   border-color: var(--bg-secondary);
-  border-top-color: #14bdee;
+  border-top-color: #f0f0f0;
 }
 
 /* Section Header */
@@ -77,7 +77,7 @@
   color: var(--text-primary);
 }
 .dark-mode .related-category-link {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .carousel-card {
   background: var(--bg-primary);
@@ -128,7 +128,7 @@
   color: var(--text-primary);
 }
 .dark-mode .news-side-title:hover {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .news-side-meta {
   color: var(--text-muted);

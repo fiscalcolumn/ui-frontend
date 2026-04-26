@@ -81,7 +81,7 @@
 
 /* Markdown Links - Dark Mode */
 .dark-mode .article-body a {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 
 /* Tags & Share bar */
@@ -93,13 +93,13 @@
   color: var(--text-secondary);
 }
 .dark-mode .article-tags-footer a:hover {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .share-btn {
   color: var(--text-secondary);
 }
 .dark-mode .share-btn:hover {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 
 /* Sidebar */
@@ -116,7 +116,7 @@
   color: var(--text-secondary);
 }
 .dark-mode .categories-list a:hover {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .categories-list a span {
   color: var(--text-muted);
@@ -124,10 +124,10 @@
 
 /* Sidebar Section Header */
 .dark-mode .sidebar-section-header {
-  border-bottom-color: #14bdee;
+  border-bottom-color: #f0f0f0;
 }
 .dark-mode .view-all-link {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .view-all-link:hover {
   color: #17d4ff;
@@ -157,7 +157,7 @@
   color: var(--text-primary);
 }
 .dark-mode .latest-article-title a:hover {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .latest-article-meta {
   color: var(--text-muted);
@@ -177,7 +177,7 @@
 }
 .dark-mode .sidebar-tag:hover {
   background: #14bdee;
-  border-color: #14bdee;
+  border-color: #f0f0f0;
   color: #fff;
 }
 

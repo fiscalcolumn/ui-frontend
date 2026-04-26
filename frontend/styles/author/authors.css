@@ -164,5 +164,5 @@
 .dark-mode .authors-page-title    { color: var(--text-primary); border-bottom-color: var(--text-secondary); }
 .dark-mode .authors-page-subtitle { color: var(--text-muted); }
 .dark-mode .author-tile-name      { color: var(--text-primary); }
-.dark-mode .author-tile-name:hover { color: #14bdee; }
+.dark-mode .author-tile-name:hover { color: #f0f0f0; }
 .dark-mode .author-tile-designation { color: var(--text-muted); }

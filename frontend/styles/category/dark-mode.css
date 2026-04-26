@@ -57,7 +57,7 @@
 /* Tags */
 .dark-mode .article-tag {
   background: rgba(20, 189, 238, 0.15);
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .article-tag:hover {
   background: #14bdee;
@@ -125,7 +125,7 @@
 }
 .dark-mode .error-btn.primary {
   background: #14bdee;
-  border-color: #14bdee;
+  border-color: #f0f0f0;
   color: #fff;
 }
 .dark-mode .error-btn.primary:hover {
@@ -147,7 +147,7 @@
   box-shadow: 0 2px 12px rgba(0,0,0,0.2);
 }
 .dark-mode .popular-tags-header {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .popular-tags-divider {
   background: var(--border-color);
@@ -177,7 +177,7 @@
   color: var(--text-primary);
 }
 .dark-mode .error-section-link {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 
 /* Error Horizontal Cards */
@@ -194,7 +194,7 @@
   color: var(--text-primary);
 }
 .dark-mode .error-card-title a:hover {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .error-card-excerpt {
   color: var(--text-secondary);
@@ -236,7 +236,7 @@
   color: var(--text-primary);
 }
 .dark-mode .error-carousel-card-title a:hover {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .error-carousel-card-excerpt {
   color: var(--text-secondary);
@@ -256,7 +256,7 @@
   color: var(--text-primary);
 }
 .dark-mode .related-category-link {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 .dark-mode .carousel-card {
   background: var(--bg-primary);
@@ -306,7 +306,7 @@
   color: var(--text-secondary);
 }
 .dark-mode .popular-tag-link:hover {
-  color: #14bdee;
+  color: #f0f0f0;
 }
 
 /* Pagination */
@@ -320,12 +320,12 @@
 }
 .dark-mode .pagination .page-link:hover {
   background: #14bdee;
-  border-color: #14bdee;
+  border-color: #f0f0f0;
   color: #fff;
 }
 .dark-mode .pagination .page-item.active .page-link {
   background: #14bdee;
-  border-color: #14bdee;
+  border-color: #f0f0f0;
   color: #fff;
 }
 .dark-mode .pagination .page-item.disabled .page-link {

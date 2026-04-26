@@ -2477,10 +2477,11 @@ section
 .dark-mode
 {
 	--bg-primary: #1a1a1a;
-	--bg-secondary: #2d2d2d;
+	--bg-secondary: #0c0c0c;
 	--bg-tertiary: #3a3a3a;
-	--text-primary: #e0e0e0;
+	--text-primary: #080808;
 	--text-secondary: #b0b0b0;
+	--text-muted: #c9ced9;
 	--border-color: #404040;
 }
 
@@ -2535,7 +2536,7 @@ section
 .dark-mode .main_nav li a:hover,
 .dark-mode .main_nav li.active a
 {
-	color: #14bdee;
+	color: #f0f0f0;
 }
 
 .dark-mode .search_button i,
@@ -2547,7 +2548,7 @@ section
 .dark-mode .search_button:hover i,
 .dark-mode .hamburger:hover i
 {
-	color: #14bdee;
+	color: #f0f0f0;
 }
 
 /* Dark Mode Content Sections */
@@ -2586,7 +2587,7 @@ section
 .dark-mode .course_title a:hover,
 .dark-mode .event_title a:hover
 {
-	color: #14bdee;
+	color: #f0f0f0;
 }
 
 .dark-mode .course_teacher,
@@ -2611,7 +2612,7 @@ section
 .dark-mode .news_post_large_title a:hover,
 .dark-mode .news_post_small_title a:hover
 {
-	color: #14bdee;
+	color: #f0f0f0;
 }
 
 .dark-mode .news_post_text
@@ -2730,7 +2731,7 @@ section
 
 .dark-mode .main_nav li.dropdown .dropdown-menu li a:hover
 {
-	color: #14bdee;
+	color: #f0f0f0;
 	background: var(--bg-tertiary);
 }
 
@@ -2747,7 +2748,7 @@ section
 
 .dark-mode .menu_nav ul li a:hover
 {
-	color: #14bdee;
+	color: #f0f0f0;
 }
 
 /* Dark Mode Buttons */
@@ -2916,7 +2917,7 @@ section
 }
 
 .dark-mode .breadcrumb-item a {
-	color: #14bdee;
+	color: #f0f0f0;
 	font-weight: bold;
 }
 
@@ -2929,6 +2930,48 @@ section
 }
 
 /* Responsive Breadcrumb */
+/* ── Footer Info Bar — Responsive ──────────────────────────────────────── */
+
+/* Tablet: collapse 3 columns → 2 (brand + newsletter side by side, app below) */
+@media (max-width: 900px) {
+  .footer-info-bar { padding: 48px 0 40px; }
+  .footer-info-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px 32px;
+  }
+  /* App badges column spans full width on its own row */
+  .footer-col:last-child {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .footer-app-badges {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile: single column, everything stacked */
+@media (max-width: 600px) {
+  .footer-info-bar { padding: 36px 0 32px; }
+  .footer-info-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .footer-col:last-child {
+    grid-column: auto;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .footer-brand-text { font-size: 1.45rem; }
+  .footer-social-list { gap: 8px; }
+  .footer-subscribe-form { max-width: 100%; }
+  .footer-newsletter-desc { max-width: 100%; }
+  .footer-app-badges { flex-direction: column; }
+}
+
 @media (max-width: 767px) {
 	.breadcrumb-container {
 		padding-top: 180px;

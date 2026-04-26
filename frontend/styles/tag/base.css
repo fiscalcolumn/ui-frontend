@@ -116,7 +116,7 @@
 .dark-mode .ti-info-stat   { color: var(--text-muted); }
 .dark-mode .ti-tags-label  { color: #5a7a9a; }
 .dark-mode .ti-tag-link    { color: var(--text-secondary); }
-.dark-mode .ti-tag-link:hover { color: #14bdee; }
+.dark-mode .ti-tag-link:hover { color: #f0f0f0; }
 .dark-mode .ti-tag-sep     { color: #3a4f65; }
 
 /* Responsive */
