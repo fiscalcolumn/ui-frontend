@@ -147,13 +147,9 @@
   color: #bbb;
 }
 
-/* ── Layout B: 60% image / 40% content (mid-page article) ── */
+/* ── Layout B: same proportions as Layout A ── */
 .ha-layout-b {
-  grid-template-columns: 60% 1fr;
-}
-
-.ha-layout-b .ha-image {
-  aspect-ratio: 16 / 10;
+  grid-template-columns: 42% 1fr;
 }
 
 /* ── Mid-page article section wrapper ── */

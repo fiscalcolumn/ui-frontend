@@ -26,7 +26,7 @@
   flex-shrink: 0;
   font-size: 2.2rem;
   font-weight: 800;
-  color: #e8ecf0;
+  color: #3b3c3d;
   line-height: 1;
   letter-spacing: -0.04em;
   width: 52px;
@@ -103,7 +103,7 @@
 
 /* ── Digest Dark Mode ────────────────────────────────────────────── */
 .dark-mode .dg-item    { border-color: #2d3748; }
-.dark-mode .dg-number  { color: #2d3748; }
+.dark-mode .dg-number  { color: #d1d3d6; }
 .dark-mode .dg-item:hover .dg-number { color: #63b3ed; }
 .dark-mode .dg-title   { color: #e2e8f0; }
 .dark-mode .dg-item:hover .dg-title  { color: #63b3ed; }
