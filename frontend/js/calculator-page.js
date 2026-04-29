@@ -331,9 +331,7 @@ class CalculatorPageManager {
     return `
       <hr class="calc-section-divider" />
       <div class="calc-section-card calc-trending-section">
-        <h3 class="calc-section-title">
-          <i class="fa fa-fire"></i> Trending Calculators
-        </h3>
+        <h3 class="calc-section-title">Trending Calculators</h3>
         <div class="calc-tile-row">${tiles}</div>
       </div>
     `;
@@ -362,7 +360,8 @@ class CalculatorPageManager {
       <div class="calc-section-card calc-related-section">
         <div class="calc-section-title-row">
           <h3 class="calc-section-title calc-section-title--inline">
-            ${catName ? catName + ' — ' : ''}Related Calculators
+            Related Calculators
+            ${catName ? `<span class="calc-title-category">${catName}</span>` : ''}
           </h3>
           <a href="/calculator" class="calc-view-all-link">
             <i class="fa fa-th-large"></i> View All

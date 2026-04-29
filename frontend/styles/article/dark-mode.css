@@ -102,70 +102,15 @@
   color: #f0f0f0;
 }
 
-/* Sidebar */
+/* Sidebar — dark mode overrides live in sidebar.css */
 .dark-mode .article-sidebar {
   border-top-color: var(--border-color);
-}
-.dark-mode .sidebar-section-title {
-  color: var(--text-primary);
-}
-.dark-mode .categories-list li {
-  border-bottom-color: var(--border-color);
-}
-.dark-mode .categories-list a {
-  color: var(--text-secondary);
-}
-.dark-mode .categories-list a:hover {
-  color: #f0f0f0;
-}
-.dark-mode .categories-list a span {
-  color: var(--text-muted);
-}
-
-/* Sidebar Section Header */
-.dark-mode .sidebar-section-header {
-  border-bottom-color: #f0f0f0;
-}
-.dark-mode .view-all-link {
-  color: #f0f0f0;
-}
-.dark-mode .view-all-link:hover {
-  color: #17d4ff;
 }
 
 /* Ad Placeholder */
 .dark-mode .ad-placeholder-box {
   background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
   border-color: var(--border-color);
-  color: var(--text-muted);
-}
-
-/* Latest Articles */
-.dark-mode .latest-articles-scrollable::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-}
-.dark-mode .latest-articles-scrollable::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-.dark-mode .latest-article-image {
-  background: var(--bg-secondary);
-}
-.dark-mode .latest-article-image-placeholder {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-}
-.dark-mode .latest-article-title a {
-  color: var(--text-primary);
-}
-.dark-mode .latest-article-title a:hover {
-  color: #f0f0f0;
-}
-.dark-mode .latest-article-meta {
-  color: var(--text-muted);
-}
-.dark-mode .latest-article-date {
-  color: var(--text-muted);
-}
-.dark-mode .latest-article-views {
   color: var(--text-muted);
 }
 

@@ -1413,25 +1413,35 @@
 }
 
 .calc-section-title {
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: var(--calc-slate-light);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--calc-slate);
   text-transform: none;
-  letter-spacing: 0.6px;
-  margin: 0 0 22px 0;
-  padding: 6px 4px 18px 4px;
-  border-bottom: 1px solid var(--calc-border-soft);
+  letter-spacing: 0.1px;
+  margin: 0 0 20px 0;
+  padding: 2px 0 2px 12px;
+  border-left: 3px solid var(--calc-primary);
+  border-bottom: none;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.calc-section-title i { color: var(--calc-primary); font-size: 0.95rem; }
+.calc-section-title i { color: var(--calc-primary); font-size: 0.85rem; }
 
 .calc-section-title--inline {
   margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
+}
+
+.calc-title-category {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--calc-primary);
+  background: var(--calc-primary-glow);
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* ── Section Divider (between calculator and trending) ───────────── */
@@ -1584,9 +1594,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 22px;
-  padding: 6px 4px 18px 4px;
-  border-bottom: 1px solid var(--calc-border-soft);
+  margin-bottom: 20px;
 }
 
 .calc-view-all-link {
@@ -1655,8 +1663,8 @@
   border-color: transparent;
 }
 
-.dark-mode .calc-section-title { color: #8B949E; border-color: #21262D; }
-.dark-mode .calc-section-title i { color: #a2bbcf; }
+.dark-mode .calc-section-title { color: var(--calc-slate); border-color: var(--calc-primary); }
+.dark-mode .calc-section-title i { color: var(--calc-primary); }
 
 
 .dark-mode .calc-disclaimer-card {

@@ -393,82 +393,63 @@ class ArticlePageManager {
   }
 
   /**
-   * Render sidebar with latest articles and tags (no categories)
+   * Render sidebar: Related (same category) + Latest articles
    */
   renderSidebar(latestArticles, relatedArticles, tags) {
-    // Get current article's category for "View All" link
     const category = this.article?.category;
-    const viewAllHtml = category 
-      ? `<a href="/${category.slug}" class="view-all-link">View All →</a>`
-      : '';
+    const catName = category?.name || '';
+    const catSlug = category?.slug || '';
 
-    // Latest Articles HTML
-    const latestHtml = latestArticles.length > 0
-      ? latestArticles.map(article => this.renderSidebarArticle(article)).join('')
-      : '<p>No articles</p>';
-
-    // Related Articles HTML (same category)
-    const relatedHtml = relatedArticles.length > 0
-      ? relatedArticles.map(article => this.renderSidebarArticle(article)).join('')
-      : '';
-
-    // Tags HTML
-    const tagsHtml = tags.length > 0
-      ? tags.map(tag => 
-          `<a href="/tag/${tag.slug}" class="sidebar-tag">${tag.name}</a>`
-        ).join('')
-      : '';
-
-    this.sidebarContainer.innerHTML = `
-      ${relatedHtml ? `
-      <!-- Related Articles (Same Category) -->
+    const relatedSection = relatedArticles.length > 0 ? `
       <div class="sidebar-section">
-        <div class="sidebar-section-header">
-          <h3 class="sidebar-section-title">Related Articles</h3>
-          ${viewAllHtml}
+        <h3 class="sb-section-title">More in ${catName}</h3>
+        <div class="sb-article-list">
+          ${relatedArticles.map(a => this.renderSidebarArticle(a)).join('')}
         </div>
-        <div class="latest-articles">
-          ${relatedHtml}
+        ${catSlug ? `<a href="/${catSlug}" class="sb-more-link">More from ${catName} <i class="fa fa-chevron-right"></i></a>` : ''}
+      </div>
+    ` : '';
+
+    const latestSection = latestArticles.length > 0 ? `
+      <div class="sidebar-section">
+        <h3 class="sb-section-title">Latest</h3>
+        <div class="sb-article-list sb-article-list--scrollable">
+          ${latestArticles.map(a => this.renderSidebarArticle(a)).join('')}
         </div>
       </div>
-      ` : ''}
+    ` : '';
 
-      <!-- Latest Articles -->
-      <div class="sidebar-section">
-        <h3 class="sidebar-section-title">Latest Articles</h3>
-        <div class="latest-articles latest-articles-scrollable">
-          ${latestHtml}
-        </div>
-      </div>
-
-    `;
+    this.sidebarContainer.innerHTML = relatedSection + latestSection;
   }
 
   /**
-   * Render a single sidebar article item (used for Latest & Related)
+   * Render a single sidebar article item
    */
   renderSidebarArticle(article) {
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage
-      ? `<img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}">`
-      : '<div class="latest-article-image-placeholder"></div>';
+    const imgBase = window.API_CONFIG?.BASE_URL || '';
+    const thumbHtml = article.image?.url
+      ? `<img loading="lazy" src="${imgBase}${article.image.url}" alt="${article.title}">`
+      : '<div class="sb-article-thumb-placeholder"></div>';
     const categorySlug = article.category?.slug || 'article';
-    const date = Utils.formatDateLong(article.publishedDate);
-    const views = article.views || 0;
-    
+    const categoryName = article.category?.name || '';
+    const readTime = article.minutesToread || Utils.calculateReadingTime(article.content) || 3;
+    const date = Utils.formatDate(article.publishedDate);
+    const meta = [
+      `${readTime} min read`,
+      date
+    ].filter(Boolean).join(' • ');
+
     return `
-      <div class="latest-article">
-        <div class="latest-article-image">
-          <a href="/${categorySlug}/${article.slug}">${imageHtml}</a>
-        </div>
-        <div class="latest-article-content">
-          <h4 class="latest-article-title">
+      <div class="sb-article-item">
+        <div class="sb-article-body">
+          ${categoryName ? `<div class="sb-article-category">${categoryName}</div>` : ''}
+          <h4 class="sb-article-title">
             <a href="/${categorySlug}/${article.slug}">${article.title}</a>
           </h4>
-          <div class="latest-article-meta">
-            <span class="latest-article-date">${date}</span>
-            <span class="latest-article-views"><i class="fa fa-eye"></i> ${Utils.formatViews(views)}</span>
-          </div>
+          <div class="sb-article-meta">${meta}</div>
+        </div>
+        <div class="sb-article-thumb">
+          <a href="/${categorySlug}/${article.slug}">${thumbHtml}</a>
         </div>
       </div>
     `;
