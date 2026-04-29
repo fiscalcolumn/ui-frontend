@@ -470,8 +470,6 @@ class CalculatorPageManager {
 
   /**
    * Get script filename from calculator slug
-   * Maps URL slug to actual JavaScript filename
-   * Location: FiscalColumn-frontend/frontend/js/calculator-page.js (line ~234)
    */
   getCalculatorScriptPath(slug) {
     if (!slug) return null;
@@ -598,14 +596,12 @@ class CalculatorPageManager {
         this.restructureWidget();
       }, 80);
     } else {
-      // Fallback - show coming soon
       console.error(`Calculator type "${calcType}" not found in registry after loading script.`);
-      widgetContainer.innerHTML = `
+      inputSection.innerHTML = `
         <div class="calculator-coming-soon">
           <i class="fa fa-wrench"></i>
           <h3>Coming Soon</h3>
           <p>This calculator is being developed. Check back soon!</p>
-          <p style="font-size: 0.9em; color: #666; margin-top: 10px;">Type: ${calcType}, Slug: ${slug}</p>
         </div>
       `;
     }
@@ -686,10 +682,6 @@ class CalculatorPageManager {
       .join(' & ')
       .replace(/ & & /g, ' & ');
   }
-
-  /**
-   * Format views count (e.g., 1500 -> 1.5K)
-   */
 
   /**
    * Show error state

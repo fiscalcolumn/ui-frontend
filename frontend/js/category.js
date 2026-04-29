@@ -27,8 +27,7 @@ class CategoryPageManager {
       return;
     }
 
-    // Immediately set a formatted slug as title (before API loads)
-    const formattedSlug = this.formatSlugAsTitle(slug);
+    const formattedSlug = Utils.formatSlugAsTitle(slug);
     document.title = `${formattedSlug} - FiscalColumn`;
     document.getElementById('breadcrumb-category').textContent = formattedSlug;
 
@@ -80,11 +79,6 @@ class CategoryPageManager {
     const response = await fetch(url);
     const data = await response.json();
     
-    // Debug: Check if calculatorcategory is populated
-    if (data.data && data.data.length > 0) {
-
-    }
-    
     return data.data || [];
   }
 
@@ -119,13 +113,6 @@ class CategoryPageManager {
     const categoryGroups = {};
     
     calculators.forEach((calc, index) => {
-      console.log(`🔢 Calculator ${index + 1}:`, {
-        title: calc.title,
-        calculatorcategory: calc.calculatorcategory,
-        order: calc.order
-      });
-      
-      // Get category type from relation
       const categoryType = calc.calculatorcategory;
       
       if (!categoryType) {
@@ -232,7 +219,7 @@ class CategoryPageManager {
     this.paginationContainer.style.display = 'none';
     
     } catch (error) {
-      console.error('❌ Error loading calculators:', error);
+      console.error('Error loading calculators:', error);
       this.articlesContainer.innerHTML = `
         <div class="no-articles">
           <h3>Error loading calculators</h3>
@@ -513,16 +500,6 @@ class CategoryPageManager {
   }
 
   /**
-   * Format slug as readable title (e.g., "latest-news" → "Latest News")
-   */
-  formatSlugAsTitle(slug) {
-    return slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  }
-
-  /**
    * Get category slug from URL path
    */
   getCategorySlug() {
@@ -783,12 +760,7 @@ class CategoryPageManager {
     
     const excerpt = article.excerpt || Utils.truncateText(article.content || '', 250);
     const readTime = Utils.getReadTime(article);
-    // Tags removed to avoid crowding
-    const tagsHtml = '';
-    
-    // Get category slug - prefer article's category, fallback to current category
     const categorySlug = article.category?.slug || this.category?.slug || 'article';
-
     return `
       <div class="featured-article">
         ${imageHtml}
@@ -798,7 +770,6 @@ class CategoryPageManager {
             <a href="/${categorySlug}/${article.slug}">${article.title}</a>
           </h1>
           <p class="featured-excerpt">${excerpt}</p>
-          ${tagsHtml}
           <div class="featured-meta">
             <span class="read-time">${readTime} min read</span>
             <span class="separator">•</span>
@@ -809,14 +780,6 @@ class CategoryPageManager {
     `;
   }
 
-  /**
-   * Render a single article card (horizontal with thumbnail)
-   */
-  /**
-   * Generate a gradient placeholder for articles without an image.
-   * @param {string} wrapperClass  — the wrapping div class (e.g. "card-thumb")
-   * @param {object} article
-   */
   articlePlaceholder(wrapperClass, article) {
     const letter = (article.category?.name || article.title || '?').charAt(0).toUpperCase();
     return `
@@ -833,8 +796,6 @@ class CategoryPageManager {
     
     const readTime = Utils.getReadTime(article);
     const excerpt = article.excerpt || Utils.truncateText(article.content, 80);
-    // Tags removed to avoid crowding
-    const tagsHtml = '';
 
     return `
       <div class="article-card-horizontal">
@@ -845,7 +806,6 @@ class CategoryPageManager {
             <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
           </h3>
           <p class="card-excerpt">${excerpt}</p>
-          ${tagsHtml}
           <div class="card-meta">
             <span>${readTime} min read</span>
             <span class="separator">•</span>
@@ -854,28 +814,6 @@ class CategoryPageManager {
         </div>
       </div>
     `;
-  }
-
-  /**
-   * Render tags as clickable links
-   */
-  renderTags(tags, limit = 3) {
-    if (!tags || tags.length === 0) return '';
-    
-    const displayTags = tags.slice(0, limit);
-    const remaining = tags.length - limit;
-    
-    let html = '<div class="article-tags">';
-    html += displayTags.map(tag => 
-      `<a href="/tag/${tag.slug}" class="article-tag">${tag.name}</a>`
-    ).join('');
-    
-    if (remaining > 0) {
-      html += `<span class="article-tags-more">+${remaining}</span>`;
-    }
-    
-    html += '</div>';
-    return html;
   }
 
   /**
@@ -964,84 +902,20 @@ class CategoryPageManager {
     `;
   }
 
-  /**
-   * Render pagination
-   */
   renderPagination() {
-    const totalPages = Math.ceil(this.totalArticles / this.pageSize);
-    
-    if (totalPages <= 1) {
-      this.paginationContainer.style.display = 'none';
-      return;
-    }
-
-    this.paginationContainer.style.display = 'flex';
-    
-    let html = '';
-    
-    // Previous button
-    html += `
-      <li class="page-item ${this.currentPage === 1 ? 'disabled' : ''}">
-        <a class="page-link" href="#" data-page="${this.currentPage - 1}">
-          <i class="fa fa-chevron-left"></i>
-        </a>
-      </li>
-    `;
-    
-    // Page numbers
-    const startPage = Math.max(1, this.currentPage - 2);
-    const endPage = Math.min(totalPages, this.currentPage + 2);
-    
-    if (startPage > 1) {
-      html += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
-      if (startPage > 2) {
-        html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+    Utils.renderPagination({
+      container: this.paginationContainer,
+      listEl: this.pagination,
+      currentPage: this.currentPage,
+      totalItems: this.totalArticles,
+      pageSize: this.pageSize,
+      displayStyle: 'flex',
+      onPageChange: page => {
+        this.currentPage = page;
+        if (this.contentType === 'calculators') this.loadCalculators();
+        else this.loadArticles();
+        window.scrollTo({ top: 300, behavior: 'smooth' });
       }
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      html += `
-        <li class="page-item ${i === this.currentPage ? 'active' : ''}">
-          <a class="page-link" href="#" data-page="${i}">${i}</a>
-        </li>
-      `;
-    }
-    
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-      }
-      html += `<li class="page-item"><a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a></li>`;
-    }
-    
-    // Next button
-    html += `
-      <li class="page-item ${this.currentPage === totalPages ? 'disabled' : ''}">
-        <a class="page-link" href="#" data-page="${this.currentPage + 1}">
-          <i class="fa fa-chevron-right"></i>
-        </a>
-      </li>
-    `;
-    
-    this.pagination.innerHTML = html;
-    
-    // Add click handlers
-    this.pagination.querySelectorAll('.page-link[data-page]').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const page = parseInt(link.dataset.page);
-        if (page >= 1 && page <= totalPages && page !== this.currentPage) {
-          this.currentPage = page;
-          // Check contentType to call appropriate load function
-          if (this.contentType === 'calculators') {
-            this.loadCalculators();
-          } else {
-            this.loadArticles();
-          }
-          // Scroll to top of articles
-          window.scrollTo({ top: 300, behavior: 'smooth' });
-        }
-      });
     });
   }
 

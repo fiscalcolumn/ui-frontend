@@ -251,7 +251,7 @@ class RatePageManager {
   }
 
   // Pick the best URL for the current metal from a jeweller's metalUrls array
-  jewellерUrl(jeweller) {
+  jewellerUrl(jeweller) {
     const metalUrls = jeweller.metalUrls || [];
     // Try to find a URL specific to this metal
     const match = metalUrls.find(mu => mu.metal?.name === this.metal.name);
@@ -541,7 +541,7 @@ class RatePageManager {
 
     return this.jewellers.map(j => {
       const logoUrl = j.logo?.url ? `${base}${j.logo.url}` : null;
-      const link    = this.jewellерUrl(j);
+      const link    = this.jewellerUrl(j);
       const initial = j.name.charAt(0).toUpperCase();
 
       const logoInner = logoUrl

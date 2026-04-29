@@ -26,8 +26,7 @@ class TagPageManager {
       return;
     }
 
-    // Immediately set a formatted slug as title (before API loads)
-    const formattedSlug = this.formatSlugAsTitle(slug);
+    const formattedSlug = Utils.formatSlugAsTitle(slug);
     document.title = `${formattedSlug} - FiscalColumn`;
     document.getElementById('breadcrumb-tag').textContent = formattedSlug;
     document.getElementById('tag-title').textContent = formattedSlug;
@@ -56,16 +55,6 @@ class TagPageManager {
       // Redirect to home page on error
       window.location.href = '/';
     }
-  }
-
-  /**
-   * Format slug as readable title (e.g., "stock-market" → "Stock Market")
-   */
-  formatSlugAsTitle(slug) {
-    return slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
   }
 
   /**
@@ -111,7 +100,7 @@ class TagPageManager {
     const slug = this.tag.slug;
     const desc = this.tag.description || '';
     const group = this.tag.tagGroup;
-    const pageUrl = `https://fiscalcolumn.com/tag/${slug}`;
+    const pageUrl = `${window.location.origin}/tag/${slug}`;
     const metaTitle = `${name} | FiscalColumn`;
     const metaDesc = desc.length > 160 ? desc.slice(0, 157) + '...' : desc || `Articles tagged ${name} on FiscalColumn`;
 
@@ -133,13 +122,13 @@ class TagPageManager {
     setMeta('twitter-title', metaTitle);
     setMeta('twitter-description', metaDesc);
 
-    // Breadcrumb schema
+    const origin = window.location.origin;
     const crumbs = [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fiscalcolumn.com/' },
-      { '@type': 'ListItem', position: 2, name: 'Topics', item: 'https://fiscalcolumn.com/tags' }
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
+      { '@type': 'ListItem', position: 2, name: 'Topics', item: `${origin}/tags` }
     ];
     if (group && group.slug) {
-      crumbs.push({ '@type': 'ListItem', position: 3, name: group.name || group.slug, item: `https://fiscalcolumn.com/tag-group/${group.slug}` });
+      crumbs.push({ '@type': 'ListItem', position: 3, name: group.name || group.slug, item: `${origin}/tag-group/${group.slug}` });
       crumbs.push({ '@type': 'ListItem', position: 4, name: name, item: pageUrl });
     } else {
       crumbs.push({ '@type': 'ListItem', position: 3, name: name, item: pageUrl });
@@ -237,160 +226,26 @@ class TagPageManager {
     const featuredArticle = articles[0];
     const gridArticles = articles.slice(1);
     
-    // Featured article in wrapper (left side)
     const featuredWrapper = document.getElementById('featured-article-wrapper');
     if (featuredWrapper) {
-      featuredWrapper.innerHTML = this.renderFeaturedArticle(featuredArticle);
+      featuredWrapper.innerHTML = Utils.renderFeaturedArticle(featuredArticle);
     }
-    
-    if (gridArticles.length > 0) {
-      this.articlesContainer.innerHTML = `<div class="articles-grid">
-        ${gridArticles.map(article => this.renderArticleCard(article)).join('')}
-      </div>`;
-    } else {
-      this.articlesContainer.innerHTML = '';
-    }
-    
-    this.renderPagination();
-  }
 
-  /**
-   * Render featured article (image on top, content below)
-   */
-  renderFeaturedArticle(article) {
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage 
-      ? `<div class="featured-image"><img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
+    this.articlesContainer.innerHTML = gridArticles.length > 0
+      ? `<div class="articles-grid">${gridArticles.map(a => Utils.renderArticleCard(a)).join('')}</div>`
       : '';
-    
-    const categoryName = article.category?.name || 'Article';
-    const readTime = article.minutesToread || 3;
-    const excerpt = article.excerpt || Utils.truncateText(article.content, 200);
 
-    return `
-      <div class="featured-article">
-        ${imageHtml}
-        <div class="featured-content">
-          <div class="featured-category">${categoryName}</div>
-          <h2 class="featured-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h2>
-          <p class="featured-excerpt">${excerpt}</p>
-          <div class="featured-meta">
-            <span>${readTime} min read</span>
-            <span class="separator">•</span>
-            <span>${Utils.formatDate(article.publishedDate)}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Render a single article card
-   */
-  renderArticleCard(article) {
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage 
-      ? `<div class="article-card-thumb"><img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
-      : '<div class="article-card-thumb"><div class="article-card-thumb-placeholder"></div></div>';
-    
-    const categoryName = article.category?.name || 'Article';
-    const readTime = article.minutesToread || 3;
-    const excerpt = article.excerpt || Utils.truncateText(article.content, 80);
-
-    return `
-      <div class="article-card">
-        ${imageHtml}
-        <div class="article-card-content">
-          <div class="article-card-category">${categoryName}</div>
-          <h3 class="article-card-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h3>
-          <p class="article-card-excerpt">${excerpt}</p>
-          <div class="article-card-meta">
-            <span>${readTime} min read</span>
-            <span class="separator">•</span>
-            <span>${Utils.formatDate(article.publishedDate)}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Render pagination
-   */
-  renderPagination() {
-    const totalPages = Math.ceil(this.totalArticles / this.pageSize);
-    
-    if (totalPages <= 1) {
-      this.paginationContainer.style.display = 'none';
-      return;
-    }
-
-    this.paginationContainer.style.display = 'block';
-    
-    let html = '';
-    
-    // Previous button
-    html += `
-      <li class="page-item ${this.currentPage === 1 ? 'disabled' : ''}">
-        <a class="page-link" href="#" data-page="${this.currentPage - 1}">
-          <i class="fa fa-chevron-left"></i>
-        </a>
-      </li>
-    `;
-    
-    // Page numbers
-    const startPage = Math.max(1, this.currentPage - 2);
-    const endPage = Math.min(totalPages, this.currentPage + 2);
-    
-    if (startPage > 1) {
-      html += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
-      if (startPage > 2) {
-        html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+    Utils.renderPagination({
+      container: this.paginationContainer,
+      listEl: this.pagination,
+      currentPage: this.currentPage,
+      totalItems: this.totalArticles,
+      pageSize: this.pageSize,
+      onPageChange: page => {
+        this.currentPage = page;
+        this.loadArticles();
+        document.getElementById('articles-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      html += `
-        <li class="page-item ${i === this.currentPage ? 'active' : ''}">
-          <a class="page-link" href="#" data-page="${i}">${i}</a>
-        </li>
-      `;
-    }
-    
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-      }
-      html += `<li class="page-item"><a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a></li>`;
-    }
-    
-    // Next button
-    html += `
-      <li class="page-item ${this.currentPage === totalPages ? 'disabled' : ''}">
-        <a class="page-link" href="#" data-page="${this.currentPage + 1}">
-          <i class="fa fa-chevron-right"></i>
-        </a>
-      </li>
-    `;
-    
-    this.pagination.innerHTML = html;
-    
-    // Add click handlers
-    this.pagination.querySelectorAll('.page-link[data-page]').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const page = parseInt(link.dataset.page);
-        if (page >= 1 && page <= totalPages && page !== this.currentPage) {
-          this.currentPage = page;
-          this.loadArticles();
-          // Scroll to articles section
-          document.getElementById('articles-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
     });
   }
 

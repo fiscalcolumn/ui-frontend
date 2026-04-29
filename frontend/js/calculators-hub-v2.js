@@ -74,7 +74,6 @@ class CalculatorsHubV2 {
       this.allCalculators = calcsData.data || [];
       this.allCategories = catsData.data || [];
 
-      console.log(`[Hub V2] Loaded ${this.allCalculators.length} calculators, ${this.allCategories.length} categories`);
     } catch (err) {
       console.error('Failed to load calculator data:', err);
       this.allCalculators = [];

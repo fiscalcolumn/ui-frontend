@@ -16,11 +16,6 @@ class HomepageSectionsManager {
     return base + url;
   }
 
-  /** Returns 'img-placeholder' class string when no real image exists */
-  imgClass(url) {
-    return url ? '' : 'img-placeholder';
-  }
-
   /**
    * Initialize - fetch and render all sections
    */
@@ -94,10 +89,8 @@ class HomepageSectionsManager {
           sectionHtml = this.renderNewsSection(section, articles, bgClass, renderedCount, category);
           break;
         case 'featured-banner':
-          sectionHtml = this.renderGridWithDateSection(section, articles, bgClass, renderedCount, category);
-          break;
         case 'calculator-grid':
-          sectionHtml = this.renderGridVerticalSection(section, articles, bgClass, renderedCount, category);
+          sectionHtml = this.renderCarouselSection(section, articles, bgClass, renderedCount, category);
           break;
         case 'article-list':
         default:
@@ -159,7 +152,7 @@ class HomepageSectionsManager {
           <a href="${url}" class="ha-wrapper ha-layout-b">
             <div class="ha-image">
               ${imageUrl
-                ? `<img loading="lazy" src="${imageUrl}" alt="${article.title}" loading="lazy">`
+                ? `<img loading="lazy" src="${imageUrl}" alt="${article.title}">`
                 : '<div class="ha-img-placeholder"></div>'}
             </div>
             <div class="ha-content">
@@ -215,7 +208,7 @@ class HomepageSectionsManager {
           : apiBase + cat.categoryImage.url;
         return `
           <a href="/${cat.slug}" class="browse-cat-card">
-            <img loading="lazy" src="${imgUrl}" alt="${label}" loading="lazy">
+            <img loading="lazy" src="${imgUrl}" alt="${label}">
             <div class="browse-cat-label">${label}</div>
           </a>`;
       }
@@ -371,12 +364,12 @@ class HomepageSectionsManager {
   }
 
   /**
-   * Render Grid Vertical Section (Carousel - native CSS horizontal scroll, 4 visible)
+   * Render Carousel Section (native CSS horizontal scroll, 4 visible)
+   * Used for both 'featured-banner' and 'calculator-grid' section styles.
    */
-  renderGridVerticalSection(section, articles, bgClass, index, category) {
+  renderCarouselSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
     const sectionTitle = category?.displayname || category?.name || 'Articles';
-    
     return `
       <div class="related-category-section content-section section-${index + 1} ${bgClass}">
         <div class="container">
@@ -385,85 +378,6 @@ class HomepageSectionsManager {
           </div>
           <div class="hp-carousel">
             ${articles.slice(0, 10).map(article => this.renderCarouselCard(article)).join('')}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Render Grid with Date Section (Carousel with date badges — native CSS horizontal scroll, 4 visible)
-   */
-  renderGridWithDateSection(section, articles, bgClass, index, category) {
-    const categoryUrl = category?.slug ? `/${category.slug}` : '#';
-    const sectionTitle = category?.displayname || category?.name || 'Articles';
-
-    return `
-      <div class="related-category-section content-section section-${index + 1} ${bgClass}">
-        <div class="container">
-          <div class="hp-section-header">
-            <h3 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h3>
-          </div>
-          <div class="hp-carousel">
-            ${articles.slice(0, 10).map(article => this.renderCarouselCard(article)).join('')}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Render Large News Post
-   */
-  renderLargeNewsPost(article) {
-    return `
-      <a href="/${article.category?.slug || 'article'}/${article.slug}" class="news-featured-card">
-        <img src="${this.imgUrl(article.image?.url)}" class="${this.imgClass(article.image?.url)}" alt="${article.title}">
-        <div class="news-featured-overlay">
-          <h3 class="news-featured-title">${article.title}</h3>
-          <div class="news-featured-meta">
-            <span>${article.author || 'Admin'}</span>
-            <span class="separator">|</span>
-            <span>${Utils.formatDate(article.publishedDate)}</span>
-          </div>
-        </div>
-      </a>
-    `;
-  }
-
-  /**
-   * Render Small News Post
-   */
-  renderSmallNewsPost(article) {
-    return `
-      <div class="news-side-item">
-        <a href="/${article.category?.slug || 'article'}/${article.slug}" class="news-side-title">${article.title}</a>
-        <div class="news-side-meta">
-          <span>${article.author || 'Admin'}</span>
-          <span class="separator">|</span>
-          <span>${Utils.formatDate(article.publishedDate)}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Render Grid Card (Horizontal layout - image left, content right)
-   */
-  renderGridCard(article) {
-    const imageHtml = `<div class="grid-card-image"><img src="${this.imgUrl(article.image?.url)}" class="${this.imgClass(article.image?.url)}" alt="${article.title}"></div>`;
-
-    return `
-      <div class="col-lg-6 col-md-6 grid_card_col">
-        <div class="grid-card-horizontal">
-          ${imageHtml}
-          <div class="grid-card-content">
-            <h3 class="grid-card-title"><a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a></h3>
-            <div class="grid-card-meta">
-              <span>${article.minutesToread || 3} min read</span>
-              <span class="separator">•</span>
-              <span>${Utils.formatDate(article.publishedDate)}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -497,35 +411,6 @@ class HomepageSectionsManager {
         <h4 class="rca-card-title">${article.title}</h4>
         ${excerpt ? `<p class="rca-card-excerpt">${excerpt}</p>` : ''}
         ${authorHtml}
-      </a>
-    `;
-  }
-
-  /**
-   * Render Carousel Card with Date Badge
-   */
-  renderCarouselCardWithDate(article) {
-    const inner = `<img src="${this.imgUrl(article.image?.url)}" class="${this.imgClass(article.image?.url)}" alt="${article.title}">`;
-
-    const date = new Date(article.publishedDate);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = date.toLocaleString('en', { month: 'short' });
-
-    return `
-      <a href="/${article.category?.slug || 'article'}/${article.slug}" class="carousel-card cwdate-card">
-        ${inner}
-        <div class="carousel-card-date-badge">
-          <span class="date-day">${day}</span>
-          <span class="date-month">${month}</span>
-        </div>
-        <div class="cwdate-overlay">
-          <h4 class="cwdate-title">${article.title}</h4>
-          <div class="cwdate-meta">
-            <span>${article.minutesToread || 3} min read</span>
-            <span class="separator">•</span>
-            <span>${Utils.formatDate(article.publishedDate)}</span>
-          </div>
-        </div>
       </a>
     `;
   }

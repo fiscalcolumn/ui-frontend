@@ -22,8 +22,7 @@ class AuthorPageManager {
       return;
     }
 
-    // Show a formatted slug as title immediately (before API loads)
-    const formattedName = this.formatSlug(slug);
+    const formattedName = Utils.formatSlugAsTitle(slug);
     document.title = `${formattedName} - FiscalColumn`;
     document.getElementById('breadcrumb-author').textContent = formattedName;
     document.getElementById('author-name').textContent = formattedName;
@@ -52,13 +51,6 @@ class AuthorPageManager {
     return match ? match[1].replace(/\/$/, '') : null;
   }
 
-  formatSlug(slug) {
-    return slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  }
-
   async fetchAuthor(slug) {
     const url = getApiUrl(`/authors?filters[slug][$eq]=${slug}&populate[photo]=true`);
     const response = await fetch(url);
@@ -78,12 +70,12 @@ class AuthorPageManager {
   }
 
   updateAuthorInfo() {
-    const name = this.author.name || this.formatSlug(this.getAuthorSlug());
+    const name = this.author.name || Utils.formatSlugAsTitle(this.getAuthorSlug());
     const slug = this.author.slug || this.getAuthorSlug();
     const imgBase = window.API_CONFIG?.BASE_URL || '';
     const photoUrl = this.author.photo?.url ? `${imgBase}${this.author.photo.url}` : null;
     const bio = this.author.bio || '';
-    const pageUrl = `https://fiscalcolumn.com/author/${slug}`;
+    const pageUrl = `${window.location.origin}/author/${slug}`;
     const ogImage = photoUrl || '/images/og-default.jpg';
     const metaTitle = `${name} | FiscalColumn`;
     const metaDesc = bio.length > 160 ? bio.slice(0, 157) + '...' : bio || `Articles by ${name} on FiscalColumn`;
@@ -108,35 +100,31 @@ class AuthorPageManager {
     setMeta('twitter-description', metaDesc);
     setMeta('twitter-image', ogImage);
 
-    // Breadcrumb schema
-    const breadcrumbSchema = {
+    const breadcrumbEl = document.getElementById('schema-breadcrumb');
+    if (breadcrumbEl) breadcrumbEl.textContent = JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fiscalcolumn.com/' },
-        { '@type': 'ListItem', position: 2, name: 'Authors', item: 'https://fiscalcolumn.com/author' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${window.location.origin}/` },
+        { '@type': 'ListItem', position: 2, name: 'Authors', item: `${window.location.origin}/author` },
         { '@type': 'ListItem', position: 3, name: name, item: pageUrl }
       ]
-    };
-    const breadcrumbEl = document.getElementById('schema-breadcrumb');
-    if (breadcrumbEl) breadcrumbEl.textContent = JSON.stringify(breadcrumbSchema);
+    });
 
-    // ProfilePage schema
-    const profileSchema = {
+    const profileEl = document.getElementById('schema-profile');
+    if (profileEl) profileEl.textContent = JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'ProfilePage',
       name: metaTitle,
       url: pageUrl,
       mainEntity: {
         '@type': 'Person',
-        name: name,
+        name,
         description: bio || undefined,
         image: ogImage !== '/images/og-default.jpg' ? ogImage : undefined,
         url: pageUrl
       }
-    };
-    const profileEl = document.getElementById('schema-profile');
-    if (profileEl) profileEl.textContent = JSON.stringify(profileSchema);
+    });
 
     // DOM updates
     document.getElementById('author-name').textContent = name;
@@ -196,133 +184,27 @@ class AuthorPageManager {
       return;
     }
 
-    // First article as featured
     const featuredWrapper = document.getElementById('featured-article-wrapper');
     if (featuredWrapper) {
-      featuredWrapper.innerHTML = this.renderFeaturedArticle(articles[0]);
+      featuredWrapper.innerHTML = Utils.renderFeaturedArticle(articles[0]);
     }
 
-    // Rest as grid
     const gridArticles = articles.slice(1);
-    if (gridArticles.length > 0) {
-      this.articlesContainer.innerHTML = `<div class="articles-grid">
-        ${gridArticles.map(a => this.renderArticleCard(a)).join('')}
-      </div>`;
-    } else {
-      this.articlesContainer.innerHTML = '';
-    }
-
-    this.renderPagination();
-  }
-
-  renderFeaturedArticle(article) {
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage
-      ? `<div class="featured-image"><img loading="lazy" src="${imgBase}${article.image.url}" alt="${article.title}"></div>`
+    this.articlesContainer.innerHTML = gridArticles.length > 0
+      ? `<div class="articles-grid">${gridArticles.map(a => Utils.renderArticleCard(a)).join('')}</div>`
       : '';
-    const categoryName = article.category?.name || 'Article';
-    const readTime = article.minutesToread || 3;
-    const excerpt = article.excerpt || Utils.truncateText(article.content, 200);
 
-    return `
-      <div class="featured-article">
-        ${imageHtml}
-        <div class="featured-content">
-          <div class="featured-category">${categoryName}</div>
-          <h2 class="featured-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h2>
-          <p class="featured-excerpt">${excerpt}</p>
-          <div class="featured-meta">
-            <span>${readTime} min read</span>
-            <span class="separator">•</span>
-            <span>${Utils.formatDate(article.publishedDate)}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  renderArticleCard(article) {
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const hasImage = article.image?.url;
-    const imageHtml = hasImage
-      ? `<div class="article-card-thumb"><img loading="lazy" src="${imgBase}${article.image.url}" alt="${article.title}"></div>`
-      : '<div class="article-card-thumb"><div class="article-card-thumb-placeholder"></div></div>';
-    const categoryName = article.category?.name || 'Article';
-    const readTime = article.minutesToread || 3;
-    const excerpt = article.excerpt || Utils.truncateText(article.content, 80);
-
-    return `
-      <div class="article-card">
-        ${imageHtml}
-        <div class="article-card-content">
-          <div class="article-card-category">${categoryName}</div>
-          <h3 class="article-card-title">
-            <a href="/${article.category?.slug || 'article'}/${article.slug}">${article.title}</a>
-          </h3>
-          <p class="article-card-excerpt">${excerpt}</p>
-          <div class="article-card-meta">
-            <span>${readTime} min read</span>
-            <span class="separator">•</span>
-            <span>${Utils.formatDate(article.publishedDate)}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  renderPagination() {
-    const totalPages = Math.ceil(this.totalArticles / this.pageSize);
-
-    if (totalPages <= 1) {
-      this.paginationContainer.style.display = 'none';
-      return;
-    }
-
-    this.paginationContainer.style.display = 'block';
-    let html = '';
-
-    html += `<li class="page-item ${this.currentPage === 1 ? 'disabled' : ''}">
-      <a class="page-link" href="#" data-page="${this.currentPage - 1}"><i class="fa fa-chevron-left"></i></a>
-    </li>`;
-
-    const startPage = Math.max(1, this.currentPage - 2);
-    const endPage = Math.min(totalPages, this.currentPage + 2);
-
-    if (startPage > 1) {
-      html += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
-      if (startPage > 2) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      html += `<li class="page-item ${i === this.currentPage ? 'active' : ''}">
-        <a class="page-link" href="#" data-page="${i}">${i}</a>
-      </li>`;
-    }
-
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-      html += `<li class="page-item"><a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a></li>`;
-    }
-
-    html += `<li class="page-item ${this.currentPage === totalPages ? 'disabled' : ''}">
-      <a class="page-link" href="#" data-page="${this.currentPage + 1}"><i class="fa fa-chevron-right"></i></a>
-    </li>`;
-
-    this.pagination.innerHTML = html;
-
-    this.pagination.querySelectorAll('.page-link[data-page]').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const page = parseInt(link.dataset.page);
-        if (page >= 1 && page <= totalPages && page !== this.currentPage) {
-          this.currentPage = page;
-          this.loadArticles();
-          document.getElementById('articles-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
+    Utils.renderPagination({
+      container: this.paginationContainer,
+      listEl: this.pagination,
+      currentPage: this.currentPage,
+      totalItems: this.totalArticles,
+      pageSize: this.pageSize,
+      onPageChange: page => {
+        this.currentPage = page;
+        this.loadArticles();
+        document.getElementById('articles-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     });
   }
 

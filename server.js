@@ -200,8 +200,7 @@ async function fetchAllItems(endpoint, limit = 100) {
       
       const response = await fetch(url);
       if (!response.ok) {
-        console.error(`HTTP error fetching ${endpoint}: ${response.status} ${response.statusText}`);
-        console.error(`URL: ${url}`);
+        console.error(`HTTP ${response.status} fetching ${url}`);
         hasMore = false;
         break;
       }
@@ -223,8 +222,7 @@ async function fetchAllItems(endpoint, limit = 100) {
         hasMore = false;
       }
     } catch (error) {
-      console.error(`Error fetching ${endpoint}:`, error.message);
-      console.error(`URL: ${STRAPI_URL}${STRAPI_API_PATH}${endpoint}`);
+      console.error(`Error fetching ${STRAPI_URL}${STRAPI_API_PATH}${endpoint}:`, error.message);
       hasMore = false;
     }
   }
