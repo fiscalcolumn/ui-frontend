@@ -603,7 +603,7 @@
   gap: 12px;
   margin-bottom: 20px;
   padding: 0 0 14px 0;
-  border-bottom: 2px solid #e8ecf0;
+  border-bottom: 2px solid var(--cat-color, #e8ecf0);
   background: none;
   border-radius: 0;
   box-shadow: none;
@@ -617,8 +617,6 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  background: #f2f6f6;
-  color: #1a5252;
   flex-shrink: 0;
 }
 
@@ -781,41 +779,6 @@
   transform: translateX(2px);
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Stats Section
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-.ch-stats-section {
-  margin: 60px 0;
-}
-
-.ch-stats-card {
-  background: linear-gradient(135deg, var(--ch-primary) 0%, var(--ch-primary-hover) 100%);
-  border-radius: var(--ch-radius-xl);
-  padding: 48px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 32px;
-  box-shadow: var(--ch-shadow-lg);
-}
-
-.ch-stat {
-  text-align: center;
-}
-
-.ch-stat-value {
-  font-size: 48px;
-  font-weight: 700;
-  color: #FFFFFF;
-  margin-bottom: 8px;
-  line-height: 1;
-}
-
-.ch-stat-label {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Loading States
@@ -969,19 +932,6 @@
     font-size: 18px;
   }
 
-  .ch-stats-card {
-    flex-direction: column;
-    padding: 32px 24px;
-    gap: 24px;
-  }
-
-  .ch-stat-value {
-    font-size: 36px;
-  }
-
-  .ch-stat-label {
-    font-size: 14px;
-  }
 }
 
 /* Small Mobile */

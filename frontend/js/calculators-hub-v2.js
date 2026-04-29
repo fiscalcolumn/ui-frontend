@@ -29,7 +29,6 @@ class CalculatorsHubV2 {
     this.renderCategoryList();
     this.initSearch();
     this.initFilters();
-    this.updateStats();
   }
 
   updatePageMeta() {
@@ -224,7 +223,7 @@ class CalculatorsHubV2 {
       return `
         <div class="ch-category-section" data-cat-id="${catDocId}">
           <div class="ch-category-header" style="--cat-color: ${catInfo.color}">
-            <div class="ch-category-icon">
+            <div class="ch-category-icon" style="background: ${catInfo.color}18; color: ${catInfo.color}">
               <i class="fa ${catInfo.icon}"></i>
             </div>
             <h2 class="ch-category-name">${catName}</h2>
@@ -403,13 +402,6 @@ class CalculatorsHubV2 {
           section.classList.add('hidden');
         }
       });
-    }
-  }
-
-  updateStats() {
-    const statEl = document.getElementById('ch-stat-calculators');
-    if (statEl && this.allCalculators.length > 0) {
-      statEl.textContent = `${this.allCalculators.length}+`;
     }
   }
 
