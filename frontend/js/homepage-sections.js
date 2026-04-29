@@ -8,9 +8,9 @@ class HomepageSectionsManager {
     this.sectionsContainer = document.getElementById('homepage-sections-container');
   }
 
-  /** Resolve a Strapi image URL to an absolute URL, falling back to the local placeholder */
+  /** Resolve a Strapi image URL to an absolute URL. Returns null if no URL provided. */
   imgUrl(url) {
-    if (!url) return '/images/placeholder-article.svg';
+    if (!url) return null;
     if (url.startsWith('http')) return url;
     const base = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
     return base + url;
@@ -73,8 +73,8 @@ class HomepageSectionsManager {
 
       const sectionType = section.sectionStyle || 'article-list';
       const itemsToShow = section.itemsToShow || 5;
-      const isCarousel  = sectionType === 'news-grid';
-      const limit       = isCarousel ? 10 : itemsToShow;
+      const isScrollRow = sectionType === 'scroll-row' || sectionType === 'calculator-grid';
+      const limit       = isScrollRow ? 10 : itemsToShow;
 
       const articles = await this.fetchArticlesByCategory(category.documentId, limit);
 
@@ -85,14 +85,17 @@ class HomepageSectionsManager {
 
       let sectionHtml = '';
       switch (sectionType) {
-        case 'news-grid':
+        case 'lead-story':
           sectionHtml = this.renderNewsSection(section, articles, bgClass, renderedCount, category);
           break;
-        case 'featured-banner':
+        case 'digest':
+          sectionHtml = this.renderDigestSection(section, articles, bgClass, renderedCount, category);
+          break;
+        case 'scroll-row':
         case 'calculator-grid':
           sectionHtml = this.renderCarouselSection(section, articles, bgClass, renderedCount, category);
           break;
-        case 'article-list':
+        case 'mosaic':
         default:
           sectionHtml = this.renderGridSection(section, articles, bgClass, renderedCount, category);
           break;
@@ -122,22 +125,17 @@ class HomepageSectionsManager {
    * Layout: image 60% left / content 40% right
    */
   renderMidArticle(article) {
-    const base         = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
     const categorySlug = article.category?.slug || 'news';
     const categoryName = article.category?.name  || 'Latest News';
     const url          = `/${categorySlug}/${article.slug}`;
-    const imageUrl     = article.image?.url
-      ? (article.image.url.startsWith('http') ? article.image.url : base + article.image.url)
-      : '';
+    const imageUrl     = this.imgUrl(article.image?.url);
     const date         = article.publishedDate || article.createdAt;
     const formattedDate = date ? Utils.formatDate(date) : '';
     const readingTime  = Utils.calculateReadingTimeString(article.content || article.excerpt || '');
 
     // Author
     const author   = article.author;
-    const photoUrl = author?.photo?.url
-      ? (author.photo.url.startsWith('http') ? author.photo.url : base + author.photo.url)
-      : '';
+    const photoUrl = this.imgUrl(author?.photo?.url);
     const authorHtml = author?.name ? `
       <div class="ha-author">
         ${photoUrl
@@ -197,15 +195,12 @@ class HomepageSectionsManager {
   }
 
   renderBrowseByCategory(categories) {
-    const apiBase = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
     const cards = categories.map((cat, idx) => {
       const label = (cat.displayname || cat.name || '').toUpperCase();
       const initial = label.charAt(0);
 
       if (cat.categoryImage?.url) {
-        const imgUrl = cat.categoryImage.url.startsWith('http')
-          ? cat.categoryImage.url
-          : apiBase + cat.categoryImage.url;
+        const imgUrl = this.imgUrl(cat.categoryImage.url);
         return `
           <a href="/${cat.slug}" class="browse-cat-card">
             <img loading="lazy" src="${imgUrl}" alt="${label}">
@@ -247,9 +242,7 @@ class HomepageSectionsManager {
 
     if (!featured) return '';
 
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-
-    const featuredImgUrl = featured.image?.url ? `${imgBase}${featured.image.url}` : null;
+    const featuredImgUrl = this.imgUrl(featured.image?.url);
     const featuredExcerpt = featured.excerpt || Utils.truncateText(featured.content, 100);
     const featuredUrl = `/${featured.category?.slug || 'article'}/${featured.slug}`;
 
@@ -261,7 +254,7 @@ class HomepageSectionsManager {
     };
 
     const sideItemsHtml = sideArticles.map(a => {
-      const imgUrl = a.image?.url ? `${imgBase}${a.image.url}` : null;
+      const imgUrl = this.imgUrl(a.image?.url);
       const url = `/${a.category?.slug || 'article'}/${a.slug}`;
       const excerpt = a.excerpt || Utils.truncateText(a.content, 60);
       return `
@@ -330,12 +323,11 @@ class HomepageSectionsManager {
   }
 
   renderBentoTile(article, sizeClass) {
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const imgUrl = article.image?.url ? `${imgBase}${article.image.url}` : null;
+    const imgUrl = this.imgUrl(article.image?.url);
     const url = `/${article.category?.slug || 'article'}/${article.slug}`;
     const excerpt = article.excerpt || Utils.truncateText(article.content, 90);
     const author = article.author;
-    const photoUrl = author?.photo?.url ? `${imgBase}${author.photo.url}` : null;
+    const photoUrl = this.imgUrl(author?.photo?.url);
     const isLarge = sizeClass === 'bento-1' || sizeClass === 'bento-5';
 
     const avatarHtml = author ? `
@@ -364,8 +356,181 @@ class HomepageSectionsManager {
   }
 
   /**
+   * Render Article Modal Section — hero slider (left) + list (right)
+   * Hero: full image + floating white card overlay with prev/next cycling
+   * List: thumbnail + author/date source row + title + category·readtime
+   */
+  renderArticleModalSection(section, articles, bgClass, index, category) {
+    const categoryUrl  = category?.slug ? `/${category.slug}` : '#';
+    const sectionTitle = category?.displayname || category?.name || 'Insights';
+    const buttonText   = section.buttonText || `View All ${sectionTitle}`;
+    const sliderId     = `am-slider-${index}`;
+    const slides       = articles.slice(0, 4);
+
+    const makeAvatar = (author, cls) => {
+      if (!author) return '';
+      const photo = author.photo?.url ? this.imgUrl(author.photo.url) : null;
+      return photo
+        ? `<img loading="lazy" src="${photo}" alt="${author.name}" class="${cls} ${cls}-img">`
+        : `<div class="${cls} ${cls}-initial">${(author.name || 'F').charAt(0).toUpperCase()}</div>`;
+    };
+
+    // ── Hero slides ──────────────────────────────────────────────
+    const slidesHtml = slides.map((a, i) => {
+      const url      = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const imgUrl   = this.imgUrl(a.image?.url);
+      const author   = a.author;
+      const readTime = a.minutesToread || Utils.calculateReadingTime(a.content) || 3;
+      const date     = Utils.formatDate(a.publishedDate);
+      const excerpt  = a.excerpt || Utils.truncateText(a.content, 110);
+
+      return `
+        <div class="am-slide${i === 0 ? ' am-slide-active' : ''}">
+          <a href="${url}" class="am-slide-bg" tabindex="-1" aria-hidden="true">
+            ${imgUrl
+              ? `<img loading="${i === 0 ? 'eager' : 'lazy'}" src="${imgUrl}" alt="${a.title}" class="am-slide-img">`
+              : '<div class="am-slide-no-img"></div>'}
+          </a>
+          <div class="am-hero-card">
+            <div class="am-source-row">
+              ${makeAvatar(author, 'am-source-avatar')}
+              ${author?.name ? `<span class="am-source-name">${author.name}</span>` : ''}
+              <span class="am-source-sep">·</span>
+              <span class="am-source-time">${date}</span>
+            </div>
+            <a href="${url}" class="am-hero-card-link">
+              <h3 class="am-hero-title">${a.title}</h3>
+            </a>
+            ${excerpt ? `<p class="am-hero-excerpt">${excerpt}</p>` : ''}
+            <div class="am-hero-footer">
+              <span class="am-hero-readtime">${readTime} min read</span>
+              ${slides.length > 1 ? `
+              <div class="am-nav">
+                <button class="am-nav-btn am-nav-prev" aria-label="Previous">&#8249;</button>
+                <button class="am-nav-btn am-nav-next" aria-label="Next">&#8250;</button>
+              </div>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // ── Right list ───────────────────────────────────────────────
+    const listHtml = slides.map(a => {
+      const url      = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const imgUrl   = this.imgUrl(a.image?.url);
+      const author   = a.author;
+      const catName  = a.category?.name || sectionTitle;
+      const catSlug  = a.category?.slug || category?.slug || '#';
+      const readTime = a.minutesToread || Utils.calculateReadingTime(a.content) || 3;
+      const date     = Utils.formatDate(a.publishedDate);
+
+      return `
+        <a href="${url}" class="am-list-item">
+          <div class="am-list-thumb">
+            ${imgUrl
+              ? `<img loading="lazy" src="${imgUrl}" alt="${a.title}">`
+              : '<div class="am-list-no-img"></div>'}
+          </div>
+          <div class="am-list-body">
+            <h4 class="am-list-title">${a.title}</h4>
+            <div class="am-list-source">
+              ${makeAvatar(author, 'am-list-avatar')}
+              ${author?.name ? `<span class="am-list-author">${author.name}</span><span class="am-list-sep">·</span>` : ''}
+              <span class="am-list-time">${date}</span>
+              <span class="am-list-sep">·</span>
+              <span class="am-list-read">${readTime} min read</span>
+            </div>
+          </div>
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="content-section am-section section-${index + 1} ${bgClass}">
+        <div class="container">
+          <div class="hp-section-header">
+            <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
+          </div>
+          <div class="am-layout">
+            <div class="am-hero-slider" id="${sliderId}" data-total="${slides.length}">
+              ${slidesHtml}
+            </div>
+            <div class="am-list">${listHtml}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /** Init prev/next cycling on all article-modal hero sliders */
+  initArticleModalSliders() {
+    document.querySelectorAll('.am-hero-slider').forEach(slider => {
+      const total = parseInt(slider.dataset.total, 10);
+      if (total < 2) return;
+      let current = 0;
+
+      const goTo = (n) => {
+        slider.querySelectorAll('.am-slide').forEach((s, i) => {
+          s.classList.toggle('am-slide-active', i === n);
+        });
+        current = n;
+      };
+
+      slider.addEventListener('click', e => {
+        if (e.target.closest('.am-nav-next')) goTo((current + 1) % total);
+        else if (e.target.closest('.am-nav-prev')) goTo((current - 1 + total) % total);
+      });
+    });
+  }
+
+
+  /**
+   * Digest — numbered editorial list (01 – 05)
+   * Used for sectionStyle: 'digest' (e.g. Taxation)
+   */
+  renderDigestSection(section, articles, bgClass, index, category) {
+    const categoryUrl  = category?.slug ? `/${category.slug}` : '#';
+    const sectionTitle = category?.displayname || category?.name || 'Articles';
+
+    const items = articles.slice(0, 5).map((a, i) => {
+      const url      = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const imgUrl   = this.imgUrl(a.image?.url);
+      const author   = a.author?.name || '';
+      const read     = a.minutesToread || Utils.calculateReadingTime(a.content) || 3;
+      const date     = Utils.formatDate(a.publishedDate);
+      const num      = String(i + 1).padStart(2, '0');
+      const excerpt  = a.excerpt || Utils.truncateText(a.content, 80);
+      return `
+        <a href="${url}" class="dg-item">
+          <div class="dg-number">${num}</div>
+          <div class="dg-body">
+            <h4 class="dg-title">${a.title}</h4>
+            ${excerpt ? `<p class="dg-excerpt">${excerpt}</p>` : ''}
+            <div class="dg-meta">
+              ${author ? `<span class="dg-author">${author}</span><span class="dg-sep">·</span>` : ''}
+              <span>${date}</span>
+              <span class="dg-sep">·</span>
+              <span>${read} min read</span>
+            </div>
+          </div>
+          <div class="dg-thumb">
+            ${imgUrl ? `<img loading="lazy" src="${imgUrl}" alt="${a.title}">` : '<div class="dg-no-img"></div>'}
+          </div>
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="content-section dg-section section-${index + 1} ${bgClass}">
+        <div class="container">
+          <div class="hp-section-header">
+            <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
+          </div>
+          <div class="dg-list">${items}</div>
+        </div>
+      </div>`;
+  }
+
+  /**
    * Render Carousel Section (native CSS horizontal scroll, 4 visible)
-   * Used for both 'featured-banner' and 'calculator-grid' section styles.
+   * Used for both 'scroll-row' and 'calculator-grid' section styles.
    */
   renderCarouselSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';

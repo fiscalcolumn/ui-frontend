@@ -77,9 +77,7 @@ class AuthorsListManager {
     const designation = author.designation || '';
     const count = author.articleCount || 0;
     const initial = name.charAt(0).toUpperCase();
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const photoUrl = author.photo?.url ? `${imgBase}${author.photo.url}` : null;
-
+    const photoUrl = Utils.resolveImgUrl(author.photo?.url);
     const colors = ['#c0392b', '#0d7fa8', '#2e7d32', '#6a1b9a', '#bf360c', '#004d40', '#b8860b'];
     const colorIndex = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) % colors.length;
     const fill = colors[colorIndex];

@@ -363,10 +363,9 @@ class CategoryPageManager {
   }
 
   rcAuthorHtml(article) {
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
     const author = article.author;
     if (!author) return '';
-    const photoUrl = author.photo?.url ? `${imgBase}${author.photo.url}` : null;
+    const photoUrl = Utils.resolveImgUrl(author.photo?.url);
     const initial = (author.name || 'A').charAt(0).toUpperCase();
     const avatar = photoUrl
       ? `<img loading="lazy" src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
@@ -380,8 +379,7 @@ class CategoryPageManager {
   }
 
   rcImageUrl(article) {
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    return article.image?.url ? `${imgBase}${article.image.url}` : null;
+    return Utils.resolveImgUrl(article.image?.url);
   }
 
   rcArticleUrl(article) {
@@ -571,8 +569,8 @@ class CategoryPageManager {
 
     // Use categoryImage if available, otherwise fallback
     const categoryImageUrl = this.category.categoryImage?.url;
-    const ogImage = categoryImageUrl 
-      ? `${API_CONFIG.BASE_URL}${categoryImageUrl}`
+    const ogImage = categoryImageUrl
+      ? Utils.resolveImgUrl(categoryImageUrl)
       : `${window.location.origin}/images/og-category.jpg`;
 
     // Open Graph Tags
@@ -750,7 +748,7 @@ class CategoryPageManager {
     const categoryName = article.category?.name || this.category?.name || '';
     const initial = categoryName.charAt(0).toUpperCase() || article.title.charAt(0).toUpperCase();
     const imageHtml = hasImage
-      ? `<div class="featured-image"><img loading="lazy" src="${API_CONFIG.BASE_URL}${imageUrl}" alt="${article.title}"></div>`
+      ? `<div class="featured-image"><img loading="lazy" src="${Utils.resolveImgUrl(imageUrl)}" alt="${article.title}"></div>`
       : `<div class="featured-image featured-image--placeholder">
            <div class="featured-placeholder-inner">
              <span class="featured-placeholder-initial">${initial}</span>
@@ -791,7 +789,7 @@ class CategoryPageManager {
   renderArticleCard(article) {
     const hasImage = article.image?.url;
     const imageHtml = hasImage
-      ? `<div class="card-thumb"><img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
+      ? `<div class="card-thumb"><img loading="lazy" src="${Utils.resolveImgUrl(article.image.url)}" alt="${article.title}"></div>`
       : this.articlePlaceholder('card-thumb', article);
     
     const readTime = Utils.getReadTime(article);
@@ -877,7 +875,7 @@ class CategoryPageManager {
   renderMiniCard(article) {
     const hasImage = article.image?.url;
     const imageHtml = hasImage
-      ? `<div class="mini-card-image"><img loading="lazy" src="${API_CONFIG.BASE_URL}${article.image.url}" alt="${article.title}"></div>`
+      ? `<div class="mini-card-image"><img loading="lazy" src="${Utils.resolveImgUrl(article.image.url)}" alt="${article.title}"></div>`
       : this.articlePlaceholder('mini-card-image', article);
     
     const excerpt = article.excerpt || Utils.truncateText(article.content, 60);

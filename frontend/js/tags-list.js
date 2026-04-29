@@ -86,8 +86,7 @@ class TagsListManager {
     const palIdx = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length;
     const fallbackColor = palette[palIdx];
 
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const imageUrl = group.image?.url ? `${imgBase}${group.image.url}` : null;
+    const imageUrl = Utils.resolveImgUrl(group.image?.url);
 
     const bgStyle = imageUrl
       ? `background-image: url('${imageUrl}'); background-size: cover; background-position: center;`

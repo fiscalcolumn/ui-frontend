@@ -72,8 +72,7 @@ class AuthorPageManager {
   updateAuthorInfo() {
     const name = this.author.name || Utils.formatSlugAsTitle(this.getAuthorSlug());
     const slug = this.author.slug || this.getAuthorSlug();
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const photoUrl = this.author.photo?.url ? `${imgBase}${this.author.photo.url}` : null;
+    const photoUrl = Utils.resolveImgUrl(this.author.photo?.url);
     const bio = this.author.bio || '';
     const pageUrl = `${window.location.origin}/author/${slug}`;
     const ogImage = photoUrl || '/images/og-default.jpg';

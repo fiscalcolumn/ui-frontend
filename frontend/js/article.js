@@ -163,8 +163,8 @@ class ArticlePageManager {
     const title = this.article.title;
     const description = this.article.excerpt || Utils.truncateText(this.article.content, 160);
     const url = window.location.href;
-    const imageUrl = this.article.image?.url 
-      ? `${API_CONFIG.BASE_URL}${this.article.image.url}` 
+    const imageUrl = this.article.image?.url
+      ? Utils.resolveImgUrl(this.article.image.url)
       : `${window.location.origin}/images/default-og.jpg`;
     const author = this.article.author?.name || this.article.author || 'FiscalColumn';
     const publishDate = this.article.publishedDate;
@@ -277,7 +277,7 @@ class ArticlePageManager {
    */
   renderArticle() {
     const hasImage = this.article.image?.url;
-    const imageUrl = hasImage ? `${API_CONFIG.BASE_URL}${this.article.image.url}` : '';
+    const imageUrl = hasImage ? Utils.resolveImgUrl(this.article.image.url) : '';
     const publishDate = Utils.formatDateLong(this.article.publishedDate);
     const authorObj = this.article.author;
     const author = authorObj?.name || (typeof authorObj === 'string' ? authorObj : 'Admin');
@@ -294,7 +294,7 @@ class ArticlePageManager {
       : '';
 
     const authorInitial = author.charAt(0).toUpperCase();
-    const authorPhotoUrl = authorObj?.photo?.url ? `${window.API_CONFIG?.BASE_URL || ''}${authorObj.photo.url}` : null;
+    const authorPhotoUrl = Utils.resolveImgUrl(authorObj?.photo?.url);
     const authorAvatarSvg = authorPhotoUrl
       ? `<img loading="lazy" src="${authorPhotoUrl}" alt="${author}" class="author-avatar-img" width="32" height="32">`
       : `<svg class="author-avatar-svg" width="32" height="32" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -426,9 +426,9 @@ class ArticlePageManager {
    * Render a single sidebar article item
    */
   renderSidebarArticle(article) {
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const thumbHtml = article.image?.url
-      ? `<img loading="lazy" src="${imgBase}${article.image.url}" alt="${article.title}">`
+    const thumbUrl = Utils.resolveImgUrl(article.image?.url);
+    const thumbHtml = thumbUrl
+      ? `<img loading="lazy" src="${thumbUrl}" alt="${article.title}">`
       : '<div class="sb-article-thumb-placeholder"></div>';
     const categorySlug = article.category?.slug || 'article';
     const categoryName = article.category?.name || '';

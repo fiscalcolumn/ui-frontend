@@ -261,7 +261,7 @@ class SearchPageManager {
 
   _renderListItem(article) {
     const hasImg  = article.image?.url;
-    const imgUrl  = hasImg ? `${API_CONFIG.BASE_URL}${article.image.url}` : '';
+    const imgUrl  = hasImg ? Utils.resolveImgUrl(article.image.url) : '';
     const cat     = article.category?.name || 'Article';
     const catSlug = article.category?.slug || 'article';
     const href    = `/${catSlug}/${article.slug}`;

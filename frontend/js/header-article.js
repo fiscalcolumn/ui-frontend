@@ -27,9 +27,7 @@ async function fetchHeaderArticles() {
 /** Build author HTML (avatar + name) */
 function haAuthorHtml(author) {
   if (!author?.name) return '';
-  const photoUrl = author.photo?.url
-    ? `${getApiUrl('').replace('/api', '')}${author.photo.url}`
-    : '';
+  const photoUrl = Utils.resolveImgUrl(author.photo?.url);
   return `
     <div class="ha-author">
       ${photoUrl
@@ -44,9 +42,7 @@ function haCardHtml(article, layout = 'ha-layout-a') {
   const categorySlug = article.category?.slug || 'news';
   const categoryName = article.category?.name  || 'Latest News';
   const url          = `/${categorySlug}/${article.slug}`;
-  const imageUrl     = article.image?.url
-    ? `${getApiUrl('').replace('/api', '')}${article.image.url}`
-    : '';
+  const imageUrl     = Utils.resolveImgUrl(article.image?.url);
   const date         = article.publishedDate || article.createdAt;
   const formattedDate = date ? Utils.formatDate(date) : '';
   const readingTime  = Utils.calculateReadingTimeString(article.content || article.excerpt || '');

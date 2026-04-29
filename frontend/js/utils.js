@@ -57,10 +57,18 @@ const Utils = {
     return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   },
 
+  /** Resolve a Strapi/Cloudinary image URL — returns null if no URL */
+  resolveImgUrl(url) {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    const base = window.API_CONFIG?.BASE_URL || '';
+    return base + url;
+  },
+
   renderFeaturedArticle(article) {
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const imageHtml = article.image?.url
-      ? `<div class="featured-image"><img loading="lazy" src="${imgBase}${article.image.url}" alt="${article.title}"></div>`
+    const imgUrl = this.resolveImgUrl(article.image?.url);
+    const imageHtml = imgUrl
+      ? `<div class="featured-image"><img loading="lazy" src="${imgUrl}" alt="${article.title}"></div>`
       : '';
     const categoryName = article.category?.name || 'Article';
     const readTime = article.minutesToread || 3;
@@ -86,9 +94,9 @@ const Utils = {
   },
 
   renderArticleCard(article) {
-    const imgBase = window.API_CONFIG?.BASE_URL || '';
-    const imageHtml = article.image?.url
-      ? `<div class="article-card-thumb"><img loading="lazy" src="${imgBase}${article.image.url}" alt="${article.title}"></div>`
+    const imgUrl = this.resolveImgUrl(article.image?.url);
+    const imageHtml = imgUrl
+      ? `<div class="article-card-thumb"><img loading="lazy" src="${imgUrl}" alt="${article.title}"></div>`
       : '<div class="article-card-thumb"><div class="article-card-thumb-placeholder"></div></div>';
     const categoryName = article.category?.name || 'Article';
     const readTime = article.minutesToread || 3;

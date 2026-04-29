@@ -42,7 +42,7 @@ class StaticPageManager {
     const desc  = this.page.metaDescription || this.page.excerpt || '';
     const url   = window.location.href;
     const img   = this.page.featuredImage?.url
-      ? `${API_CONFIG.BASE_URL}${this.page.featuredImage.url}`
+      ? Utils.resolveImgUrl(this.page.featuredImage.url)
       : `${window.location.origin}/images/og-default.jpg`;
 
     document.title = `${title} | FiscalColumn`;
@@ -101,7 +101,7 @@ class StaticPageManager {
 
   pageHeader(subtitle = '') {
     const hasImage = this.page.featuredImage?.url;
-    const imageUrl = hasImage ? `${API_CONFIG.BASE_URL}${this.page.featuredImage.url}` : '';
+    const imageUrl = hasImage ? Utils.resolveImgUrl(this.page.featuredImage.url) : '';
     const desc     = subtitle || this.page.excerpt || '';
 
     const fallbackIcons = {
