@@ -483,24 +483,25 @@ class HomepageSectionsManager {
 
 
   /**
-   * Digest — numbered editorial list (01 – 05)
-   * Used for sectionStyle: 'digest' (e.g. Taxation)
+   * Digest — 2-column grid (4 rows × 2 cols = 8 articles), image + text
+   * Used for sectionStyle: 'digest'
    */
   renderDigestSection(section, articles, bgClass, index, category) {
     const categoryUrl  = category?.slug ? `/${category.slug}` : '#';
     const sectionTitle = category?.displayname || category?.name || 'Articles';
 
-    const items = articles.slice(0, 5).map((a, i) => {
-      const url      = `/${a.category?.slug || 'article'}/${a.slug}`;
-      const imgUrl   = this.imgUrl(a.image?.url);
-      const author   = a.author?.name || '';
-      const read     = a.minutesToread || Utils.calculateReadingTime(a.content) || 3;
-      const date     = Utils.formatDate(a.publishedDate);
-      const num      = String(i + 1).padStart(2, '0');
-      const excerpt  = a.excerpt || Utils.truncateText(a.content, 80);
+    const items = articles.slice(0, 8).map(a => {
+      const url     = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const imgUrl  = this.imgUrl(a.image?.url);
+      const author  = a.author?.name || '';
+      const read    = a.minutesToread || Utils.calculateReadingTime(a.content) || 3;
+      const date    = Utils.formatDate(a.publishedDate);
+      const excerpt = a.excerpt || Utils.truncateText(a.content, 70);
       return `
         <a href="${url}" class="dg-item">
-          <div class="dg-number">${num}</div>
+          <div class="dg-thumb">
+            ${imgUrl ? `<img loading="lazy" src="${imgUrl}" alt="${a.title}">` : '<div class="dg-no-img"></div>'}
+          </div>
           <div class="dg-body">
             <h4 class="dg-title">${a.title}</h4>
             ${excerpt ? `<p class="dg-excerpt">${excerpt}</p>` : ''}
@@ -510,9 +511,6 @@ class HomepageSectionsManager {
               <span class="dg-sep">·</span>
               <span>${read} min read</span>
             </div>
-          </div>
-          <div class="dg-thumb">
-            ${imgUrl ? `<img loading="lazy" src="${imgUrl}" alt="${a.title}">` : '<div class="dg-no-img"></div>'}
           </div>
         </a>`;
     }).join('');
