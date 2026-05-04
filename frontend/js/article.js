@@ -43,13 +43,17 @@ class ArticlePageManager {
         this.article.views = (this.article.views || 0) + 1;
       }
 
-      // Fetch related articles from the same category (after we know the category)
-      const relatedArticles = await this.fetchRelatedArticles();
+      // Fetch related articles and metal rates in parallel
+      const [relatedArticles, metalRates] = await Promise.all([
+        this.fetchRelatedArticles(),
+        this.fetchMetalRates(),
+      ]);
 
       // Update page
       this.updatePageMeta();
       this.renderArticle();
       this.renderSidebar(latestArticles, relatedArticles, tags);
+      this.renderMetalRateTiles(metalRates);
 
     } catch (error) {
       console.error('Error loading article:', error);
@@ -453,6 +457,111 @@ class ArticlePageManager {
         </div>
       </div>
     `;
+  }
+
+  /**
+   * Fetch today's and yesterday's gold + silver rates
+   */
+  async fetchMetalRates() {
+    try {
+      const url = getApiUrl('/daily-rates?sort=date:desc&pagination[limit]=6&populate=*');
+      const res  = await fetch(url);
+      if (!res.ok) return null;
+      const json = await res.json();
+      const rows = json.data || [];
+
+      const pick = (metalName) => {
+        const mine = rows.filter(r => r.metal?.name === metalName);
+        const byDate = {};
+        mine.forEach(r => { if (!byDate[r.date]) byDate[r.date] = r; });
+        const dates = Object.keys(byDate).sort().reverse();
+        return { today: byDate[dates[0]] || null, yesterday: byDate[dates[1]] || null };
+      };
+
+      return { gold: pick('Gold'), silver: pick('Silver') };
+    } catch { return null; }
+  }
+
+  /**
+   * Render gold + silver rate tiles below the sidebar
+   */
+  renderMetalRateTiles(rates) {
+    if (!rates) return;
+
+    const fmt = (n) => n != null
+      ? '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 })
+      : '—';
+
+    const tile = ({ metal, icon, color, colorLight, pageSlug, todayRate, yesterdayRate, displayRate, displayLabel, perLabel }) => {
+      const today     = todayRate?.buyingRate ?? null;
+      const yesterday = yesterdayRate?.buyingRate ?? null;
+      const change    = (today != null && yesterday != null) ? today - yesterday : null;
+      const pct       = (change != null && yesterday) ? ((change / yesterday) * 100).toFixed(2) : null;
+      const up        = change != null && change >= 0;
+      const arrow     = change == null ? '' : (up ? '▲' : '▼');
+      const changeClass = change == null ? '' : (up ? 'mr-tile-up' : 'mr-tile-down');
+      const dateStr   = todayRate?.date
+        ? new Date(todayRate.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+        : '';
+
+      return `
+        <a href="/${pageSlug}" class="mr-tile" style="--mr-color:${color};--mr-light:${colorLight}">
+          <div class="mr-tile-left">
+            <span class="mr-tile-icon">${icon}</span>
+            <div class="mr-tile-labels">
+              <span class="mr-tile-name">${metal}</span>
+              <span class="mr-tile-purity">${displayLabel}</span>
+            </div>
+          </div>
+          <div class="mr-tile-right">
+            <div class="mr-tile-rate">${fmt(displayRate)}</div>
+            <div class="mr-tile-meta">
+              <span class="mr-tile-per">${perLabel}</span>
+              ${dateStr ? `<span class="mr-tile-date">${dateStr}</span>` : ''}
+              ${change != null ? `<span class="mr-tile-change ${changeClass}">${arrow} ${fmt(Math.abs(change))} <span class="mr-tile-pct">(${pct}%)</span></span>` : ''}
+            </div>
+          </div>
+        </a>`;
+    };
+
+    const goldToday = rates.gold?.today;
+    const goldYest  = rates.gold?.yesterday;
+    const silvToday = rates.silver?.today;
+    const silvYest  = rates.silver?.yesterday;
+
+    // Gold: buyingRate is per 10g → show per gram
+    const goldPerGram = goldToday?.buyingRate != null ? goldToday.buyingRate / 10 : null;
+
+    // Silver: buyingRate is per kg → show per 10g
+    const silvPer10g = silvToday?.buyingRate != null ? silvToday.buyingRate / 100 : null;
+
+    const goldTile = tile({
+      metal: 'Gold', icon: '🥇', color: '#b8860b', colorLight: 'rgba(212,160,23,0.08)',
+      pageSlug: 'gold-rate',
+      todayRate: goldToday ? { ...goldToday, buyingRate: goldToday.buyingRate / 10 } : null,
+      yesterdayRate: goldYest ? { ...goldYest, buyingRate: goldYest.buyingRate / 10 } : null,
+      displayRate: goldPerGram,
+      displayLabel: '24K / 999',
+      perLabel: 'per gram',
+    });
+
+    const silverTile = tile({
+      metal: 'Silver', icon: '🥈', color: '#6b7280', colorLight: 'rgba(107,114,128,0.08)',
+      pageSlug: 'silver-rate',
+      todayRate: silvToday ? { ...silvToday, buyingRate: silvToday.buyingRate / 100 } : null,
+      yesterdayRate: silvYest ? { ...silvYest, buyingRate: silvYest.buyingRate / 100 } : null,
+      displayRate: silvPer10g,
+      displayLabel: '999 Fine',
+      perLabel: 'per 10g',
+    });
+
+    const html = `
+      <div class="sidebar-section mr-rates-section">
+        <h3 class="sb-section-title">Today's Rates</h3>
+        <div class="mr-tiles">${goldTile}${silverTile}</div>
+      </div>`;
+
+    this.sidebarContainer.innerHTML += html;
   }
 
   /**

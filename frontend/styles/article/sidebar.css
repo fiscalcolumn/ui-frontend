@@ -2,9 +2,6 @@
  * Article Page — Sidebar
  */
 
-.article-sidebar {
-  
-}
 
 /* ── Section ─────────────────────────────────────────────────────── */
 .sidebar-section {
@@ -174,6 +171,116 @@
 .dark-mode .sb-article-thumb-placeholder { background: #374151; }
 .dark-mode .sidebar-tag         { background: #1e2533; border-color: #2d3748; color: #a0aec0; }
 .dark-mode .sidebar-tag:hover   { background: #2b6cb0; border-color: #2b6cb0; color: #fff; }
+
+/* ── Metal Rate Tiles ────────────────────────────────────────────── */
+.mr-rates-section { margin-top: 8px; }
+
+.mr-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mr-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--mr-light);
+  border: 1.5px solid color-mix(in srgb, var(--mr-color) 25%, transparent);
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+.mr-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--mr-color) 20%, transparent);
+  border-color: var(--mr-color);
+  text-decoration: none;
+}
+
+/* Left: icon + name/purity */
+.mr-tile-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.mr-tile-icon { font-size: 1.5rem; line-height: 1; }
+
+.mr-tile-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mr-tile-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--mr-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+.mr-tile-purity {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #aaa;
+  letter-spacing: 0.02em;
+}
+
+/* Right: big price + meta row */
+.mr-tile-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.mr-tile-rate {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.mr-tile-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.mr-tile-per {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.mr-tile-date {
+  font-size: 0.62rem;
+  color: #ccc;
+  font-weight: 500;
+}
+.mr-tile-date::before { content: '·'; margin-right: 3px; }
+
+.mr-tile-change {
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+.mr-tile-up   { color: #16a34a; }
+.mr-tile-down { color: #dc2626; }
+.mr-tile-pct  { font-weight: 600; opacity: 0.85; }
+
+/* ── Dark Mode — Rate Tiles ──────────────────────────────────────── */
+.dark-mode .mr-tile          { border-color: color-mix(in srgb, var(--mr-color) 30%, transparent); }
+.dark-mode .mr-tile-rate     { color: #e2e8f0; }
+.dark-mode .mr-tile-purity   { color: #718096; }
+.dark-mode .mr-tile-per      { color: #718096; }
+.dark-mode .mr-tile-date     { color: #4a5568; }
+.dark-mode .mr-tile-up       { color: #4ade80; }
+.dark-mode .mr-tile-down     { color: #f87171; }
 
 /* ── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 992px) {
