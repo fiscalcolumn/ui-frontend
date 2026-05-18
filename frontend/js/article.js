@@ -339,16 +339,14 @@ class ArticlePageManager {
       <div class="article-tags-share-bar">
         ${tagsHtml ? `
         <div class="article-tags-footer">
-          <span class="tags-label">Tags:</span>
           ${tagsHtml}
         </div>` : '<div></div>'}
         <div class="article-share">
-          <span class="share-label">Share:</span>
           <div class="share-buttons">
-            <a href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" class="share-btn"><i class="fa fa-facebook"></i></a>
-            <a href="https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}" target="_blank" class="share-btn"><i class="fa fa-twitter"></i></a>
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}" target="_blank" class="share-btn"><i class="fa fa-linkedin"></i></a>
-            <a href="mailto:?subject=${shareTitle}&body=${shareUrl}" class="share-btn"><i class="fa fa-envelope"></i></a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" rel="noopener noreferrer" aria-label="facebook" class="share-btn"><i class="fa fa-facebook"></i></a>
+            <a href="https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}" target="_blank" rel="noopener noreferrer" aria-label="twitter" class="share-btn"><i class="fa fa-twitter"></i></a>
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareTitle}" target="_blank" rel="noopener noreferrer" aria-label="linkedin" class="share-btn"><i class="fa fa-linkedin"></i></a>
+            <a href="mailto:?subject=${shareTitle}&body=${shareUrl}" aria-label="email" class="share-btn"><i class="fa fa-envelope"></i></a>
           </div>
         </div>
       </div>
@@ -537,7 +535,7 @@ class ArticlePageManager {
 
     const goldTile = tile({
       metal: 'Gold', icon: '🥇', color: '#b8860b', colorLight: 'rgba(212,160,23,0.08)',
-      pageSlug: 'gold-rate',
+      pageSlug: 'gold-rate-today',
       todayRate: goldToday ? { ...goldToday, buyingRate: goldToday.buyingRate / 10 } : null,
       yesterdayRate: goldYest ? { ...goldYest, buyingRate: goldYest.buyingRate / 10 } : null,
       displayRate: goldPerGram,
@@ -547,7 +545,7 @@ class ArticlePageManager {
 
     const silverTile = tile({
       metal: 'Silver', icon: '🥈', color: '#6b7280', colorLight: 'rgba(107,114,128,0.08)',
-      pageSlug: 'silver-rate',
+      pageSlug: 'silver-rate-today',
       todayRate: silvToday ? { ...silvToday, buyingRate: silvToday.buyingRate / 100 } : null,
       yesterdayRate: silvYest ? { ...silvYest, buyingRate: silvYest.buyingRate / 100 } : null,
       displayRate: silvPer10g,

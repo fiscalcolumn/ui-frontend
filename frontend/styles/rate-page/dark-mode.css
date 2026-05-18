@@ -110,9 +110,17 @@
 
 /* ── Dark mode: Articles Layout A (shared classes handle their own dark mode) ── */
 
-/* ── Dark mode: Cities ── */
-.dark-mode .rp-cities-label { color: var(--text-primary); }
-.dark-mode .rp-city-pipe    { color: #444; }
-.dark-mode .rp-city-link    { color: var(--text-secondary); }
-.dark-mode .rp-city-link:hover,
-.dark-mode .rp-city-link--active { color: var(--mc, #D4A017); }
+/* ── Dark mode: City Finder ── */
+.dark-mode .rp-popular-label { color: var(--text-muted); }
+
+.dark-mode .rp-city-grid { border-top-color: var(--border-color); }
+.dark-mode .rp-cgrid-item {
+  color: var(--text-secondary);
+  border-bottom-color: var(--border-color);
+}
+.dark-mode .rp-cgrid-item:hover      { color: var(--mc, #D4A017); }
+.dark-mode .rp-cgrid-item--active    { color: var(--mc, #D4A017); }
+
+.dark-mode .rp-cf-divider       { color: var(--text-muted); }
+.dark-mode .rp-cf-divider::before,
+.dark-mode .rp-cf-divider::after { background: var(--border-color); }

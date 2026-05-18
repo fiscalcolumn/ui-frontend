@@ -54,6 +54,21 @@ const METAL_CONFIG = {
   },
 };
 
+const POPULAR_CITIES = [
+  { name: 'Mumbai',     slug: 'mumbai'     },
+  { name: 'New Delhi',  slug: 'new-delhi'  },
+  { name: 'Bengaluru',  slug: 'bengaluru'  },
+  { name: 'Chennai',    slug: 'chennai'    },
+  { name: 'Hyderabad',  slug: 'hyderabad'  },
+  { name: 'Kolkata',    slug: 'kolkata'    },
+  { name: 'Pune',       slug: 'pune'       },
+  { name: 'Ahmedabad',  slug: 'ahmedabad'  },
+  { name: 'Jaipur',     slug: 'jaipur'     },
+  { name: 'Lucknow',    slug: 'lucknow'    },
+  { name: 'Chandigarh', slug: 'chandigarh' },
+  { name: 'Surat',      slug: 'surat'      },
+];
+
 // Escapes a value for safe insertion into HTML text content and attributes
 const esc = s => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -416,17 +431,18 @@ class RatePageManager {
         </div>
       </div>
 
-      <!-- Section 4 (alt bg): Articles carousel -->
+      <!-- Section 4 (alt bg): Articles carousel — omitted if no articles loaded -->
+      ${this.articles.length ? `
       <div class="rp-section rp-section--alt">
         <div class="container">
           ${this.renderArticlesSection()}
         </div>
-      </div>
+      </div>` : ''}
 
-      <!-- Section 5: Cities -->
+      <!-- Section 5: City Finder -->
       <div class="rp-section">
         <div class="container">
-          ${this.renderCitiesSection()}
+          ${this.renderCityFinderSection()}
         </div>
       </div>
     `;
@@ -473,30 +489,47 @@ class RatePageManager {
       <div class="hp-carousel">${cards}</div>`;
   }
 
-  // ── Cities Grid ───────────────────────────────────────────────────────────────
-  renderCitiesSection() {
-    if (!this.cities.length) return '';
+  // ── City Finder ───────────────────────────────────────────────────────────────
+  renderCityFinderSection() {
     const metal    = this.metal.name.toLowerCase();
     const basePath = `/${metal}-rate-today`;
-    const PER_ROW  = 10;
 
-    const items = this.cities.map(c => {
-      const slug     = c.slug || c.name.toLowerCase().replace(/\s+/g, '-');
-      const isActive = this.citySlug === slug;
-      return `<a href="${basePath}/${esc(slug)}" class="rp-city-link${isActive ? ' rp-city-link--active' : ''}">${esc(c.name).toUpperCase()}</a>`;
-    });
+    const popularChips = POPULAR_CITIES.map(c => {
+      const isActive = this.citySlug === c.slug;
+      return `<a href="${basePath}/${c.slug}" class="rp-cgrid-item${isActive ? ' rp-cgrid-item--active' : ''}">${esc(c.name)}</a>`;
+    }).join('');
 
-    const rows = [];
-    for (let i = 0; i < items.length; i += PER_ROW) {
-      rows.push(items.slice(i, i + PER_ROW).join('<span class="rp-city-pipe">|</span>'));
-    }
+    const stateOpts = this.states.length
+      ? this.states.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')
+      : '<option disabled>No states available</option>';
 
     return `
-      <div class="rp-cities-section">
-        <div class="rp-cities-header">
-          <span class="rp-cities-label"><i class="fa fa-map-marker"></i> ${this.metal.name.toUpperCase()} RATE BY CITY</span>
+      <div class="rp-city-finder">
+        <h2 class="rp-section-title"><i class="fa fa-map-marker"></i> ${this.metal.name} Rate by City</h2>
+
+        <span class="rp-popular-label">Popular Cities</span>
+        <div class="rp-city-grid">${popularChips}</div>
+
+        <div class="rp-cf-divider"><span>or find your city</span></div>
+
+        <div class="rp-cf-row">
+          <div class="rp-select-wrap">
+            <label>State</label>
+            <select class="rp-select" id="rp-cf-state">
+              <option value="">Select State</option>
+              ${stateOpts}
+            </select>
+          </div>
+          <div class="rp-select-wrap">
+            <label>City</label>
+            <select class="rp-select" id="rp-cf-city" disabled>
+              <option value="">Select State first</option>
+            </select>
+          </div>
+          <button class="rp-cf-btn" id="rp-cf-go" disabled>
+            View Rate <i class="fa fa-arrow-right"></i>
+          </button>
         </div>
-        ${rows.map(r => `<div class="rp-cities-row">${r}</div>`).join('')}
       </div>`;
   }
 
@@ -834,10 +867,52 @@ class RatePageManager {
     });
   }
 
+  // ── City Finder ──────────────────────────────────────────────────────────────
+  bindCityFinder() {
+    const stateEl = document.getElementById('rp-cf-state');
+    const cityEl  = document.getElementById('rp-cf-city');
+    const goBtn   = document.getElementById('rp-cf-go');
+    if (!stateEl) return;
+
+    const basePath = `/${this.metal.name.toLowerCase()}-rate-today`;
+
+    stateEl.addEventListener('change', async () => {
+      const stateName = stateEl.value;
+      cityEl.innerHTML = '<option>Loading…</option>';
+      cityEl.disabled  = true;
+      goBtn.disabled   = true;
+
+      if (!stateName) {
+        cityEl.innerHTML = '<option value="">Select State first</option>';
+        return;
+      }
+
+      const cities = await this.fetchCitiesForState(stateName);
+      if (cities.length > 0) {
+        cityEl.innerHTML = `<option value="">Select City</option>` +
+          cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+        cityEl.disabled = false;
+      } else {
+        cityEl.innerHTML = '<option value="">No cities found</option>';
+      }
+    });
+
+    cityEl.addEventListener('change', () => {
+      goBtn.disabled = !cityEl.value;
+    });
+
+    goBtn.addEventListener('click', () => {
+      if (!cityEl.value) return;
+      const slug = cityEl.value.toLowerCase().replace(/\s+/g, '-');
+      window.location.href = `${basePath}/${slug}`;
+    });
+  }
+
   bindEvents() {
     this.bindPurityTabs();
     this.bindRangeButtons();
     this.bindLocationSelectors();
+    this.bindCityFinder();
     setTimeout(() => this.renderChart(), 100);
   }
 

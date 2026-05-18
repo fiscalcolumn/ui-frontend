@@ -262,7 +262,7 @@ a.meta-author:hover {
   border-radius: 4px;
 }
 
-/* Tags in Footer */
+/* Tags bar */
 .article-tags-footer {
   display: flex;
   align-items: center;
@@ -274,12 +274,6 @@ a.meta-author:hover {
   font-size: 1rem;
   line-height: 1;
 }
-.tags-label {
-  font-size: 1rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: #333;
-}
 .article-tags-footer a {
   color: #555;
   font-size: 0.85rem;
@@ -287,44 +281,33 @@ a.meta-author:hover {
   text-decoration: none;
   transition: color 0.2s;
 }
-.article-tags-footer a:hover {
-  color: #14bdee;
-}
+.article-tags-footer a:hover { color: #14bdee; }
 
-/* Share in Footer */
-.article-share {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-.share-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-  text-transform: uppercase;
-}
+/* Share buttons */
+.article-share { flex-shrink: 0; }
 .share-buttons {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 .share-btn {
-  width: 45px;
-  height: 45px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  color: #03492b;
-  background: transparent;
+  border-radius: 6px;
+  color: #fff;
   text-decoration: none;
-  transition: all 0.2s ease;
-  font-size: 1.5rem;
+  font-size: 1.1rem;
+  transition: transform 0.18s ease, opacity 0.18s ease;
 }
-.share-btn:hover {
-  color: #14bdee;
-  text-decoration: none;
-}
+.share-btn:hover { transform: translateY(-2px); opacity: 0.88; text-decoration: none; }
+
+/* Brand colors */
+.share-btn[aria-label="facebook"] { background: #1877F2; }
+.share-btn[aria-label="twitter"]  { background: #000000; }
+.share-btn[aria-label="linkedin"] { background: #0A66C2; }
+.share-btn[aria-label="email"]    { background: #6b7280; }
 
 /* Article Ad Placeholder (Below Share) */
 .article-ad-placeholder {

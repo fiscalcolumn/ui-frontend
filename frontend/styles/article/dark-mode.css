@@ -85,22 +85,10 @@
 }
 
 /* Tags & Share bar */
-.dark-mode .tags-label,
-.dark-mode .share-label {
-  color: var(--text-primary);
-}
-.dark-mode .article-tags-footer a {
-  color: var(--text-secondary);
-}
-.dark-mode .article-tags-footer a:hover {
-  color: #f0f0f0;
-}
-.dark-mode .share-btn {
-  color: var(--text-secondary);
-}
-.dark-mode .share-btn:hover {
-  color: #f0f0f0;
-}
+.dark-mode .article-tags-footer a       { color: var(--text-secondary); }
+.dark-mode .article-tags-footer a:hover { color: #f0f0f0; }
+.dark-mode .share-btn { opacity: 0.9; }
+.dark-mode .share-btn:hover { opacity: 1; transform: translateY(-2px); }
 
 /* Sidebar — dark mode overrides live in sidebar.css */
 .dark-mode .article-sidebar {
