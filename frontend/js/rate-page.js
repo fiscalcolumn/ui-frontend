@@ -45,14 +45,19 @@ const METAL_CONFIG = {
       { label: '800', ratio: 800/999,   desc: '80.0% German'   },
     ],
     weights: [
-      { label: '1 Gram',   mult: 0.001  },
-      { label: '10 Gram',  mult: 0.01   },
-      { label: '100 Gram', mult: 0.1    },
+      { label: '1 Gram',   mult: 0.001   },
+      { label: '10 Gram',  mult: 0.01    },
+      { label: '100 Gram', mult: 0.1     },
       { label: '1 Tola',   mult: 0.01166 },
       { label: '1 Ounce',  mult: 0.0311  },
     ],
   },
 };
+
+// Escapes a value for safe insertion into HTML text content and attributes
+const esc = s => String(s ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 class RatePageManager {
   constructor() {
@@ -77,6 +82,8 @@ class RatePageManager {
       ? this.citySlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
       : null;
   }
+
+  get isGold() { return this.metal.name === 'Gold'; }
 
   // ── Boot ────────────────────────────────────────────────────────────────────
   async init() {
@@ -105,10 +112,37 @@ class RatePageManager {
       this.mainEl.innerHTML = `<div class="rp-error">
         <i class="fa fa-exclamation-circle"></i>
         <h2>Could not load rate data</h2>
-        <p>${err.message}</p>
+        <p>${esc(err.message)}</p>
         <a href="/" class="rp-btn">Go to Homepage</a>
       </div>`;
     }
+  }
+
+  // ── API helpers ──────────────────────────────────────────────────────────────
+
+  // Fetches a single Strapi endpoint, returning json.data or fallback on any error.
+  async apiFetch(path, fallback = []) {
+    try {
+      const res = await fetch(getApiUrl(path));
+      if (!res.ok) return fallback;
+      const json = await res.json();
+      return json.data ?? fallback;
+    } catch { return fallback; }
+  }
+
+  // Walks all pagination pages for a given base path, returning a flat array of all records.
+  async fetchAllPages(basePath) {
+    const allRows = [];
+    let page = 1, hasMore = true;
+    while (hasMore) {
+      const res  = await fetch(getApiUrl(`${basePath}&pagination[page]=${page}&pagination[pageSize]=100`));
+      const json = await res.json();
+      allRows.push(...(json.data || []));
+      const pag = json.meta?.pagination;
+      hasMore = pag ? page < pag.pageCount : false;
+      page++;
+    }
+    return allRows;
   }
 
   // ── API ──────────────────────────────────────────────────────────────────────
@@ -119,7 +153,7 @@ class RatePageManager {
    * (Strapi v5 deep relation filter is broken for oneToOne — silently returns all records.)
    */
   async fetchLatestRates() {
-    const url = getApiUrl(`/daily-rates?sort=date:desc&pagination[limit]=4&populate=*`);
+    const url  = getApiUrl(`/daily-rates?sort=date:desc&pagination[limit]=4&populate=*`);
     const res  = await fetch(url);
     const json = await res.json();
     const mine = (json.data || []).filter(r => r.metal?.name === this.metal.name);
@@ -138,47 +172,24 @@ class RatePageManager {
    *   - Gold (per 10g) is ALWAYS the lower-priced record in INR.
    *   - Silver (per kg) is ALWAYS the higher-priced record in INR.
    * This is validated by the seeded data across the full 2016-2026 range.
-   * Only fetch the range needed for the current activeRange button (lazy-load).
    */
   async fetchHistoricalRange(days) {
     const fromDate = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
-
-    // Return from cache if already loaded far enough back
     if (this.allRates.length > 0 && this.allRates[0].date <= fromDate) return;
 
-    this.allRates = [];
-    let page = 1, hasMore = true;
+    const rows = await this.fetchAllPages(
+      `/daily-rates?filters[date][$gte]=${fromDate}&sort=date:asc`
+    );
 
-    while (hasMore) {
-      const url = getApiUrl(
-        `/daily-rates?filters[date][$gte]=${fromDate}` +
-        `&sort=date:asc&pagination[page]=${page}&pagination[pageSize]=100`
-      );
-      const res  = await fetch(url);
-      const json = await res.json();
-      const rows = json.data || [];
+    // Group by date, pick correct metal by price rank
+    const byDate = {};
+    rows.forEach(r => { (byDate[r.date] ??= []).push(r); });
 
-      // Group this page by date, pick the correct metal by price rank
-      const byDate = {};
-      rows.forEach(r => {
-        if (!byDate[r.date]) byDate[r.date] = [];
-        byDate[r.date].push(r);
-      });
-
-      Object.keys(byDate).sort().forEach(date => {
-        const recs = byDate[date].sort((a, b) => a.buyingRate - b.buyingRate);
-        // Gold = lowest price (per 10g); Silver = highest price (per kg)
-        const rec = this.metal.name === 'Gold' ? recs[0] : recs[recs.length - 1];
-        if (rec) this.allRates.push({ date, buyingRate: parseFloat(rec.buyingRate) });
-      });
-
-      const pag = json.meta?.pagination;
-      hasMore = pag ? page < pag.pageCount : false;
-      page++;
-    }
-
-    // Ensure chronological order
-    this.allRates.sort((a, b) => a.date.localeCompare(b.date));
+    this.allRates = Object.keys(byDate).sort().map(date => {
+      const sorted = byDate[date].sort((a, b) => a.buyingRate - b.buyingRate);
+      const rec    = this.isGold ? sorted[0] : sorted[sorted.length - 1];
+      return rec ? { date, buyingRate: parseFloat(rec.buyingRate) } : null;
+    }).filter(Boolean);
   }
 
   rangeDays() {
@@ -186,92 +197,57 @@ class RatePageManager {
   }
 
   async fetchStates() {
-    try {
-      const url = getApiUrl('/states?sort=name:asc&pagination[pageSize]=100');
-      const res  = await fetch(url);
-      if (!res.ok) { this.states = []; return; }
-      const json = await res.json();
-      this.states = (json.data || []).map(s => s.name || s.attributes?.name).filter(Boolean);
-    } catch { this.states = []; }
+    const data  = await this.apiFetch('/states?sort=name:asc&pagination[pageSize]=100');
+    this.states = data.map(s => s.name || s.attributes?.name).filter(Boolean);
   }
 
   async fetchTaxes() {
-    try {
-      const url = getApiUrl(
-        `/metal-taxes?filters[metal][name][$eq]=${this.metal.name}` +
-        `&filters[isActive][$eq]=true&sort=displayOrder:asc` +
-        `&pagination[pageSize]=20&populate[metal]=true`
-      );
-      const res  = await fetch(url);
-      if (!res.ok) { this.taxes = []; return; }
-      const json = await res.json();
-      // Filter client-side too (Strapi v5 deep filter may not work for manyToOne)
-      this.taxes = (json.data || []).filter(t =>
-        !t.metal || t.metal.name === this.metal.name
-      );
-    } catch { this.taxes = []; }
+    const data  = await this.apiFetch(
+      `/metal-taxes?filters[metal][name][$eq]=${this.metal.name}` +
+      `&filters[isActive][$eq]=true&sort=displayOrder:asc` +
+      `&pagination[pageSize]=20&populate[metal]=true`
+    );
+    // Filter client-side too (Strapi v5 deep filter may not work for manyToOne)
+    this.taxes = data.filter(t => !t.metal || t.metal.name === this.metal.name);
   }
 
   async fetchCategoryArticles() {
-    try {
-      const catSlug = this.metal.name === 'Gold' ? 'gold-rate' : 'silver-rate';
-      const url = getApiUrl(
-        `/articles?filters[category][slug][$eq]=${catSlug}` +
-        `&sort=publishedAt:desc&pagination[limit]=10` +
-        `&populate[image]=true&populate[category]=true&populate[author][populate][photo]=true`
-      );
-      const res  = await fetch(url);
-      if (!res.ok) { this.articles = []; return; }
-      const json = await res.json();
-      this.articles = json.data || [];
-    } catch { this.articles = []; }
+    const catSlug    = this.isGold ? 'gold-rate' : 'silver-rate';
+    this.articles    = await this.apiFetch(
+      `/articles?filters[category][slug][$eq]=${catSlug}` +
+      `&sort=publishedAt:desc&pagination[limit]=10` +
+      `&populate[image]=true&populate[category]=true&populate[author][populate][photo]=true`
+    );
   }
 
   async fetchAllCities() {
-    try {
-      const url = getApiUrl(`/cities?sort=name:asc&pagination[pageSize]=200&fields[0]=name&fields[1]=slug`);
-      const res  = await fetch(url);
-      if (!res.ok) { this.cities = []; return; }
-      const json = await res.json();
-      this.cities = json.data || [];
-    } catch { this.cities = []; }
+    this.cities = await this.apiFetch(
+      `/cities?sort=name:asc&pagination[pageSize]=200&fields[0]=name&fields[1]=slug`
+    );
   }
 
   async fetchJewellers() {
-    try {
-      const url = getApiUrl(
-        `/jewellers?filters[isActive][$eq]=true&sort[0]=order:asc&sort[1]=name:asc` +
-        `&pagination[pageSize]=20&populate[logo]=true&populate[metalUrls][populate][metal]=true`
-      );
-      const res  = await fetch(url);
-      if (!res.ok) { this.jewellers = []; return; }
-      const json = await res.json();
-      this.jewellers = json.data || [];
-    } catch { this.jewellers = []; }
+    this.jewellers = await this.apiFetch(
+      `/jewellers?filters[isActive][$eq]=true&sort[0]=order:asc&sort[1]=name:asc` +
+      `&pagination[pageSize]=20&populate[logo]=true&populate[metalUrls][populate][metal]=true`
+    );
+  }
+
+  async fetchCitiesForState(stateName) {
+    const data = await this.apiFetch(
+      `/cities?filters[state][name][$eq]=${encodeURIComponent(stateName)}` +
+      `&sort=name:asc&pagination[pageSize]=100`
+    );
+    return data.map(c => c.name || c.attributes?.name).filter(Boolean);
   }
 
   // Pick the best URL for the current metal from a jeweller's metalUrls array
   jewellerUrl(jeweller) {
     const metalUrls = jeweller.metalUrls || [];
-    // Try to find a URL specific to this metal
     const match = metalUrls.find(mu => mu.metal?.name === this.metal.name);
     if (match) return match.url;
-    // Fall back to first URL, then website
     if (metalUrls.length > 0) return metalUrls[0].url;
     return jeweller.website || null;
-  }
-
-  async fetchCitiesForState(stateName) {
-    try {
-      const url = getApiUrl(
-        `/cities?filters[state][name][$eq]=${encodeURIComponent(stateName)}` +
-        `&sort=name:asc&pagination[pageSize]=100`
-      );
-      const res  = await fetch(url);
-      if (!res.ok) return [];
-      const json = await res.json();
-      return (json.data || []).map(c => c.name || c.attributes?.name).filter(Boolean);
-    } catch { return []; }
   }
 
   // ── Formatters ───────────────────────────────────────────────────────────────
@@ -291,11 +267,11 @@ class RatePageManager {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   render() {
-    const mc         = this.metal;
-    const base       = parseFloat(this.todayRate?.buyingRate || 0);
-    const yestBase   = parseFloat(this.yestRate?.buyingRate  || 0);
-    const ap         = mc.purities[this.activePurityIdx];
-    const dispPrice  = Math.round(base * ap.ratio);
+    const mc        = this.metal;
+    const base      = parseFloat(this.todayRate?.buyingRate || 0);
+    const yestBase  = parseFloat(this.yestRate?.buyingRate  || 0);
+    const ap        = mc.purities[this.activePurityIdx];
+    const dispPrice = Math.round(base * ap.ratio);
 
     const dateStr = this.todayRate?.date
       ? new Date(this.todayRate.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -340,12 +316,12 @@ class RatePageManager {
     // ── State dropdown ──
     const firstState = this.states[0] || '';
     const stateOpts  = this.states.length
-      ? this.states.map(s => `<option value="${s}"${s === firstState ? ' selected' : ''}>${s}</option>`).join('')
+      ? this.states.map(s => `<option value="${esc(s)}"${s === firstState ? ' selected' : ''}>${esc(s)}</option>`).join('')
       : '<option disabled>No states loaded</option>';
 
     this.mainEl.innerHTML = `
 
-      <!-- Section 1 (default bg): Check Rate by City | Popular Jewellers -->
+      <!-- Section 1: Check Rate by City | Popular Jewellers -->
       <div class="rp-section">
         <div class="container">
           <div class="rp-loc-tax-row">
@@ -415,7 +391,7 @@ class RatePageManager {
         </div>
       </div>
 
-      <!-- Section 3 (default bg): Historical Chart -->
+      <!-- Section 3: Historical Chart -->
       <div class="rp-section">
         <div class="container">
           <h2 class="rp-section-title">Historical Price Trend</h2>
@@ -447,7 +423,7 @@ class RatePageManager {
         </div>
       </div>
 
-      <!-- Section 5 (default bg): Cities -->
+      <!-- Section 5: Cities -->
       <div class="rp-section">
         <div class="container">
           ${this.renderCitiesSection()}
@@ -455,50 +431,45 @@ class RatePageManager {
       </div>
     `;
 
-    this.bindPurityTabs();
-    this.bindRangeButtons();
-    this.bindLocationSelectors();
-    setTimeout(() => this.renderChart(), 100);
+    this.bindEvents();
   }
 
-  // ── Articles (Layout A — matches homepage style) ──────────────────────────────
+  // ── Articles ──────────────────────────────────────────────────────────────────
   renderArticlesSection() {
     if (!this.articles.length) return '';
     const base = window.API_CONFIG?.BASE_URL || '';
     const mc   = this.metal;
 
     const cards = this.articles.map(a => {
-      const imgUrl  = a.image?.url ? `${base}${a.image.url}` : null;
-      const excerpt = a.excerpt || '';
-      const author  = a.author;
-      const photoUrl = author?.photo?.url ? `${base}${author.photo.url}` : null;
-      const initial  = (author?.name || 'A').charAt(0).toUpperCase();
+      const imgUrl   = a.image?.url ? `${base}${esc(a.image.url)}` : null;
+      const author   = a.author;
+      const photoUrl = author?.photo?.url ? `${base}${esc(author.photo.url)}` : null;
+      const initial  = esc((author?.name || 'A').charAt(0).toUpperCase());
       const avatar   = photoUrl
-        ? `<img loading="lazy" src="${photoUrl}" alt="${author.name}" class="rc-author-avatar">`
+        ? `<img loading="lazy" src="${photoUrl}" alt="${esc(author.name)}" class="rc-author-avatar">`
         : `<span class="rc-author-initial">${initial}</span>`;
       const authorHtml = author
-        ? `<div class="rc-author">${avatar}<span class="rc-author-name">${author.name}</span></div>`
+        ? `<div class="rc-author">${avatar}<span class="rc-author-name">${esc(author.name)}</span></div>`
         : '';
-      const artUrl = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const artUrl = `/${esc(a.category?.slug || 'article')}/${esc(a.slug)}`;
 
       return `
         <a href="${artUrl}" class="carousel-card rca-card">
           <div class="rca-card-image">
-            ${imgUrl ? `<img loading="lazy" src="${imgUrl}" alt="${a.title}" loading="lazy">` : `<div class="rca-no-img"></div>`}
+            ${imgUrl ? `<img loading="lazy" src="${imgUrl}" alt="${esc(a.title)}">` : `<div class="rca-no-img"></div>`}
           </div>
-          <h4 class="rca-card-title">${a.title}</h4>
-          ${excerpt ? `<p class="rca-card-excerpt">${excerpt}</p>` : ''}
+          <h4 class="rca-card-title">${esc(a.title)}</h4>
+          ${a.excerpt ? `<p class="rca-card-excerpt">${esc(a.excerpt)}</p>` : ''}
           ${authorHtml}
         </a>`;
     }).join('');
 
     return `
-        <div class="hp-section-header">
-          <h3 class="hp-section-title">
-            <a href="/${mc.name.toLowerCase()}-rate">${mc.name.toUpperCase()} RATES NEWS &amp; UPDATES</a>
-          </h3>
-        </div>
-        <!-- ↑ links to category page /gold-rate or /silver-rate -->
+      <div class="hp-section-header">
+        <h3 class="hp-section-title">
+          <a href="/${mc.name.toLowerCase()}-rate">${mc.name.toUpperCase()} RATES NEWS &amp; UPDATES</a>
+        </h3>
+      </div>
       <div class="hp-carousel">${cards}</div>`;
   }
 
@@ -512,22 +483,20 @@ class RatePageManager {
     const items = this.cities.map(c => {
       const slug     = c.slug || c.name.toLowerCase().replace(/\s+/g, '-');
       const isActive = this.citySlug === slug;
-      return `<a href="${basePath}/${slug}" class="rp-city-link${isActive ? ' rp-city-link--active' : ''}">${c.name.toUpperCase()}</a>`;
+      return `<a href="${basePath}/${esc(slug)}" class="rp-city-link${isActive ? ' rp-city-link--active' : ''}">${esc(c.name).toUpperCase()}</a>`;
     });
 
-    // Chunk into rows of PER_ROW
     const rows = [];
     for (let i = 0; i < items.length; i += PER_ROW) {
       rows.push(items.slice(i, i + PER_ROW).join('<span class="rp-city-pipe">|</span>'));
     }
-    const rowsHtml = rows.map(r => `<div class="rp-cities-row">${r}</div>`).join('');
 
     return `
       <div class="rp-cities-section">
         <div class="rp-cities-header">
           <span class="rp-cities-label"><i class="fa fa-map-marker"></i> ${this.metal.name.toUpperCase()} RATE BY CITY</span>
         </div>
-        ${rowsHtml}
+        ${rows.map(r => `<div class="rp-cities-row">${r}</div>`).join('')}
       </div>`;
   }
 
@@ -536,27 +505,27 @@ class RatePageManager {
     if (!this.jewellers.length) {
       return `<p class="rp-jewellers-empty">No jeweller listings yet.</p>`;
     }
-    const base    = window.API_CONFIG?.BASE_URL || '';
-    const mc      = this.metal;
+    const base = window.API_CONFIG?.BASE_URL || '';
+    const mc   = this.metal;
 
     return this.jewellers.map(j => {
-      const logoUrl = j.logo?.url ? `${base}${j.logo.url}` : null;
+      const logoUrl = j.logo?.url ? `${base}${esc(j.logo.url)}` : null;
       const link    = this.jewellerUrl(j);
-      const initial = j.name.charAt(0).toUpperCase();
+      const initial = esc(j.name.charAt(0).toUpperCase());
 
       const logoInner = logoUrl
-        ? `<img loading="lazy" src="${logoUrl}" alt="${j.name}" class="rp-jwl-logo" loading="lazy">`
+        ? `<img loading="lazy" src="${logoUrl}" alt="${esc(j.name)}" class="rp-jwl-logo">`
         : `<div class="rp-jwl-initial">${initial}</div>`;
 
       const logoHtml = j.website
-        ? `<a href="${j.website}" target="_blank" rel="noopener noreferrer" class="rp-jwl-img-wrap" title="Visit ${j.name}">${logoInner}</a>`
+        ? `<a href="${esc(j.website)}" target="_blank" rel="noopener noreferrer" class="rp-jwl-img-wrap" title="Visit ${esc(j.name)}">${logoInner}</a>`
         : `<div class="rp-jwl-img-wrap">${logoInner}</div>`;
 
       const scopeBadge = j.scope !== 'national'
-        ? `<span class="rp-jwl-badge">${j.scope}</span>` : '';
+        ? `<span class="rp-jwl-badge">${esc(j.scope)}</span>` : '';
 
       const btnHtml = link
-        ? `<a href="${link}" target="_blank" rel="noopener noreferrer" class="rp-jwl-btn">
+        ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer" class="rp-jwl-btn">
             View ${mc.name} Prices <i class="fa fa-external-link"></i>
            </a>`
         : `<span class="rp-jwl-btn rp-jwl-btn--na">No link available</span>`;
@@ -565,7 +534,7 @@ class RatePageManager {
         <div class="rp-jwl-card">
           ${logoHtml}
           <div class="rp-jwl-info">
-            <div class="rp-jwl-name">${j.name} ${scopeBadge}</div>
+            <div class="rp-jwl-name">${esc(j.name)} ${scopeBadge}</div>
             ${btnHtml}
           </div>
         </div>`;
@@ -583,11 +552,11 @@ class RatePageManager {
     return this.taxes.map(t => `
       <div class="rp-tax-row">
         <div class="rp-tax-label">
-          ${t.taxName}
-          <span class="rp-tax-gov rp-tax-gov--${t.governmentLevel}">${govLabel[t.governmentLevel] || ''}</span>
+          ${esc(t.taxName)}
+          <span class="rp-tax-gov rp-tax-gov--${esc(t.governmentLevel)}">${govLabel[t.governmentLevel] || ''}</span>
         </div>
         <div class="rp-tax-right">
-          <span class="rp-tax-rate">${t.taxValue}</span>
+          <span class="rp-tax-rate">${esc(t.taxValue)}</span>
         </div>
       </div>`).join('');
   }
@@ -628,6 +597,37 @@ class RatePageManager {
     return rates.filter((_, i) => i % step === 0 || i === rates.length - 1);
   }
 
+  renderChartStats(rates, values) {
+    const statsEl = document.getElementById('rp-chart-stats');
+    if (!statsEl) return;
+
+    const mc    = this.metal;
+    const min   = Math.min(...values);
+    const max   = Math.max(...values);
+    const first = values[0];
+    const last  = values[values.length - 1];
+    const diff  = last - first;
+    const pct   = ((diff / first) * 100).toFixed(2);
+    const isUp  = diff >= 0;
+    const upDn  = isUp ? 'rp-up' : 'rp-dn';
+    const arrow = isUp ? '▲' : '▼';
+    const fmtDate = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    statsEl.innerHTML = `
+      <div class="rp-csp-price">${this.fmt(last)}</div>
+      <div class="rp-csp-change ${upDn}">${arrow} ${isUp ? '+' : ''}${pct}% <span>this period</span></div>
+      <div class="rp-csp-divider"></div>
+      <div class="rp-csp-row"><span class="rp-csp-label">HIGH</span><span class="rp-csp-val rp-up">${this.fmt(max)}</span></div>
+      <div class="rp-csp-row"><span class="rp-csp-label">LOW</span><span class="rp-csp-val rp-dn">${this.fmt(min)}</span></div>
+      <div class="rp-csp-row"><span class="rp-csp-label">CHANGE</span><span class="rp-csp-val ${upDn}">${isUp ? '+' : ''}${this.fmt(Math.abs(Math.round(diff)))}</span></div>
+      <div class="rp-csp-divider"></div>
+      <div class="rp-csp-row"><span class="rp-csp-label">FROM</span><span class="rp-csp-val">${fmtDate(rates[0].date)}</span></div>
+      <div class="rp-csp-row"><span class="rp-csp-label">TO</span><span class="rp-csp-val">${fmtDate(rates[rates.length - 1].date)}</span></div>
+      <div class="rp-csp-divider"></div>
+      <div class="rp-csp-unit">Per ${mc.unitLabel} · ${mc.purities[this.activePurityIdx]?.label || ''}</div>
+    `;
+  }
+
   renderChart() {
     const ctx = document.getElementById('rp-chart');
     if (!ctx) return;
@@ -642,59 +642,17 @@ class RatePageManager {
     }
 
     const dates  = rates.map(r => new Date(r.date));
+    const values = rates.map(r => r.buyingRate);
+
+    this.renderChartStats(rates, values);
+
     const labels = dates.map(d => {
       if (['1W','1M','3M'].includes(this.activeRange))
         return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
       return d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
     });
-    const values = rates.map(r => r.buyingRate);
 
-    const min      = Math.min(...values);
-    const max      = Math.max(...values);
-    const first    = values[0];
-    const last     = values[values.length - 1];
-    const diff     = last - first;
-    const pct      = ((diff / first) * 100).toFixed(2);
-    const isUp     = diff >= 0;
-    const upDn     = isUp ? 'rp-up' : 'rp-dn';
-    const arrow    = isUp ? '▲' : '▼';
-    const startDate = new Date(rates[0].date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-    const endDate   = new Date(rates[rates.length - 1].date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-
-    const statsEl = document.getElementById('rp-chart-stats');
-    if (statsEl) {
-      statsEl.innerHTML = `
-        <div class="rp-csp-price">${this.fmt(last)}</div>
-        <div class="rp-csp-change ${upDn}">${arrow} ${isUp ? '+' : ''}${pct}% <span>this period</span></div>
-        <div class="rp-csp-divider"></div>
-        <div class="rp-csp-row">
-          <span class="rp-csp-label">HIGH</span>
-          <span class="rp-csp-val rp-up">${this.fmt(max)}</span>
-        </div>
-        <div class="rp-csp-row">
-          <span class="rp-csp-label">LOW</span>
-          <span class="rp-csp-val rp-dn">${this.fmt(min)}</span>
-        </div>
-        <div class="rp-csp-row">
-          <span class="rp-csp-label">CHANGE</span>
-          <span class="rp-csp-val ${upDn}">${isUp ? '+' : ''}${this.fmt(Math.abs(Math.round(diff)))}</span>
-        </div>
-        <div class="rp-csp-divider"></div>
-        <div class="rp-csp-row">
-          <span class="rp-csp-label">FROM</span>
-          <span class="rp-csp-val">${startDate}</span>
-        </div>
-        <div class="rp-csp-row">
-          <span class="rp-csp-label">TO</span>
-          <span class="rp-csp-val">${endDate}</span>
-        </div>
-        <div class="rp-csp-divider"></div>
-        <div class="rp-csp-unit">Per ${mc.unitLabel} · ${mc.purities[this.activePurityIdx]?.label || ''}</div>
-      `;
-    }
-
-    // Bright chart colors
-    const brightColor = mc.name === 'Gold' ? '#F59E0B' : '#3B82F6';
+    const brightColor = this.isGold ? '#F59E0B' : '#3B82F6';
     const isDark      = document.documentElement.classList.contains('dark-mode');
     const gridColor   = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
     const tickColor   = isDark ? '#666' : '#999';
@@ -706,7 +664,7 @@ class RatePageManager {
       afterDatasetsDraw(chart) {
         const ds = chart.data.datasets[0];
         if (!ds?.data?.length) return;
-        const meta = chart.getDatasetMeta(0);
+        const meta   = chart.getDatasetMeta(0);
         const lastPt = meta.data[meta.data.length - 1];
         if (!lastPt) return;
         const { x, y } = lastPt.getProps(['x', 'y'], true);
@@ -733,7 +691,7 @@ class RatePageManager {
           borderColor: brightColor,
           backgroundColor: (c) => {
             const g = c.chart.ctx.createLinearGradient(0, 0, 0, c.chart.height);
-            g.addColorStop(0, mc.name === 'Gold' ? 'rgba(245,158,11,0.25)' : 'rgba(59,130,246,0.25)');
+            g.addColorStop(0, this.isGold ? 'rgba(245,158,11,0.25)' : 'rgba(59,130,246,0.25)');
             g.addColorStop(1, 'rgba(255,255,255,0)');
             return g;
           },
@@ -806,11 +764,8 @@ class RatePageManager {
         document.querySelectorAll('.rp-range-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const days = this.rangeDays();
-        // Lazy-load if we don't have enough history yet
-        const haveFrom = this.allRates.length > 0
-          ? new Date(this.allRates[0].date)
-          : new Date();
+        const days     = this.rangeDays();
+        const haveFrom = this.allRates.length > 0 ? new Date(this.allRates[0].date) : new Date();
         const needFrom = new Date(Date.now() - days * 86400000);
         if (needFrom < haveFrom) {
           btn.textContent = '…';
@@ -824,25 +779,24 @@ class RatePageManager {
   }
 
   // ── Location ──────────────────────────────────────────────────────────────────
-  bindLocationSelectors() {
-    const stateEl   = document.getElementById('rp-state-select');
-    const cityEl    = document.getElementById('rp-city-select');
+  updateLocPrice(location) {
+    const mc    = this.metal;
+    const base  = parseFloat(this.todayRate?.buyingRate || 0);
+    const p     = mc.purities[this.activePurityIdx];
     const priceEl   = document.getElementById('rp-loc-price');
     const labelEl   = document.getElementById('rp-loc-label');
     const contextEl = document.getElementById('rp-loc-context');
-    if (!stateEl) return;
-
     const headingEl = document.getElementById('rp-loc-heading');
+    if (priceEl)   priceEl.textContent   = base ? this.fmt(Math.round(base * p.ratio)) : '—';
+    if (labelEl)   labelEl.textContent   = `${p.label} · per ${mc.unitLabel}`;
+    if (contextEl) contextEl.textContent = location;
+    if (headingEl) headingEl.textContent = location === 'All India' ? 'Check Rate by City' : `Rate in ${location}`;
+  }
 
-    const updatePrice = (location) => {
-      const mc   = this.metal;
-      const base = parseFloat(this.todayRate?.buyingRate || 0);
-      const p    = mc.purities[this.activePurityIdx];
-      if (priceEl)   priceEl.textContent   = base ? this.fmt(Math.round(base * p.ratio)) : '—';
-      if (labelEl)   labelEl.textContent   = `${p.label} · per ${mc.unitLabel}`;
-      if (contextEl) contextEl.textContent = location;
-      if (headingEl) headingEl.textContent = location === 'All India' ? 'Check Rate by City' : `Rate in ${location}`;
-    };
+  bindLocationSelectors() {
+    const stateEl = document.getElementById('rp-state-select');
+    const cityEl  = document.getElementById('rp-city-select');
+    if (!stateEl) return;
 
     const loadCitiesForState = async (stateName, autoSelectFirst = false) => {
       cityEl.innerHTML = '<option>Loading…</option>';
@@ -851,16 +805,15 @@ class RatePageManager {
       const cities = await this.fetchCitiesForState(stateName);
       if (cities.length > 0) {
         cityEl.innerHTML = cities.map((c, i) =>
-          `<option value="${c}"${i === 0 && autoSelectFirst ? ' selected' : ''}>${c}</option>`
+          `<option value="${esc(c)}"${i === 0 && autoSelectFirst ? ' selected' : ''}>${esc(c)}</option>`
         ).join('');
         cityEl.disabled = false;
-        if (autoSelectFirst) updatePrice(`${cities[0]}, ${stateName}`);
+        if (autoSelectFirst) this.updateLocPrice(`${cities[0]}, ${stateName}`);
       } else {
         cityEl.innerHTML = '<option value="">No cities found</option>';
       }
     };
 
-    // Auto-select first state's cities on load
     if (stateEl.value) loadCitiesForState(stateEl.value, true);
 
     stateEl.addEventListener('change', async () => {
@@ -868,7 +821,7 @@ class RatePageManager {
       if (!stateName) {
         cityEl.innerHTML = '<option value="">Select State first</option>';
         cityEl.disabled  = true;
-        updatePrice('All India');
+        this.updateLocPrice('All India');
         return;
       }
       await loadCitiesForState(stateName, true);
@@ -877,8 +830,15 @@ class RatePageManager {
     cityEl.addEventListener('change', () => {
       const cityName  = cityEl.value;
       const stateName = stateEl.value;
-      updatePrice(cityName ? `${cityName}, ${stateName}` : stateName);
+      this.updateLocPrice(cityName ? `${cityName}, ${stateName}` : stateName);
     });
+  }
+
+  bindEvents() {
+    this.bindPurityTabs();
+    this.bindRangeButtons();
+    this.bindLocationSelectors();
+    setTimeout(() => this.renderChart(), 100);
   }
 
   // ── Page Meta ─────────────────────────────────────────────────────────────────
@@ -903,7 +863,7 @@ class RatePageManager {
     document.getElementById('canonical-url')?.setAttribute('href', canonical);
     document.getElementById('og-url')?.setAttribute('content', canonical);
 
-    // Update hero title and date line if city-specific
+    // Update hero title if city-specific
     if (this.cityName) {
       const titleEl = document.querySelector('.rp-title');
       if (titleEl) titleEl.textContent = `${mc.name} Rate Today in ${this.cityName}`;
