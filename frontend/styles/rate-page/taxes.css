@@ -1,0 +1,279 @@
+/**
+ * Metal Taxes Page — /gold-taxes and /silver-taxes
+ */
+
+/* ── Back link in hero ── */
+.mt-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 7px 16px;
+  border-radius: 6px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.mt-back-link:hover { color: #fff; border-color: rgba(255,255,255,0.5); text-decoration: none; }
+
+/* ── Tax Grid ── */
+.mt-tax-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.mt-tax-card {
+  background: #fff;
+  border: 1px solid #e8eaed;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.15s;
+}
+.mt-tax-card:hover { border-color: var(--mc, #D4A017); }
+
+.mt-tax-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mt-tax-name-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+.mt-tax-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a2332;
+  line-height: 1.3;
+}
+.mt-tax-rate-badge {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--mc, #D4A017);
+  font-variant-numeric: tabular-nums;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mt-tax-desc {
+  font-size: 0.85rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+}
+.mt-tax-example {
+  font-size: 0.8rem;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.mt-tax-example i { color: var(--mc, #D4A017); margin-right: 5px; }
+
+.mt-tax-summary-note {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+}
+.mt-tax-summary-note i { color: var(--mc, #D4A017); margin-right: 4px; }
+.mt-tax-summary-note strong { color: #1a2332; }
+
+/* ── Calculator layout ── */
+.mt-calc-intro {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: -12px 0 28px;
+  line-height: 1.6;
+}
+
+.mt-calc-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.mt-calc-inputs-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mt-optional {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #9ca3af;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+.mt-making-hint {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin: -4px 0 0;
+  font-style: italic;
+}
+
+/* ── Cost Breakdown panel ── */
+.mt-breakdown {
+  border: 1.5px solid #e8eaed;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.mt-bd-header {
+  padding: 12px 18px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e8eaed;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+}
+
+.mt-bd-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 18px;
+  border-bottom: 1px solid #f3f4f6;
+  gap: 12px;
+}
+.mt-bd-row:last-of-type { border-bottom: none; }
+
+.mt-bd-base { background: #fafbfc; }
+
+.mt-bd-label {
+  font-size: 0.9rem;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.mt-bd-val {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a2332;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mt-bd-tax .mt-bd-label { padding-left: 8px; }
+.mt-bd-tax-name { font-size: 0.85rem; color: #4b5563; }
+.mt-bd-tax-pct {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mt-bd-tax-amt { color: #6b7280; }
+
+.mt-bd-divider {
+  height: 2px;
+  background: #e8eaed;
+  margin: 0 18px;
+}
+
+.mt-bd-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+  gap: 12px;
+}
+.mt-bd-total-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+}
+.mt-bd-total-val {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--mc, #D4A017);
+  font-variant-numeric: tabular-nums;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.mt-bd-disclaimer {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  text-align: right;
+  padding: 0 18px 12px;
+  margin: 0;
+}
+
+.mt-breakdown-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+/* ── FAQ ── */
+.mt-faq-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e8eaed;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.mt-faq-item { border-bottom: 1px solid #e8eaed; }
+.mt-faq-item:last-child { border-bottom: none; }
+
+.mt-faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #fff;
+  border: none;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a2332;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.mt-faq-q:hover { background: #fafbfc; }
+.mt-faq-icon { font-size: 0.75rem; color: #9ca3af; flex-shrink: 0; transition: transform 0.2s; }
+
+.mt-faq-a {
+  padding: 0 20px 16px;
+  font-size: 0.88rem;
+  color: #4b5563;
+  line-height: 1.7;
+  background: #fafbfc;
+}
+
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .mt-calc-layout { grid-template-columns: 1fr; gap: 28px; }
+}
+@media (max-width: 600px) {
+  .mt-tax-grid { grid-template-columns: 1fr; }
+}

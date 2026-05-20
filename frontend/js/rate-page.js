@@ -364,14 +364,36 @@ class RatePageManager {
               <h2 class="rp-section-title">Taxes on ${mc.name} in India</h2>
               <div class="rp-tax-list">${this.renderTaxInfo()}</div>
               <p class="rp-tax-note"><i class="fa fa-info-circle"></i> Tax rates are as per latest government notification. Consult a tax advisor for personal guidance.</p>
+              <a href="/${mc.name.toLowerCase()}-taxes" class="rp-tax-learn-more">
+                See full breakdown &amp; cost calculator <i class="fa fa-arrow-right"></i>
+              </a>
             </div>
 
           </div>
         </div>
       </div>
 
-      <!-- Section 2: Historical Chart — unchanged -->
+      <!-- Section 2 (alt bg): Gold:Silver Ratio | Purity Calculator -->
       <div class="rp-section rp-section--alt">
+        <div class="container">
+          <div class="rp-tools-row">
+
+            <div class="rp-card rp-ratio-col">
+              <h2 class="rp-section-title">Gold vs Silver — Today's Comparison</h2>
+              ${this.renderRatioWidget()}
+            </div>
+
+            <div class="rp-card rp-calc-col">
+              <h2 class="rp-section-title">How much will it cost?</h2>
+              ${this.renderPurityCalculator()}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Historical Chart -->
+      <div class="rp-section">
         <div class="container">
           <h2 class="rp-section-title">Historical Price Trend</h2>
           <div class="rp-chart-layout">
@@ -395,8 +417,8 @@ class RatePageManager {
         </div>
       </div>
 
-      <!-- Section 3: Price by Weight Table — full width -->
-      <div class="rp-section">
+      <!-- Section 4 (alt bg): Price by Weight Table — full width -->
+      <div class="rp-section rp-section--alt">
         <div class="container">
           <div class="rp-card">
             <h2 class="rp-section-title">${mc.name} Price by Weight — ${dateStr}</h2>
@@ -408,25 +430,6 @@ class RatePageManager {
             </div>
             <p class="rp-table-note"><i class="fa fa-info-circle"></i> Rates are indicative. Actual prices may vary due to taxes and making charges.</p>
             <p class="rp-table-note rp-table-note--conversions"><i class="fa fa-info-circle"></i>1 Tola = 11.664 g &nbsp;|&nbsp; 1 Troy Ounce = 31.103 g</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 4 (alt bg): Gold:Silver Ratio | Purity Calculator -->
-      <div class="rp-section rp-section--alt">
-        <div class="container">
-          <div class="rp-tools-row">
-
-            <div class="rp-card rp-ratio-col">
-              <h2 class="rp-section-title">Gold : Silver Ratio</h2>
-              ${this.renderRatioWidget()}
-            </div>
-
-            <div class="rp-card rp-calc-col">
-              <h2 class="rp-section-title">Purity Price Calculator</h2>
-              ${this.renderPurityCalculator()}
-            </div>
-
           </div>
         </div>
       </div>
@@ -459,40 +462,58 @@ class RatePageManager {
       return `<p class="rp-jewellers-empty">Ratio data unavailable.</p>`;
     }
 
-    // gold per 10g → per gram; silver per kg → per gram
     const goldPerGram   = parseFloat(goldRate.buyingRate)   / 10;
     const silverPerGram = parseFloat(silverRate.buyingRate) / 1000;
     const ratio         = (goldPerGram / silverPerGram).toFixed(1);
     const ratioNum      = parseFloat(ratio);
+    const ratioInt      = Math.round(ratioNum);
 
     // Track covers ratio range 50–120
     const pct = Math.min(100, Math.max(0, ((ratioNum - 50) / 70) * 100)).toFixed(1);
 
-    // Interpretation thresholds
-    let statusLabel, statusClass, statusDesc;
+    let statusClass, signalLabel, signalClass, plainMeaning, investorNote;
     if (ratioNum < 65) {
-      statusLabel = 'Low';    statusClass = 'rp-ratio--low';
-      statusDesc  = 'Silver is expensive relative to gold historically.';
+      statusClass   = 'rp-ratio--low';
+      signalLabel   = 'Silver is costly vs Gold';
+      signalClass   = 'rp-ratio-signal--low';
+      plainMeaning  = 'Silver is priced high relative to gold right now — it takes fewer grams of silver to match gold\'s value than usual.';
+      investorNote  = 'Historically, when the ratio is this low, silver tends to become relatively cheaper over time.';
     } else if (ratioNum <= 85) {
-      statusLabel = 'Normal'; statusClass = 'rp-ratio--normal';
-      statusDesc  = 'Ratio is within the typical historical range of 65–85.';
+      statusClass   = 'rp-ratio--normal';
+      signalLabel   = 'Ratio is in normal range';
+      signalClass   = 'rp-ratio-signal--normal';
+      plainMeaning  = 'Gold and silver are priced roughly in line with their long-term historical relationship.';
+      investorNote  = 'No strong signal either way. This is the typical range seen over the past decade.';
     } else {
-      statusLabel = 'High';   statusClass = 'rp-ratio--high';
-      statusDesc  = 'Silver is cheap relative to gold. Ratio historically tends to revert lower.';
+      statusClass   = 'rp-ratio--high';
+      signalLabel   = 'Silver is cheap vs Gold';
+      signalClass   = 'rp-ratio-signal--high';
+      plainMeaning  = 'Silver is priced low relative to gold right now — you need more grams of silver than usual to match the value of 1 gram of gold.';
+      investorNote  = 'Historically, when the ratio is this high, silver has often caught up to gold over time.';
     }
 
     return `
       <div class="rp-ratio-widget ${statusClass}">
-        <div class="rp-ratio-top">
-          <div class="rp-ratio-number-wrap">
-            <span class="rp-ratio-number">${ratio}</span>
-            <span class="rp-ratio-colon">:1</span>
-          </div>
-          <span class="rp-ratio-badge">${statusLabel}</span>
-        </div>
-        <p class="rp-ratio-sub">1 oz Gold = ${ratio} oz Silver</p>
 
+        <!-- Lead question -->
+        <div class="rp-ratio-lead">
+          <span class="rp-ratio-lead-q">How much silver equals 1 gram of gold today?</span>
+          <div class="rp-ratio-answer">
+            <span class="rp-ratio-number">${ratioInt}</span>
+            <span class="rp-ratio-answer-unit">grams of silver</span>
+          </div>
+          <span class="rp-ratio-signal ${signalClass}">${signalLabel}</span>
+        </div>
+
+        <!-- Plain English explanation -->
+        <p class="rp-ratio-plain">${plainMeaning}</p>
+
+        <!-- Historical track -->
         <div class="rp-ratio-track-wrap">
+          <div class="rp-ratio-track-header">
+            <span class="rp-ratio-track-label">Where does today sit historically?</span>
+            <span class="rp-ratio-track-ratio">Ratio: ${ratio}:1</span>
+          </div>
           <div class="rp-ratio-track">
             <div class="rp-ratio-zone rp-ratio-zone--low"    style="width:21.4%"></div>
             <div class="rp-ratio-zone rp-ratio-zone--normal" style="width:28.6%"></div>
@@ -500,12 +521,19 @@ class RatePageManager {
             <div class="rp-ratio-cursor" style="left:${pct}%"></div>
           </div>
           <div class="rp-ratio-track-labels">
-            <span>50</span><span>65</span><span>85</span><span>120+</span>
+            <span>50 <em>Silver costly</em></span>
+            <span>65</span>
+            <span>85</span>
+            <span>120+ <em>Silver cheap</em></span>
           </div>
         </div>
 
-        <p class="rp-ratio-desc">${statusDesc}</p>
+        <!-- Investor note -->
+        <div class="rp-ratio-investor-note">
+          <i class="fa fa-lightbulb-o"></i> ${investorNote}
+        </div>
 
+        <!-- Prices -->
         <div class="rp-ratio-prices">
           <div class="rp-ratio-price-item">
             <span class="rp-ratio-price-label">Gold (24K)</span>
@@ -522,37 +550,47 @@ class RatePageManager {
 
   // ── Purity Price Calculator ───────────────────────────────────────────────────
   renderPurityCalculator() {
-    const mc   = this.metal;
-    const base = parseFloat(this.todayRate?.buyingRate || 0);
-    // perGram: gold base is per 10g, silver base is per kg
-    const perGram  = mc.name === 'Gold' ? base / 10 : base / 1000;
+    const mc         = this.metal;
+    const base       = parseFloat(this.todayRate?.buyingRate || 0);
+    const perGram    = mc.name === 'Gold' ? base / 10 : base / 1000;
     const initPurity = mc.purities[0];
+    const initRate   = base ? this.fmt(Math.round(perGram * initPurity.ratio)) : '—';
     const initPrice  = base ? this.fmt(Math.round(perGram * initPurity.ratio * 1)) : '—';
 
     const purityOpts = mc.purities.map((p, i) =>
       `<option value="${p.ratio}"${i === 0 ? ' selected' : ''}>${p.label} — ${p.desc}</option>`
     ).join('');
 
+    const presets = [1, 2, 5, 10, 50, 100];
+
     return `
       <div class="rp-calc-widget">
-        <div class="rp-calc-inputs">
-          <div class="rp-calc-field">
-            <label class="rp-calc-label">Weight</label>
-            <div class="rp-calc-input-wrap">
-              <input type="number" id="rp-calc-weight" class="rp-calc-input"
-                     value="1" min="0.01" step="0.5" placeholder="Grams">
-              <span class="rp-calc-unit">g</span>
-            </div>
+
+        <div class="rp-calc-field">
+          <label class="rp-calc-label">Purity</label>
+          <select id="rp-calc-purity" class="rp-select">${purityOpts}</select>
+        </div>
+
+        <div class="rp-calc-field">
+          <label class="rp-calc-label">Weight</label>
+          <div class="rp-calc-preset-row">
+            ${presets.map((w, i) =>
+              `<button class="rp-calc-preset${i === 0 ? ' active' : ''}" data-weight="${w}">${w}g</button>`
+            ).join('')}
           </div>
-          <div class="rp-calc-field">
-            <label class="rp-calc-label">Purity</label>
-            <select id="rp-calc-purity" class="rp-select">${purityOpts}</select>
+          <div class="rp-calc-input-wrap">
+            <input type="number" id="rp-calc-weight" class="rp-calc-input"
+                   value="1" min="0.01" step="0.5" placeholder="or enter custom">
+            <span class="rp-calc-unit">g</span>
           </div>
         </div>
+
         <div class="rp-calc-output">
+          <div class="rp-calc-formula" id="rp-calc-formula">1g × ${initRate}/g</div>
           <div class="rp-calc-price" id="rp-calc-price">${initPrice}</div>
-          <div class="rp-calc-meta" id="rp-calc-meta">for 1g · ${initPurity.label}</div>
+          <div class="rp-calc-meta" id="rp-calc-meta">${initPurity.label} · buying rate</div>
         </div>
+
         <p class="rp-calc-note"><i class="fa fa-info-circle"></i> Based on today's buying rate. Actual price may vary.</p>
       </div>`;
   }
@@ -1017,30 +1055,56 @@ class RatePageManager {
 
   // ── Purity Calculator interactivity ──────────────────────────────────────────
   bindCalculator() {
-    const weightEl = document.getElementById('rp-calc-weight');
-    const purityEl = document.getElementById('rp-calc-purity');
-    const priceEl  = document.getElementById('rp-calc-price');
-    const metaEl   = document.getElementById('rp-calc-meta');
+    const weightEl  = document.getElementById('rp-calc-weight');
+    const purityEl  = document.getElementById('rp-calc-purity');
+    const priceEl   = document.getElementById('rp-calc-price');
+    const formulaEl = document.getElementById('rp-calc-formula');
+    const metaEl    = document.getElementById('rp-calc-meta');
+    const presetBtns = document.querySelectorAll('.rp-calc-preset');
     if (!weightEl || !purityEl) return;
 
     const mc      = this.metal;
     const base    = parseFloat(this.todayRate?.buyingRate || 0);
     const perGram = mc.name === 'Gold' ? base / 10 : base / 1000;
 
-    const update = () => {
-      const weight = parseFloat(weightEl.value) || 0;
-      const ratio  = parseFloat(purityEl.value) || 1;
-      const pLabel = purityEl.options[purityEl.selectedIndex]?.text.split(' ')[0] || '';
-      if (!base || weight <= 0) {
-        priceEl.textContent = '—';
-        metaEl.textContent  = 'Enter a weight above';
-        return;
-      }
-      priceEl.textContent = this.fmt(Math.round(perGram * ratio * weight));
-      metaEl.textContent  = `for ${weight}g · ${pLabel}`;
+    const setActivePreset = (val) => {
+      presetBtns.forEach(b => b.classList.toggle('active', parseFloat(b.dataset.weight) === val));
     };
 
-    weightEl.addEventListener('input', update);
+    const update = () => {
+      const weight   = parseFloat(weightEl.value) || 0;
+      const ratio    = parseFloat(purityEl.value) || 1;
+      const pLabel   = purityEl.options[purityEl.selectedIndex]?.text.split(' — ')[0] || '';
+      const ratePerG = Math.round(perGram * ratio);
+
+      if (!base || weight <= 0) {
+        priceEl.textContent   = '—';
+        formulaEl.textContent = '';
+        metaEl.textContent    = 'Enter a weight above';
+        return;
+      }
+
+      priceEl.textContent   = this.fmt(Math.round(ratePerG * weight));
+      formulaEl.textContent = `${weight}g × ${this.fmt(ratePerG)}/g`;
+      metaEl.textContent    = `${pLabel} · buying rate`;
+    };
+
+    // Preset buttons
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const w = parseFloat(btn.dataset.weight);
+        weightEl.value = w;
+        setActivePreset(w);
+        update();
+      });
+    });
+
+    // Typing a custom weight clears the active preset
+    weightEl.addEventListener('input', () => {
+      setActivePreset(parseFloat(weightEl.value));
+      update();
+    });
+
     purityEl.addEventListener('change', update);
     update();
   }

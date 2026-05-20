@@ -463,7 +463,7 @@
   display: grid;
   grid-template-columns: 60% 1fr;
   gap: 0;
-  align-items: stretch;
+  align-items: start;
 }
 .rp-loc-tax-row .rp-card { margin-bottom: 0; }
 
@@ -554,6 +554,20 @@
   line-height: 1.5;
 }
 .rp-tax-note i { margin-right: 4px; color: #767676; }
+
+.rp-tax-learn-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mc, #D4A017);
+  text-decoration: none;
+  transition: gap 0.15s;
+}
+.rp-tax-learn-more:hover { gap: 10px; text-decoration: none; color: var(--mc, #D4A017); }
+.rp-tax-learn-more i { font-size: 0.75rem; }
 
 /* ── Jeweller Cards ── */
 .rp-jewellers-desc {
@@ -693,76 +707,100 @@ a.rp-jwl-img-wrap:hover {
 .rp-ratio-widget {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-.rp-ratio-top {
+/* Lead block */
+.rp-ratio-lead {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 6px;
 }
-
-.rp-ratio-number-wrap {
+.rp-ratio-lead-q {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+}
+.rp-ratio-answer {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 8px;
   line-height: 1;
 }
 .rp-ratio-number {
-  font-size: 3.2rem;
+  font-size: 3rem;
   font-weight: 800;
   color: #1a2332;
   font-family: 'DM Sans', sans-serif;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
 }
-.rp-ratio-colon {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #888;
-  letter-spacing: -0.02em;
+.rp-ratio-answer-unit {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6b7280;
 }
 
-.rp-ratio-badge {
+.rp-ratio-signal {
   display: inline-block;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 4px 10px;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
   border-radius: 4px;
   align-self: flex-start;
 }
-.rp-ratio--low    .rp-ratio-badge { background: #fef2f2; color: #b91c1c; }
-.rp-ratio--normal .rp-ratio-badge { background: #f0fdf4; color: #15803d; }
-.rp-ratio--high   .rp-ratio-badge { background: #fffbeb; color: #b45309; }
+.rp-ratio-signal--low    { background: #fef2f2; color: #b91c1c; }
+.rp-ratio-signal--normal { background: #f0fdf4; color: #15803d; }
+.rp-ratio-signal--high   { background: #fffbeb; color: #b45309; }
 
-.rp-ratio-sub {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin: -8px 0 0;
+/* Plain explanation */
+.rp-ratio-plain {
+  font-size: 0.88rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
 }
 
-/* Track */
-.rp-ratio-track-wrap { display: flex; flex-direction: column; gap: 5px; }
+/* Historical track */
+.rp-ratio-track-wrap { display: flex; flex-direction: column; gap: 7px; }
+.rp-ratio-track-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.rp-ratio-track-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+}
+.rp-ratio-track-ratio {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6b7280;
+}
 .rp-ratio-track {
   position: relative;
   display: flex;
-  height: 6px;
-  border-radius: 3px;
+  height: 7px;
+  border-radius: 4px;
   overflow: visible;
 }
 .rp-ratio-zone { height: 100%; }
-.rp-ratio-zone--low    { background: #fca5a5; border-radius: 3px 0 0 3px; }
+.rp-ratio-zone--low    { background: #fca5a5; border-radius: 4px 0 0 4px; }
 .rp-ratio-zone--normal { background: #86efac; }
-.rp-ratio-zone--high   { background: #fcd34d; border-radius: 0 3px 3px 0; }
+.rp-ratio-zone--high   { background: #fcd34d; border-radius: 0 4px 4px 0; }
 .rp-ratio-cursor {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #1a2332;
   border: 2px solid #fff;
@@ -772,22 +810,32 @@ a.rp-jwl-img-wrap:hover {
 .rp-ratio-track-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: #9ca3af;
   font-weight: 600;
 }
-
-.rp-ratio-desc {
-  font-size: 0.82rem;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0;
+.rp-ratio-track-labels em {
+  font-style: normal;
+  font-weight: 400;
+  opacity: 0.75;
 }
 
+/* Investor note */
+.rp-ratio-investor-note {
+  font-size: 0.82rem;
+  color: #6b7280;
+  background: #f9fafb;
+  border-left: 3px solid #e5e7eb;
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  line-height: 1.5;
+}
+.rp-ratio-investor-note i { color: var(--mc, #D4A017); margin-right: 6px; }
+
+/* Price strip */
 .rp-ratio-prices {
   display: flex;
   align-items: center;
-  gap: 0;
   border: 1px solid #e8eaed;
   border-radius: 8px;
   overflow: hidden;
@@ -824,25 +872,52 @@ a.rp-jwl-img-wrap:hover {
 .rp-calc-widget {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
-.rp-calc-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  align-items: end;
+.rp-calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-
-.rp-calc-field { display: flex; flex-direction: column; gap: 6px; }
 .rp-calc-label {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #6b7280;
+  color: #9ca3af;
 }
 
+/* Preset weight buttons */
+.rp-calc-preset-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.rp-calc-preset {
+  padding: 5px 13px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  background: transparent;
+  color: #555;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.rp-calc-preset:hover {
+  border-color: var(--mc, #D4A017);
+  color: var(--mc, #D4A017);
+}
+.rp-calc-preset.active {
+  background: var(--mc, #D4A017);
+  border-color: var(--mc, #D4A017);
+  color: #fff;
+}
+
+/* Custom weight input */
 .rp-calc-input-wrap {
   position: relative;
   display: flex;
@@ -850,10 +925,10 @@ a.rp-jwl-img-wrap:hover {
 }
 .rp-calc-input {
   width: 100%;
-  padding: 10px 36px 10px 14px;
+  padding: 9px 52px 9px 14px;
   border: 1.5px solid #d0d7e2;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #1a2332;
   font-family: 'DM Sans', sans-serif;
   background: #fff;
@@ -864,6 +939,7 @@ a.rp-jwl-img-wrap:hover {
 .rp-calc-input::-webkit-outer-spin-button,
 .rp-calc-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .rp-calc-input:focus { border-color: var(--mc, #D4A017); }
+.rp-calc-input::placeholder { color: #c0c7d0; font-size: 0.85rem; }
 .rp-calc-unit {
   position: absolute;
   right: 12px;
@@ -873,17 +949,25 @@ a.rp-jwl-img-wrap:hover {
   pointer-events: none;
 }
 
+/* Output panel */
 .rp-calc-output {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 20px;
+  padding: 20px 16px 16px;
   border-radius: 10px;
   background: #fff;
   border: 1.5px solid #e8eaed;
   text-align: center;
-  gap: 6px;
+  gap: 4px;
+}
+.rp-calc-formula {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #9ca3af;
+  letter-spacing: 0.02em;
+  min-height: 16px;
 }
 .rp-calc-price {
   font-size: 2.4rem;
@@ -892,11 +976,11 @@ a.rp-jwl-img-wrap:hover {
   font-variant-numeric: tabular-nums;
   font-family: 'DM Sans', sans-serif;
   letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 1.1;
 }
 .rp-calc-meta {
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.05em;

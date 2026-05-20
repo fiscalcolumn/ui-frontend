@@ -541,6 +541,14 @@ app.get('/app', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'coming-soon.html'));
 });
 
+// Tax detail pages
+app.get('/gold-taxes', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'metal-taxes.html'));
+});
+app.get('/silver-taxes', (req, res) => {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'metal-taxes.html'));
+});
+
 // Rate pages - today's live price pages
 app.get('/gold-rate-today', (req, res) => {
   sendVersionedHtml(res, path.join(__dirname, 'frontend', 'rate-page.html'));
