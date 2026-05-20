@@ -21,7 +21,7 @@
 /* ── Tax Grid ── */
 .mt-tax-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -89,7 +89,7 @@
 .mt-tax-summary-note i { color: var(--mc, #D4A017); margin-right: 4px; }
 .mt-tax-summary-note strong { color: #1a2332; }
 
-/* ── Calculator layout ── */
+/* ── Calculator wrapper ── */
 .mt-calc-intro {
   font-size: 0.95rem;
   color: #6b7280;
@@ -97,17 +97,52 @@
   line-height: 1.6;
 }
 
-.mt-calc-layout {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 48px;
-  align-items: start;
-}
-
-.mt-calc-inputs-col {
+.mt-calc-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+}
+
+/* ── Controls bar ── */
+.mt-calc-controls {
+  border: 1.5px solid #e8eaed;
+  border-radius: 12px;
+  background: #fff;
+  padding: 20px 24px;
+}
+.mt-ctrl-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  flex-wrap: wrap;
+}
+.mt-ctrl-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 180px;
+  padding: 0 20px 0 0;
+}
+.mt-ctrl-group:last-child { padding-right: 0; }
+.mt-ctrl-divider {
+  width: 1px;
+  background: #e8eaed;
+  align-self: stretch;
+  margin: 0 20px 0 0;
+  flex-shrink: 0;
+}
+.mt-ctrl-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+}
+.mt-ctrl-weight-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .mt-optional {
@@ -119,96 +154,190 @@
   margin-left: 4px;
 }
 .mt-making-hint {
-  font-size: 0.72rem;
-  color: #9ca3af;
-  margin: -4px 0 0;
+  font-size: 0.7rem;
+  color: #b0b8c4;
+  margin: -2px 0 0;
   font-style: italic;
 }
 
-/* ── Cost Breakdown panel ── */
+/* ── Breakdown panel ── */
 .mt-breakdown {
   border: 1.5px solid #e8eaed;
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
 }
+.mt-breakdown-empty {
+  padding: 48px 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
 
-.mt-bd-header {
-  padding: 12px 18px;
-  background: #f9fafb;
-  border-bottom: 1px solid #e8eaed;
-  font-size: 0.72rem;
+/* Summary stat row */
+.mt-bd-summary {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid #f0f2f5;
+  gap: 8px;
+}
+.mt-bd-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mt-bd-stat--total { align-items: flex-end; }
+.mt-bd-stat-label {
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: #9ca3af;
 }
+.mt-bd-stat-val {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #1a2332;
+  font-variant-numeric: tabular-nums;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.mt-bd-stat-val--tax  { color: #dc2626; }
+.mt-bd-stat-val--total { color: var(--mc, #D4A017); font-size: 1.9rem; }
+.mt-bd-stat-sub {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+.mt-bd-sep {
+  font-size: 1.3rem;
+  font-weight: 300;
+  color: #d1d5db;
+  text-align: center;
+  justify-self: center;
+}
 
-.mt-bd-row {
+/* Proportion bar */
+.mt-bd-bar-wrap {
+  padding: 14px 24px 16px;
+  border-bottom: 1px solid #f0f2f5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mt-bd-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: #f0f2f5;
+  overflow: hidden;
+  display: flex;
+}
+.mt-bd-bar-metal {
+  background: var(--mc, #D4A017);
+  height: 100%;
+  transition: width 0.3s;
+}
+.mt-bd-bar-tax {
+  background: #fca5a5;
+  height: 100%;
+  transition: width 0.3s;
+}
+.mt-bd-bar-making {
+  background: #93c5fd;
+  height: 100%;
+  transition: width 0.3s;
+}
+.mt-bd-bar-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.72rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+.mt-bd-legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.mt-bd-legend-dot--metal  { background: var(--mc, #D4A017); }
+.mt-bd-legend-dot--tax    { background: #fca5a5; }
+.mt-bd-legend-dot--making { background: #93c5fd; }
+
+/* Line items */
+.mt-bd-lines {
+  padding: 8px 0;
+}
+.mt-bd-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 18px;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 9px 24px;
   gap: 12px;
+  border-bottom: 1px solid #f9fafb;
 }
-.mt-bd-row:last-of-type { border-bottom: none; }
+.mt-bd-line:last-child { border-bottom: none; }
 
-.mt-bd-base { background: #fafbfc; }
-
-.mt-bd-label {
-  font-size: 0.9rem;
+.mt-bd-line-name {
+  font-size: 0.88rem;
   color: #374151;
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
+  gap: 6px;
 }
-.mt-bd-val {
-  font-size: 0.95rem;
+.mt-bd-line-pct {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #92400e;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.mt-bd-line-val {
+  font-size: 0.9rem;
   font-weight: 600;
   color: #1a2332;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.mt-bd-tax .mt-bd-label { padding-left: 8px; }
-.mt-bd-tax-name { font-size: 0.85rem; color: #4b5563; }
-.mt-bd-tax-pct {
-  font-size: 0.68rem;
-  font-weight: 700;
-  background: #f3f4f6;
-  color: #6b7280;
-  padding: 1px 5px;
-  border-radius: 3px;
-  white-space: nowrap;
-  flex-shrink: 0;
+.mt-bd-line--base  { background: #fafbfc; }
+.mt-bd-line--base .mt-bd-line-name { font-weight: 600; }
+.mt-bd-line--tax   { padding-left: 36px; }
+.mt-bd-line--tax .mt-bd-line-val { color: #dc2626; font-weight: 500; }
+.mt-bd-line--making .mt-bd-line-name { font-weight: 600; }
+.mt-bd-line--making-tax { padding-left: 36px; }
+.mt-bd-line--making-tax .mt-bd-line-val { color: #2563eb; font-weight: 500; }
+.mt-bd-line--subtotal {
+  background: #f9fafb;
+  border-top: 1px solid #e8eaed;
 }
-.mt-bd-tax-amt { color: #6b7280; }
+.mt-bd-line--subtotal .mt-bd-line-name { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; }
+.mt-bd-line--subtotal .mt-bd-line-val { color: #6b7280; }
 
-.mt-bd-divider {
-  height: 2px;
-  background: #e8eaed;
-  margin: 0 18px;
-}
-
-.mt-bd-total-row {
+.mt-bd-total-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px 10px;
+  padding: 14px 24px;
+  border-top: 2px solid #e8eaed;
   gap: 12px;
+  background: #fff;
 }
-.mt-bd-total-label {
-  font-size: 0.82rem;
+.mt-bd-total-line-label {
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   color: #9ca3af;
 }
-.mt-bd-total-val {
-  font-size: 1.8rem;
+.mt-bd-total-line-val {
+  font-size: 1.6rem;
   font-weight: 800;
   color: var(--mc, #D4A017);
   font-variant-numeric: tabular-nums;
@@ -217,18 +346,11 @@
   line-height: 1;
 }
 .mt-bd-disclaimer {
-  font-size: 0.7rem;
-  color: #9ca3af;
+  font-size: 0.68rem;
+  color: #b0b8c4;
   text-align: right;
-  padding: 0 18px 12px;
+  padding: 0 24px 12px;
   margin: 0;
-}
-
-.mt-breakdown-empty {
-  padding: 40px 20px;
-  text-align: center;
-  color: #9ca3af;
-  font-size: 0.9rem;
 }
 
 /* ── FAQ ── */
@@ -271,9 +393,12 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 992px) {
-  .mt-calc-layout { grid-template-columns: 1fr; gap: 28px; }
-}
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .mt-tax-grid { grid-template-columns: 1fr; }
+  .mt-ctrl-row { flex-direction: column; gap: 16px; }
+  .mt-ctrl-divider { display: none; }
+  .mt-ctrl-group { padding-right: 0; }
+  .mt-bd-summary { grid-template-columns: 1fr; gap: 12px; }
+  .mt-bd-sep { display: none; }
+  .mt-bd-stat--total { align-items: flex-start; }
 }

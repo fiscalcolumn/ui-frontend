@@ -573,18 +573,18 @@
 .rp-jewellers-desc {
   font-size: 0.85rem;
   color: #6b7280;
-  margin: -12px 0 6px;
+  margin: -12px 0 8px;
 }
 
 .rp-jewellers-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 300px;
+  gap: 9px;
+  max-height: 600px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #ddd transparent;
-  padding-right: 4px;
+  padding-right: 24px;
 }
 .rp-jewellers-list::-webkit-scrollbar { width: 4px; }
 .rp-jewellers-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
@@ -594,7 +594,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 4px;
+  padding: 6px;
   border-radius: 10px;
   border-bottom: 0.6px solid var(--border-color, #e8eaed);
   transition: box-shadow 0.15s, border-color 0.15s;

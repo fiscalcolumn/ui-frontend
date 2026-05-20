@@ -41,11 +41,7 @@ const METAL_CONFIG = {
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-function getApiUrl(path) {
-  const base = window.API_CONFIG?.API_URL || '';
-  return `${base}${path}`;
-}
+// getApiUrl() is defined globally by config.js (loaded before this script)
 
 function fmt(n) {
   return '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
@@ -218,49 +214,54 @@ class MetalTaxesPage {
       <div class="rp-section">
         <div class="container">
           <h2 class="rp-section-title">What will you actually pay?</h2>
-          <p class="mt-calc-intro">Enter your purchase details below to see a complete cost breakdown including all applicable taxes.</p>
+          <p class="mt-calc-intro">Enter your purchase details to see a full cost breakdown — metal price, each tax, and the grand total.</p>
 
-          <div class="mt-calc-layout">
+          <div class="mt-calc-wrapper">
 
-            <!-- Left: Inputs -->
-            <div class="mt-calc-inputs-col">
+            <!-- Controls bar -->
+            <div class="mt-calc-controls">
+              <div class="mt-ctrl-row">
 
-              <div class="rp-calc-field">
-                <label class="rp-calc-label">Purity</label>
-                <select id="mt-purity" class="rp-select">${purityOpts}</select>
+                <div class="mt-ctrl-group">
+                  <label class="mt-ctrl-label">Purity</label>
+                  <select id="mt-purity" class="rp-select">${purityOpts}</select>
+                </div>
+
+                <div class="mt-ctrl-divider"></div>
+
+                <div class="mt-ctrl-group">
+                  <label class="mt-ctrl-label">Weight</label>
+                  <div class="mt-ctrl-weight-row">
+                    <div class="rp-calc-preset-row">
+                      ${presets.map((w, i) =>
+                        `<button class="rp-calc-preset${i === 0 ? ' active' : ''}" data-weight="${w}">${w}g</button>`
+                      ).join('')}
+                    </div>
+                    <div class="rp-calc-input-wrap">
+                      <input type="number" id="mt-weight" class="rp-calc-input"
+                             value="1" min="0.01" step="0.5" placeholder="or enter custom">
+                      <span class="rp-calc-unit">g</span>
+                    </div>
+                  </div>
+                </div>
+
+                ${makingTaxes.length ? `
+                <div class="mt-ctrl-divider"></div>
+                <div class="mt-ctrl-group">
+                  <label class="mt-ctrl-label">Making Charges <span class="mt-optional">(optional)</span></label>
+                  <div class="rp-calc-input-wrap">
+                    <input type="number" id="mt-making" class="rp-calc-input"
+                           value="" min="0" max="50" step="0.5" placeholder="e.g. 10">
+                    <span class="rp-calc-unit">%</span>
+                  </div>
+                  <p class="mt-making-hint">% of metal value · Typical: 5–15%</p>
+                </div>` : ''}
+
               </div>
-
-              <div class="rp-calc-field">
-                <label class="rp-calc-label">Weight</label>
-                <div class="rp-calc-preset-row">
-                  ${presets.map((w, i) =>
-                    `<button class="rp-calc-preset${i === 0 ? ' active' : ''}" data-weight="${w}">${w}g</button>`
-                  ).join('')}
-                </div>
-                <div class="rp-calc-input-wrap">
-                  <input type="number" id="mt-weight" class="rp-calc-input"
-                         value="1" min="0.01" step="0.5" placeholder="or enter custom">
-                  <span class="rp-calc-unit">g</span>
-                </div>
-              </div>
-
-              ${makingTaxes.length ? `
-              <div class="rp-calc-field">
-                <label class="rp-calc-label">Making Charges <span class="mt-optional">(optional)</span></label>
-                <div class="rp-calc-input-wrap">
-                  <input type="number" id="mt-making" class="rp-calc-input"
-                         value="0" min="0" step="100" placeholder="₹ per gram">
-                  <span class="rp-calc-unit">₹/g</span>
-                </div>
-                <p class="mt-making-hint">Typical range: ₹200 – ₹600/g for standard jewellery</p>
-              </div>` : ''}
-
             </div>
 
-            <!-- Right: Breakdown -->
-            <div class="mt-calc-breakdown-col">
-              <div class="mt-breakdown" id="mt-breakdown">${initRows}</div>
-            </div>
+            <!-- Breakdown panel (full width) -->
+            <div class="mt-breakdown" id="mt-breakdown">${initRows}</div>
 
           </div>
         </div>
@@ -280,66 +281,98 @@ class MetalTaxesPage {
 
   // ── Breakdown rows HTML ──────────────────────────────────────────────────
 
-  buildBreakdownRows(perGram, purityRatio, pLabel, weight, makingPerGram) {
+  buildBreakdownRows(perGram, purityRatio, pLabel, weight, makingPct) {
     if (!perGram || weight <= 0) {
-      return `<div class="mt-breakdown-empty">Enter weight above to see breakdown</div>`;
+      return `<div class="mt-breakdown-empty">Enter a weight above to see your cost breakdown</div>`;
     }
 
-    const basePrice    = perGram * purityRatio * weight;
-    const totalMaking  = makingPerGram * weight;
+    const basePrice   = perGram * purityRatio * weight;
+    const totalMaking = basePrice * (makingPct / 100);
 
-    const metalTaxes   = this.taxes.filter(t => !/making/i.test(t.taxName || ''));
-    const makingTaxes  = this.taxes.filter(t => /making/i.test(t.taxName || ''));
+    const metalTaxes  = this.taxes.filter(t => !/making/i.test(t.taxName || ''));
+    const makingTaxes = this.taxes.filter(t => /making/i.test(t.taxName || ''));
 
-    const metalTaxLines  = metalTaxes.map(t => ({
-      name:   t.taxName,
-      pct:    parseTaxPct(t.taxValue),
-      amount: basePrice * parseTaxPct(t.taxValue),
-      val:    t.taxValue,
+    const metalTaxLines = metalTaxes.map(t => ({
+      name: t.taxName, val: t.taxValue,
+      pct:  parseTaxPct(t.taxValue),
+      amt:  basePrice * parseTaxPct(t.taxValue),
     }));
-
     const makingTaxLines = makingTaxes.map(t => ({
-      name:   t.taxName,
-      pct:    parseTaxPct(t.taxValue),
-      amount: totalMaking * parseTaxPct(t.taxValue),
-      val:    t.taxValue,
+      name: t.taxName, val: t.taxValue,
+      pct:  parseTaxPct(t.taxValue),
+      amt:  totalMaking * parseTaxPct(t.taxValue),
     }));
 
-    const metalTaxTotal  = metalTaxLines.reduce((s, l) => s + l.amount, 0);
-    const makingTaxTotal = makingTaxLines.reduce((s, l) => s + l.amount, 0);
-    const grandTotal     = basePrice + metalTaxTotal + totalMaking + makingTaxTotal;
+    const metalTaxTotal  = metalTaxLines.reduce((s, l) => s + l.amt, 0);
+    const makingTaxTotal = makingTaxLines.reduce((s, l) => s + l.amt, 0);
+    const totalTaxes     = metalTaxTotal + makingTaxTotal;
+    const grandTotal     = basePrice + totalTaxes + totalMaking;
 
-    const row = (label, amount, cls = '') =>
-      `<div class="mt-bd-row ${cls}">
-        <span class="mt-bd-label">${label}</span>
-        <span class="mt-bd-val">${fmt(Math.round(amount))}</span>
-      </div>`;
+    // Proportion bar widths
+    const barMetal  = ((basePrice  / grandTotal) * 100).toFixed(1);
+    const barTax    = ((totalTaxes / grandTotal) * 100).toFixed(1);
+    const barMaking = ((totalMaking / grandTotal) * 100).toFixed(1);
+    const taxPctOfMetal = basePrice ? ((metalTaxTotal / basePrice) * 100).toFixed(1) : 0;
 
-    const taxRow = (t) =>
-      `<div class="mt-bd-row mt-bd-tax">
-        <span class="mt-bd-label">
-          <span class="mt-bd-tax-name">${esc(t.name)}</span>
-          <span class="mt-bd-tax-pct">${t.val}</span>
+    const line = (name, val, cls, pct = '') => `
+      <div class="mt-bd-line ${cls}">
+        <span class="mt-bd-line-name">
+          ${esc(name)}
+          ${pct ? `<span class="mt-bd-line-pct">${pct}</span>` : ''}
         </span>
-        <span class="mt-bd-val mt-bd-tax-amt">+ ${fmt(Math.round(t.amount))}</span>
+        <span class="mt-bd-line-val">${val}</span>
       </div>`;
 
     return `
-      <div class="mt-bd-header">${weight}g · ${pLabel} · Today's rate</div>
-
-      ${row(`Base ${this.metalName} Price`, basePrice, 'mt-bd-base')}
-      ${metalTaxLines.map(taxRow).join('')}
-
-      ${totalMaking > 0 ? row('Making Charges', totalMaking) : ''}
-      ${makingTaxLines.map(taxRow).join('')}
-
-      <div class="mt-bd-divider"></div>
-
-      <div class="mt-bd-total-row">
-        <span class="mt-bd-total-label">Estimated Total</span>
-        <span class="mt-bd-total-val">${fmt(Math.round(grandTotal))}</span>
+      <!-- Summary stats -->
+      <div class="mt-bd-summary">
+        <div class="mt-bd-stat">
+          <span class="mt-bd-stat-label">Metal Cost</span>
+          <span class="mt-bd-stat-val">${fmt(Math.round(basePrice))}</span>
+          <span class="mt-bd-stat-sub">${pLabel} · ${weight}g</span>
+        </div>
+        <div class="mt-bd-sep">+</div>
+        <div class="mt-bd-stat">
+          <span class="mt-bd-stat-label">Total Taxes</span>
+          <span class="mt-bd-stat-val mt-bd-stat-val--tax">${fmt(Math.round(totalTaxes))}</span>
+          <span class="mt-bd-stat-sub">${taxPctOfMetal}% of metal cost</span>
+        </div>
+        <div class="mt-bd-sep">=</div>
+        <div class="mt-bd-stat mt-bd-stat--total">
+          <span class="mt-bd-stat-label">You Pay</span>
+          <span class="mt-bd-stat-val mt-bd-stat-val--total">${fmt(Math.round(grandTotal))}</span>
+          <span class="mt-bd-stat-sub">all taxes included</span>
+        </div>
       </div>
-      <p class="mt-bd-disclaimer">Indicative only. Actual price may vary by jeweller.</p>
+
+      <!-- Proportion bar -->
+      <div class="mt-bd-bar-wrap">
+        <div class="mt-bd-bar">
+          <div class="mt-bd-bar-metal"  style="width:${barMetal}%"></div>
+          <div class="mt-bd-bar-tax"    style="width:${barTax}%"></div>
+          ${totalMaking > 0 ? `<div class="mt-bd-bar-making" style="width:${barMaking}%"></div>` : ''}
+        </div>
+        <div class="mt-bd-bar-legend">
+          <span><span class="mt-bd-legend-dot mt-bd-legend-dot--metal"></span>Metal ${fmt(Math.round(basePrice))}</span>
+          <span><span class="mt-bd-legend-dot mt-bd-legend-dot--tax"></span>Taxes ${fmt(Math.round(totalTaxes))}</span>
+          ${totalMaking > 0 ? `<span><span class="mt-bd-legend-dot mt-bd-legend-dot--making"></span>Making ${fmt(Math.round(totalMaking))}</span>` : ''}
+        </div>
+      </div>
+
+      <!-- Line items -->
+      <div class="mt-bd-lines">
+        ${line(`Base ${this.metalName} Price (${pLabel} · ${weight}g)`, fmt(Math.round(basePrice)), 'mt-bd-line--base')}
+        ${metalTaxLines.map(t => line(t.name, `+ ${fmt(Math.round(t.amt))}`, 'mt-bd-line--tax', t.val)).join('')}
+        ${line('Total Tax on Metal', fmt(Math.round(metalTaxTotal)), 'mt-bd-line--subtotal')}
+        ${totalMaking > 0 ? line(`Making Charges (${makingPct}% of ${fmt(Math.round(basePrice))})`, fmt(Math.round(totalMaking)), 'mt-bd-line--making') : ''}
+        ${makingTaxLines.map(t => line(t.name, `+ ${fmt(Math.round(t.amt))}`, 'mt-bd-line--making-tax', t.val)).join('')}
+      </div>
+
+      <div class="mt-bd-total-line">
+        <span class="mt-bd-total-line-label">Estimated Total Cost</span>
+        <span class="mt-bd-total-line-val">${fmt(Math.round(grandTotal))}</span>
+      </div>
+      <p class="mt-bd-disclaimer">Indicative only. Actual price may vary by jeweller and design.</p>
     `;
   }
 
@@ -361,11 +394,11 @@ class MetalTaxesPage {
     };
 
     const update = () => {
-      const weight       = parseFloat(weightEl.value) || 0;
-      const purityRatio  = parseFloat(purityEl.value) || 1;
-      const pLabel       = purityEl.options[purityEl.selectedIndex]?.text.split(' — ')[0] || '';
-      const makingPerG   = parseFloat(makingEl?.value) || 0;
-      breakdownEl.innerHTML = this.buildBreakdownRows(perGram, purityRatio, pLabel, weight, makingPerG);
+      const weight      = parseFloat(weightEl.value) || 0;
+      const purityRatio = parseFloat(purityEl.value) || 1;
+      const pLabel      = purityEl.options[purityEl.selectedIndex]?.text.split(' — ')[0] || '';
+      const makingPct   = parseFloat(makingEl?.value) || 0;
+      breakdownEl.innerHTML = this.buildBreakdownRows(perGram, purityRatio, pLabel, weight, makingPct);
     };
 
     presetBtns.forEach(btn => {
