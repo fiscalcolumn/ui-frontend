@@ -90,6 +90,7 @@ class RatePageManager {
     this.taxes           = [];
     this.articles        = [];
     this.cities          = [];
+    this.otherMetalRate  = null;
     // Detect city slug from URL: /gold-rate-today/mumbai → 'mumbai'
     const urlParts = window.location.pathname.split('/').filter(Boolean);
     this.citySlug  = urlParts.length >= 2 ? urlParts[1] : null;
@@ -113,6 +114,7 @@ class RatePageManager {
       // Parallel: all data fetched together
       await Promise.all([
         this.fetchLatestRates(),
+        this.fetchOtherMetalRate(),
         this.fetchHistoricalRange(365),
         this.fetchStates(),
         this.fetchJewellers(),
@@ -178,6 +180,23 @@ class RatePageManager {
     const dates = Object.keys(byDate).sort().reverse();
     this.todayRate = byDate[dates[0]] || null;
     this.yestRate  = byDate[dates[1]] || null;
+  }
+
+  /**
+   * Fetch the latest rate for the OTHER metal (needed for the Gold:Silver ratio widget).
+   */
+  async fetchOtherMetalRate() {
+    const otherName = this.isGold ? 'Silver' : 'Gold';
+    try {
+      const url  = getApiUrl(`/daily-rates?sort=date:desc&pagination[limit]=4&populate=*`);
+      const res  = await fetch(url);
+      const json = await res.json();
+      const mine = (json.data || []).filter(r => r.metal?.name === otherName);
+      const byDate = {};
+      mine.forEach(r => { if (!byDate[r.date]) byDate[r.date] = r; });
+      const dates = Object.keys(byDate).sort().reverse();
+      this.otherMetalRate = byDate[dates[0]] || null;
+    } catch { this.otherMetalRate = null; }
   }
 
   /**
@@ -328,46 +347,12 @@ class RatePageManager {
       </tr>`
     ).join('');
 
-    // ── State dropdown ──
-    const firstState = this.states[0] || '';
-    const stateOpts  = this.states.length
-      ? this.states.map(s => `<option value="${esc(s)}"${s === firstState ? ' selected' : ''}>${esc(s)}</option>`).join('')
-      : '<option disabled>No states loaded</option>';
-
     this.mainEl.innerHTML = `
 
-      <!-- Section 1: Check Rate by City | Popular Jewellers -->
+      <!-- Section 1: Popular Jewellers | Taxes -->
       <div class="rp-section">
         <div class="container">
           <div class="rp-loc-tax-row">
-
-            <div class="rp-card rp-location-card">
-              <h2 class="rp-section-title"><i class="fa fa-map-marker"></i> <span id="rp-loc-heading">Check Rate by City</span></h2>
-              <div class="rp-location-inner">
-                <!-- Left: stacked dropdowns -->
-                <div class="rp-location-dropdowns">
-                  <div class="rp-select-wrap">
-                    <label>State</label>
-                    <select class="rp-select" id="rp-state-select">
-                      ${stateOpts}
-                    </select>
-                  </div>
-                  <div class="rp-select-wrap">
-                    <label>City</label>
-                    <select class="rp-select" id="rp-city-select" disabled>
-                      <option value="">Loading…</option>
-                    </select>
-                  </div>
-                  <p class="rp-location-note"><i class="fa fa-info-circle"></i> City-specific rates coming soon. Showing national average.</p>
-                </div>
-                <!-- Right: price panel — always visible -->
-                <div class="rp-location-result" id="rp-location-result">
-                  <div class="rp-loc-context" id="rp-loc-context">All India</div>
-                  <div class="rp-loc-price" id="rp-loc-price">${base ? this.fmt(Math.round(base * ap.ratio)) : '—'}</div>
-                  <div class="rp-loc-label" id="rp-loc-label">${ap.label} · per ${mc.unitLabel}</div>
-                </div>
-              </div>
-            </div>
 
             <div class="rp-card rp-jewellers-col">
               <h2 class="rp-section-title">Buy from Popular Jewellers</h2>
@@ -375,29 +360,8 @@ class RatePageManager {
               <div class="rp-jewellers-list">${this.renderJewellers()}</div>
             </div>
 
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 2 (alt bg): Price by Weight | Taxes -->
-      <div class="rp-section rp-section--alt">
-        <div class="container">
-          <div class="rp-table-jeweller-row">
-
-            <div class="rp-card rp-table-col">
-              <h2 class="rp-section-title">${mc.name} Price by Weight — ${dateStr}</h2>
-              <div class="rp-table-wrap">
-                <table class="rp-price-table">
-                  <thead><tr><th>Purity</th>${tableHeaders}</tr></thead>
-                  <tbody>${tableRows}</tbody>
-                </table>
-              </div>
-              <p class="rp-table-note"><i class="fa fa-info-circle"></i> Rates are indicative. Actual prices may vary due to taxes and making charges.</p>
-              <p class="rp-table-note rp-table-note--conversions"><i class="fa fa-info-circle"></i>1 Tola = 11.664 g &nbsp;|&nbsp; 1 Troy Ounce = 31.103 g</p>
-            </div>
-
             <div class="rp-card rp-tax-card">
-              <h2 class="rp-section-title">🧾 Taxes on ${mc.name} in India</h2>
+              <h2 class="rp-section-title">Taxes on ${mc.name} in India</h2>
               <div class="rp-tax-list">${this.renderTaxInfo()}</div>
               <p class="rp-tax-note"><i class="fa fa-info-circle"></i> Tax rates are as per latest government notification. Consult a tax advisor for personal guidance.</p>
             </div>
@@ -406,8 +370,8 @@ class RatePageManager {
         </div>
       </div>
 
-      <!-- Section 3: Historical Chart -->
-      <div class="rp-section">
+      <!-- Section 2: Historical Chart — unchanged -->
+      <div class="rp-section rp-section--alt">
         <div class="container">
           <h2 class="rp-section-title">Historical Price Trend</h2>
           <div class="rp-chart-layout">
@@ -431,7 +395,43 @@ class RatePageManager {
         </div>
       </div>
 
-      <!-- Section 4 (alt bg): Articles carousel — omitted if no articles loaded -->
+      <!-- Section 3: Price by Weight Table — full width -->
+      <div class="rp-section">
+        <div class="container">
+          <div class="rp-card">
+            <h2 class="rp-section-title">${mc.name} Price by Weight — ${dateStr}</h2>
+            <div class="rp-table-wrap">
+              <table class="rp-price-table">
+                <thead><tr><th>Purity</th>${tableHeaders}</tr></thead>
+                <tbody>${tableRows}</tbody>
+              </table>
+            </div>
+            <p class="rp-table-note"><i class="fa fa-info-circle"></i> Rates are indicative. Actual prices may vary due to taxes and making charges.</p>
+            <p class="rp-table-note rp-table-note--conversions"><i class="fa fa-info-circle"></i>1 Tola = 11.664 g &nbsp;|&nbsp; 1 Troy Ounce = 31.103 g</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4 (alt bg): Gold:Silver Ratio | Purity Calculator -->
+      <div class="rp-section rp-section--alt">
+        <div class="container">
+          <div class="rp-tools-row">
+
+            <div class="rp-card rp-ratio-col">
+              <h2 class="rp-section-title">Gold : Silver Ratio</h2>
+              ${this.renderRatioWidget()}
+            </div>
+
+            <div class="rp-card rp-calc-col">
+              <h2 class="rp-section-title">Purity Price Calculator</h2>
+              ${this.renderPurityCalculator()}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5 (alt bg): Articles carousel — omitted if no articles loaded -->
       ${this.articles.length ? `
       <div class="rp-section rp-section--alt">
         <div class="container">
@@ -439,7 +439,7 @@ class RatePageManager {
         </div>
       </div>` : ''}
 
-      <!-- Section 5: City Finder -->
+      <!-- Section 6: City Finder -->
       <div class="rp-section">
         <div class="container">
           ${this.renderCityFinderSection()}
@@ -448,6 +448,113 @@ class RatePageManager {
     `;
 
     this.bindEvents();
+  }
+
+  // ── Gold : Silver Ratio ───────────────────────────────────────────────────────
+  renderRatioWidget() {
+    const goldRate   = this.isGold ? this.todayRate   : this.otherMetalRate;
+    const silverRate = this.isGold ? this.otherMetalRate : this.todayRate;
+
+    if (!goldRate || !silverRate) {
+      return `<p class="rp-jewellers-empty">Ratio data unavailable.</p>`;
+    }
+
+    // gold per 10g → per gram; silver per kg → per gram
+    const goldPerGram   = parseFloat(goldRate.buyingRate)   / 10;
+    const silverPerGram = parseFloat(silverRate.buyingRate) / 1000;
+    const ratio         = (goldPerGram / silverPerGram).toFixed(1);
+    const ratioNum      = parseFloat(ratio);
+
+    // Track covers ratio range 50–120
+    const pct = Math.min(100, Math.max(0, ((ratioNum - 50) / 70) * 100)).toFixed(1);
+
+    // Interpretation thresholds
+    let statusLabel, statusClass, statusDesc;
+    if (ratioNum < 65) {
+      statusLabel = 'Low';    statusClass = 'rp-ratio--low';
+      statusDesc  = 'Silver is expensive relative to gold historically.';
+    } else if (ratioNum <= 85) {
+      statusLabel = 'Normal'; statusClass = 'rp-ratio--normal';
+      statusDesc  = 'Ratio is within the typical historical range of 65–85.';
+    } else {
+      statusLabel = 'High';   statusClass = 'rp-ratio--high';
+      statusDesc  = 'Silver is cheap relative to gold. Ratio historically tends to revert lower.';
+    }
+
+    return `
+      <div class="rp-ratio-widget ${statusClass}">
+        <div class="rp-ratio-top">
+          <div class="rp-ratio-number-wrap">
+            <span class="rp-ratio-number">${ratio}</span>
+            <span class="rp-ratio-colon">:1</span>
+          </div>
+          <span class="rp-ratio-badge">${statusLabel}</span>
+        </div>
+        <p class="rp-ratio-sub">1 oz Gold = ${ratio} oz Silver</p>
+
+        <div class="rp-ratio-track-wrap">
+          <div class="rp-ratio-track">
+            <div class="rp-ratio-zone rp-ratio-zone--low"    style="width:21.4%"></div>
+            <div class="rp-ratio-zone rp-ratio-zone--normal" style="width:28.6%"></div>
+            <div class="rp-ratio-zone rp-ratio-zone--high"   style="width:50%"></div>
+            <div class="rp-ratio-cursor" style="left:${pct}%"></div>
+          </div>
+          <div class="rp-ratio-track-labels">
+            <span>50</span><span>65</span><span>85</span><span>120+</span>
+          </div>
+        </div>
+
+        <p class="rp-ratio-desc">${statusDesc}</p>
+
+        <div class="rp-ratio-prices">
+          <div class="rp-ratio-price-item">
+            <span class="rp-ratio-price-label">Gold (24K)</span>
+            <span class="rp-ratio-price-val">${this.fmt(Math.round(goldPerGram))}<small>/g</small></span>
+          </div>
+          <div class="rp-ratio-price-sep"></div>
+          <div class="rp-ratio-price-item">
+            <span class="rp-ratio-price-label">Silver (999)</span>
+            <span class="rp-ratio-price-val">${this.fmt(Math.round(silverPerGram))}<small>/g</small></span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── Purity Price Calculator ───────────────────────────────────────────────────
+  renderPurityCalculator() {
+    const mc   = this.metal;
+    const base = parseFloat(this.todayRate?.buyingRate || 0);
+    // perGram: gold base is per 10g, silver base is per kg
+    const perGram  = mc.name === 'Gold' ? base / 10 : base / 1000;
+    const initPurity = mc.purities[0];
+    const initPrice  = base ? this.fmt(Math.round(perGram * initPurity.ratio * 1)) : '—';
+
+    const purityOpts = mc.purities.map((p, i) =>
+      `<option value="${p.ratio}"${i === 0 ? ' selected' : ''}>${p.label} — ${p.desc}</option>`
+    ).join('');
+
+    return `
+      <div class="rp-calc-widget">
+        <div class="rp-calc-inputs">
+          <div class="rp-calc-field">
+            <label class="rp-calc-label">Weight</label>
+            <div class="rp-calc-input-wrap">
+              <input type="number" id="rp-calc-weight" class="rp-calc-input"
+                     value="1" min="0.01" step="0.5" placeholder="Grams">
+              <span class="rp-calc-unit">g</span>
+            </div>
+          </div>
+          <div class="rp-calc-field">
+            <label class="rp-calc-label">Purity</label>
+            <select id="rp-calc-purity" class="rp-select">${purityOpts}</select>
+          </div>
+        </div>
+        <div class="rp-calc-output">
+          <div class="rp-calc-price" id="rp-calc-price">${initPrice}</div>
+          <div class="rp-calc-meta" id="rp-calc-meta">for 1g · ${initPurity.label}</div>
+        </div>
+        <p class="rp-calc-note"><i class="fa fa-info-circle"></i> Based on today's buying rate. Actual price may vary.</p>
+      </div>`;
   }
 
   // ── Articles ──────────────────────────────────────────────────────────────────
@@ -908,11 +1015,41 @@ class RatePageManager {
     });
   }
 
+  // ── Purity Calculator interactivity ──────────────────────────────────────────
+  bindCalculator() {
+    const weightEl = document.getElementById('rp-calc-weight');
+    const purityEl = document.getElementById('rp-calc-purity');
+    const priceEl  = document.getElementById('rp-calc-price');
+    const metaEl   = document.getElementById('rp-calc-meta');
+    if (!weightEl || !purityEl) return;
+
+    const mc      = this.metal;
+    const base    = parseFloat(this.todayRate?.buyingRate || 0);
+    const perGram = mc.name === 'Gold' ? base / 10 : base / 1000;
+
+    const update = () => {
+      const weight = parseFloat(weightEl.value) || 0;
+      const ratio  = parseFloat(purityEl.value) || 1;
+      const pLabel = purityEl.options[purityEl.selectedIndex]?.text.split(' ')[0] || '';
+      if (!base || weight <= 0) {
+        priceEl.textContent = '—';
+        metaEl.textContent  = 'Enter a weight above';
+        return;
+      }
+      priceEl.textContent = this.fmt(Math.round(perGram * ratio * weight));
+      metaEl.textContent  = `for ${weight}g · ${pLabel}`;
+    };
+
+    weightEl.addEventListener('input', update);
+    purityEl.addEventListener('change', update);
+    update();
+  }
+
   bindEvents() {
     this.bindPurityTabs();
     this.bindRangeButtons();
-    this.bindLocationSelectors();
     this.bindCityFinder();
+    this.bindCalculator();
     setTimeout(() => this.renderChart(), 100);
   }
 

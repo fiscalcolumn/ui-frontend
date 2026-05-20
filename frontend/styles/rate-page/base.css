@@ -625,8 +625,8 @@ a.rp-jwl-img-wrap:hover {
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 16px;
 }
 .rp-jwl-name {
   font-weight: 600;
@@ -636,7 +636,6 @@ a.rp-jwl-img-wrap:hover {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1;
 }
 .rp-jwl-badge {
   font-size: 0.65rem;
@@ -681,6 +680,234 @@ a.rp-jwl-img-wrap:hover {
   text-align: center;
   padding: 24px 0;
 }
+
+/* ── Tools Row (Ratio + Calculator) ── */
+.rp-tools-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ── Gold : Silver Ratio Widget ── */
+.rp-ratio-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rp-ratio-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rp-ratio-number-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  line-height: 1;
+}
+.rp-ratio-number {
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: #1a2332;
+  font-family: 'DM Sans', sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+.rp-ratio-colon {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: -0.02em;
+}
+
+.rp-ratio-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+.rp-ratio--low    .rp-ratio-badge { background: #fef2f2; color: #b91c1c; }
+.rp-ratio--normal .rp-ratio-badge { background: #f0fdf4; color: #15803d; }
+.rp-ratio--high   .rp-ratio-badge { background: #fffbeb; color: #b45309; }
+
+.rp-ratio-sub {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: -8px 0 0;
+}
+
+/* Track */
+.rp-ratio-track-wrap { display: flex; flex-direction: column; gap: 5px; }
+.rp-ratio-track {
+  position: relative;
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: visible;
+}
+.rp-ratio-zone { height: 100%; }
+.rp-ratio-zone--low    { background: #fca5a5; border-radius: 3px 0 0 3px; }
+.rp-ratio-zone--normal { background: #86efac; }
+.rp-ratio-zone--high   { background: #fcd34d; border-radius: 0 3px 3px 0; }
+.rp-ratio-cursor {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #1a2332;
+  border: 2px solid #fff;
+  outline: 1.5px solid #1a2332;
+  z-index: 1;
+}
+.rp-ratio-track-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.rp-ratio-desc {
+  font-size: 0.82rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.rp-ratio-prices {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid #e8eaed;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.rp-ratio-price-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 16px;
+}
+.rp-ratio-price-sep {
+  width: 1px;
+  align-self: stretch;
+  background: #e8eaed;
+}
+.rp-ratio-price-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+}
+.rp-ratio-price-val {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a2332;
+  font-variant-numeric: tabular-nums;
+  font-family: 'DM Sans', sans-serif;
+}
+.rp-ratio-price-val small { font-size: 0.75rem; font-weight: 400; color: #9ca3af; margin-left: 1px; }
+
+/* ── Purity Price Calculator ── */
+.rp-calc-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rp-calc-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: end;
+}
+
+.rp-calc-field { display: flex; flex-direction: column; gap: 6px; }
+.rp-calc-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+
+.rp-calc-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.rp-calc-input {
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  border: 1.5px solid #d0d7e2;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #1a2332;
+  font-family: 'DM Sans', sans-serif;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+}
+.rp-calc-input::-webkit-outer-spin-button,
+.rp-calc-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.rp-calc-input:focus { border-color: var(--mc, #D4A017); }
+.rp-calc-unit {
+  position: absolute;
+  right: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.rp-calc-output {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1.5px solid #e8eaed;
+  text-align: center;
+  gap: 6px;
+}
+.rp-calc-price {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--mc, #D4A017);
+  font-variant-numeric: tabular-nums;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.rp-calc-meta {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rp-calc-note {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin: 0;
+}
+.rp-calc-note i { color: var(--mc, #D4A017); margin-right: 4px; }
 
 /* ── Articles Layout A (uses shared rca-card / hp-section-header classes) ── */
 
@@ -801,7 +1028,13 @@ a.rp-jwl-img-wrap:hover {
 /* ── Responsive ── */
 @media (max-width: 992px) {
   .rp-table-jeweller-row,
-  .rp-loc-tax-row { grid-template-columns: 1fr; }
+  .rp-loc-tax-row,
+  .rp-tools-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .rp-calc-inputs { grid-template-columns: 1fr; }
+  .rp-ratio-number { font-size: 2.4rem; }
 }
 
 @media (max-width: 768px) {
