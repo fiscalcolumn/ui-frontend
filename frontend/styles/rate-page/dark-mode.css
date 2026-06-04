@@ -124,3 +124,67 @@
 .dark-mode .rp-cf-divider       { color: var(--text-muted); }
 .dark-mode .rp-cf-divider::before,
 .dark-mode .rp-cf-divider::after { background: var(--border-color); }
+
+/* ── Dark mode: Gold/Silver Ratio Widget ── */
+.dark-mode .rp-ratio-number        { color: var(--text-primary); }
+.dark-mode .rp-ratio-answer-unit   { color: var(--text-secondary); }
+.dark-mode .rp-ratio-plain         { color: var(--text-secondary); }
+
+/* Signal badges — swap light pastel bg for muted dark tints */
+.dark-mode .rp-ratio-signal--low    { background: rgba(185,28,28,0.18);  color: #fca5a5; }
+.dark-mode .rp-ratio-signal--normal { background: rgba(21,128,61,0.18);  color: #86efac; }
+.dark-mode .rp-ratio-signal--high   { background: rgba(180,83,9,0.18);   color: #fcd34d; }
+
+/* Track cursor — white fill so it's visible against dark track */
+.dark-mode .rp-ratio-cursor {
+  background: var(--text-primary);
+  border-color: var(--bg-primary);
+  outline-color: var(--text-secondary);
+}
+
+/* Investor note */
+.dark-mode .rp-ratio-investor-note {
+  background: var(--bg-secondary);
+  border-left-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* Price strip */
+.dark-mode .rp-ratio-prices        { border-color: var(--border-color); }
+.dark-mode .rp-ratio-price-sep     { background: var(--border-color); }
+.dark-mode .rp-ratio-price-val     { color: var(--text-primary); }
+.dark-mode .rp-ratio-price-label   { color: var(--text-muted); }
+.dark-mode .rp-ratio-price-item    { background: var(--bg-secondary); }
+
+/* ── Dark mode: Purity Price Calculator ── */
+.dark-mode .rp-calc-preset {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+.dark-mode .rp-calc-preset:hover {
+  border-color: var(--mc, #D4A017);
+  color: var(--mc, #D4A017);
+  background: var(--bg-tertiary);
+}
+.dark-mode .rp-calc-preset.active {
+  background: var(--mc, #D4A017);
+  border-color: var(--mc, #D4A017);
+  color: #fff;
+}
+
+.dark-mode .rp-calc-input {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+.dark-mode .rp-calc-input::placeholder { color: var(--text-muted); }
+.dark-mode .rp-calc-input:focus        { border-color: var(--mc, #D4A017); }
+
+.dark-mode .rp-calc-output {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+.dark-mode .rp-calc-formula { color: var(--text-muted); }
+.dark-mode .rp-calc-meta    { color: var(--text-muted); }
+.dark-mode .rp-calc-note    { color: var(--text-muted); }
