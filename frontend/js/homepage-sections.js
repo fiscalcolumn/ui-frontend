@@ -72,9 +72,12 @@ class HomepageSectionsManager {
       if (!category) continue;
 
       const sectionType = section.sectionStyle || 'article-list';
+      console.log(`[HomepageSections] section "${section.category?.name}" → sectionStyle = "${section.sectionStyle}" (resolved: "${sectionType}"`);
       const itemsToShow = section.itemsToShow || 5;
-      const isScrollRow = sectionType === 'scroll-row' || sectionType === 'calculator-grid';
-      const limit       = isScrollRow ? 10 : itemsToShow;
+    const isScrollRow     = sectionType === 'scroll-row' || sectionType === 'calculator-grid';
+    const isEditorialHero = sectionType === 'editorial-hero';
+    const isMediaPortal   = sectionType === 'media-editorial-layout';
+    const limit           = isScrollRow ? 10 : isEditorialHero ? 7 : isMediaPortal ? 8 : itemsToShow;
 
       const articles = await this.fetchArticlesByCategory(category.documentId, limit);
 
@@ -94,6 +97,12 @@ class HomepageSectionsManager {
         case 'scroll-row':
         case 'calculator-grid':
           sectionHtml = this.renderCarouselSection(section, articles, bgClass, renderedCount, category);
+          break;
+        case 'editorial-hero':
+          sectionHtml = this.renderEditorialHeroSection(section, articles, bgClass, renderedCount, category);
+          break;
+        case 'media-editorial-layout':
+          sectionHtml = this.renderMediaPortalSection(section, articles, bgClass, renderedCount, category);
           break;
         case 'mosaic':
         default:
@@ -522,6 +531,212 @@ class HomepageSectionsManager {
             <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
           </div>
           <div class="dg-list">${items}</div>
+        </div>
+      </div>`;
+  }
+
+  /**
+   * Render Editorial Hero Section — FT/Bloomberg-style layout
+   *   Top:    Featured article text (left 1/3) + hero image (right 2/3)
+   *   Bottom: 3-column text-only article grid with thin dividers
+   */
+  renderEditorialHeroSection(section, articles, bgClass, index, category) {
+    const featured = articles[0];
+    if (!featured) return '';
+
+    const categoryUrl  = category?.slug ? `/${category.slug}` : '#';
+    const sectionTitle = category?.displayname || category?.name || 'News';
+    const featuredUrl  = `/${featured.category?.slug || 'article'}/${featured.slug}`;
+    const imgUrl       = this.imgUrl(featured.image?.url);
+    const excerpt      = featured.excerpt || Utils.truncateText(featured.content, 140);
+    const author       = featured.author?.name || '';
+    const date         = featured.publishedDate ? Utils.formatDate(featured.publishedDate) : '';
+    const meta         = [author, date].filter(Boolean).join(' · ');
+
+    const gridItems = articles.slice(1, 7).map(a => {
+      const url     = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const catName = (a.category?.name || '').toUpperCase();
+      const aAuthor = a.author?.name || '';
+      const aDate   = a.publishedDate ? Utils.formatDate(a.publishedDate) : '';
+      const aMeta   = [aAuthor, aDate].filter(Boolean).join(' · ');
+      return `
+        <a href="${url}" class="eh-grid-item">
+          ${catName ? `<span class="eh-grid-cat">${catName}</span>` : ''}
+          <h4 class="eh-grid-title">${a.title}</h4>
+          ${aMeta ? `<p class="eh-grid-meta">${aMeta}</p>` : ''}
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="content-section eh-section section-${index + 1} ${bgClass}">
+        <div class="container">
+          <div class="hp-section-header">
+            <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
+          </div>
+          <div class="eh-hero">
+            <a href="${featuredUrl}" class="eh-featured-text">
+              <h3 class="eh-featured-title">${featured.title}</h3>
+              ${excerpt ? `<p class="eh-featured-excerpt">${excerpt}</p>` : ''}
+              ${meta    ? `<p class="eh-featured-meta">${meta}</p>`       : ''}
+            </a>
+            <a href="${featuredUrl}" class="eh-featured-image">
+              ${imgUrl
+                ? `<img loading="lazy" src="${imgUrl}" alt="${featured.title}">`
+                : '<div class="eh-img-placeholder"></div>'}
+            </a>
+          </div>
+          ${gridItems ? `<div class="eh-grid">${gridItems}</div>` : ''}
+        </div>
+      </div>`;
+  }
+
+  /**
+   * Render Media Portal Section — 3-column layout
+   *   Left  (1fr):   3 text-only article snippets stacked with dividers
+   *   Center(1.8fr):  TOP — hero article with large image
+   *                   BOTTOM — second article with thumbnail image on the left
+   *   Right (1fr):   1 medium article (image + text) + 2 mini thumbnail articles
+   *
+   * Articles: [0]=center hero, [1-3]=left stack, [4]=right-top,
+   *           [5-6]=right-mini, [7]=center sub-article  (8 total)
+   */
+  renderMediaPortalSection(section, articles, bgClass, index, category) {
+    if (!articles.length) return '';
+
+    const categoryUrl  = category?.slug ? `/${category.slug}` : '#';
+    const sectionTitle = category?.displayname || category?.name || 'News';
+
+    const hero       = articles[0];
+    const leftItems  = articles.slice(1, 4);
+    const rightTop   = articles[4] || null;
+    const rightMini  = articles.slice(5, 7);
+    const subArticle = articles[7] || null;
+
+    // ── Helper: meta line ─────────────────────────────────────────
+    const meta = (a) => {
+      const parts = [];
+      if (a.author?.name)  parts.push(`<span class="mp-meta-author">${a.author.name}</span>`);
+      if (a.publishedDate) parts.push(`<span>${Utils.formatDate(a.publishedDate)}</span>`);
+      if (a.minutesToread) parts.push(`<span>${a.minutesToread} min read</span>`);
+      return parts.length
+        ? `<p class="mp-meta">${parts.join('<span class="mp-meta-sep"> · </span>')}</p>`
+        : '';
+    };
+
+    // ── Left: text-only stack ─────────────────────────────────────
+    const leftHtml = leftItems.map((a, i) => {
+      const url     = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const catName = (a.category?.name || '').toUpperCase();
+      const excerpt = a.excerpt || Utils.truncateText(a.content, 80);
+      const isLast  = i === leftItems.length - 1;
+      return `
+        <a href="${url}" class="mp-list-item${isLast ? ' mp-list-item--last' : ''}">
+          ${catName ? `<span class="mp-list-cat">${catName}</span>` : ''}
+          <h4 class="mp-list-title">${a.title}</h4>
+          ${excerpt ? `<p class="mp-list-excerpt">${excerpt}</p>` : ''}
+          ${meta(a)}
+        </a>`;
+    }).join('');
+
+    // ── Center top: hero ──────────────────────────────────────────
+    const heroUrl     = `/${hero.category?.slug || 'article'}/${hero.slug}`;
+    const heroImg     = this.imgUrl(hero.image?.url);
+    const heroCat     = (hero.category?.name || '').toUpperCase();
+    const heroExcerpt = hero.excerpt || Utils.truncateText(hero.content, 120);
+
+    // ── Center bottom: sub-article (image left) ───────────────────
+    const subHtml = subArticle ? (() => {
+      const url     = `/${subArticle.category?.slug || 'article'}/${subArticle.slug}`;
+      const img     = this.imgUrl(subArticle.image?.url);
+      const catName = (subArticle.category?.name || '').toUpperCase();
+      const excerpt = subArticle.excerpt || Utils.truncateText(subArticle.content, 90);
+      return `
+        <a href="${url}" class="mp-sub">
+          <div class="mp-sub-image">
+            ${img
+              ? `<img loading="lazy" src="${img}" alt="${subArticle.title}">`
+              : '<div class="mp-img-placeholder"></div>'}
+          </div>
+          <div class="mp-sub-body">
+            ${catName ? `<span class="mp-sub-cat">${catName}</span>` : ''}
+            <h4 class="mp-sub-title">${subArticle.title}</h4>
+            ${excerpt ? `<p class="mp-sub-excerpt">${excerpt}</p>` : ''}
+            ${meta(subArticle)}
+          </div>
+        </a>`;
+    })() : '';
+
+    // ── Right: medium top + two minis ────────────────────────────
+    const rightTopHtml = rightTop ? (() => {
+      const url     = `/${rightTop.category?.slug || 'article'}/${rightTop.slug}`;
+      const img     = this.imgUrl(rightTop.image?.url);
+      const catName = (rightTop.category?.name || '').toUpperCase();
+      const excerpt = rightTop.excerpt || Utils.truncateText(rightTop.content, 80);
+      return `
+        <a href="${url}" class="mp-right-top">
+          <div class="mp-right-top-image">
+            ${img
+              ? `<img loading="lazy" src="${img}" alt="${rightTop.title}">`
+              : '<div class="mp-img-placeholder"></div>'}
+          </div>
+          ${catName ? `<span class="mp-right-cat">${catName}</span>` : ''}
+          <h4 class="mp-right-title">${rightTop.title}</h4>
+          ${excerpt ? `<p class="mp-right-excerpt">${excerpt}</p>` : ''}
+          ${meta(rightTop)}
+        </a>`;
+    })() : '';
+
+    const rightMiniHtml = rightMini.map(a => {
+      const url = `/${a.category?.slug || 'article'}/${a.slug}`;
+      const img = this.imgUrl(a.image?.url);
+      return `
+        <a href="${url}" class="mp-mini">
+          <div class="mp-mini-image">
+            ${img
+              ? `<img loading="lazy" src="${img}" alt="${a.title}">`
+              : '<div class="mp-img-placeholder"></div>'}
+          </div>
+          <div class="mp-mini-body">
+            <h5 class="mp-mini-title">${a.title}</h5>
+            ${meta(a)}
+          </div>
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="content-section mp-section section-${index + 1} ${bgClass}">
+        <div class="container">
+          <div class="hp-section-header">
+            <h2 class="hp-section-title"><a href="${categoryUrl}">${sectionTitle}</a></h2>
+          </div>
+          <div class="mp-layout">
+
+            <!-- Left: text stack -->
+            <div class="mp-left">${leftHtml}</div>
+
+            <!-- Center: hero + sub-article -->
+            <div class="mp-center-col">
+              <a href="${heroUrl}" class="mp-center">
+                <div class="mp-center-image">
+                  ${heroImg
+                    ? `<img loading="eager" src="${heroImg}" alt="${hero.title}">`
+                    : '<div class="mp-img-placeholder"></div>'}
+                </div>
+                ${heroCat ? `<span class="mp-center-cat">${heroCat}</span>` : ''}
+                <h3 class="mp-center-title">${hero.title}</h3>
+                ${heroExcerpt ? `<p class="mp-center-excerpt">${heroExcerpt}</p>` : ''}
+                ${meta(hero)}
+              </a>
+              ${subHtml}
+            </div>
+
+            <!-- Right: medium + minis -->
+            <div class="mp-right">
+              ${rightTopHtml}
+              ${rightMiniHtml ? `<div class="mp-right-bottom">${rightMiniHtml}</div>` : ''}
+            </div>
+
+          </div>
         </div>
       </div>`;
   }

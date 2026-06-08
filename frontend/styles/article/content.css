@@ -93,10 +93,10 @@ a.meta-author:hover {
 .article-subtitle {
   padding-top: 10px;
   padding-bottom: 15px;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 400;
-  color: #555;
-  line-height: 1.65;
+  color: #2d2d2d;
+  line-height: 1.75;
   margin: 0 0 24px 0;
 }
 
@@ -126,25 +126,31 @@ a.meta-author:hover {
 
 /* Article Body */
 .article-body {
-  font-size: 1rem;
-  color: #555;
-  line-height: 1.8;
+  font-size: 1.2rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #1a1a1a;
+  line-height: 1.9;
   margin-bottom: 30px;
+  letter-spacing: 0.01em;
 }
 .article-body p {
-  margin-bottom: 1.5em;
+  margin-bottom: 1.6em;
 }
 .article-body h2, .article-body .article-subtitle {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.55rem;
+  font-weight: 700;
+  font-family: 'DM Sans', Arial, sans-serif;
   color: #1a1a2e;
-  margin: 2em 0 1em;
+  margin: 2.2em 0 1em;
+  letter-spacing: -0.01em;
 }
 .article-body h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: 'DM Sans', Arial, sans-serif;
   color: #1a1a2e;
-  margin: 1.5em 0 0.8em;
+  margin: 1.8em 0 0.8em;
+  letter-spacing: -0.01em;
 }
 .article-body ul, .article-body ol {
   margin: 1em 0;
@@ -241,10 +247,10 @@ a.meta-author:hover {
 }
 .article-quote .quote-text,
 .article-body blockquote p {
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-style: italic;
-  color: #555;
-  line-height: 1.7;
+  color: #2d2d2d;
+  line-height: 1.75;
   margin: 0;
 }
 
@@ -351,6 +357,124 @@ a.meta-author:hover {
   letter-spacing: 1px;
 }
 
+/* ── Author Bio ──────────────────────────────────────────── */
+.author-bio {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-top: 40px;
+  padding: 24px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 25px;
+}
+
+/* Avatar */
+.author-bio-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+.author-bio-avatar-svg {
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+/* Right-side content */
+.author-bio-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.author-bio-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin: 0 0 6px;
+}
+
+.author-bio-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.author-bio-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1a2332;
+  text-decoration: none;
+}
+a.author-bio-name:hover {
+  color: #14bdee;
+  text-decoration: none;
+}
+.author-bio-designation {
+  font-size: 0.72rem;
+  color: #888;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 2px 9px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.author-bio-desc {
+  font-size: 0.9rem;
+  color: #2d2d2d;
+  line-height: 1.65;
+  margin: 0 0 14px;
+}
+
+/* Footer: socials + more link */
+.author-bio-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.author-bio-socials {
+  display: flex;
+  gap: 6px;
+}
+.author-bio-social {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  text-decoration: none;
+  background: #fff;
+  color: #555;
+  border: 1px solid #e2e8f0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.author-bio-social[aria-label="Twitter"]:hover  { background: #000; color: #fff; border-color: #000; }
+.author-bio-social[aria-label="LinkedIn"]:hover { background: #0A66C2; color: #fff; border-color: #0A66C2; }
+
+.author-bio-more {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #14bdee;
+  text-decoration: none;
+}
+.author-bio-more:hover {
+  text-decoration: underline;
+}
+.author-bio-more .fa {
+  margin-left: 3px;
+  font-size: 0.75rem;
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .article-content {
@@ -358,6 +482,11 @@ a.meta-author:hover {
   }
 }
 @media (max-width: 768px) {
+  .author-bio {
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+  }
   .article-title {
     font-size: 1.6rem;
   }
@@ -373,7 +502,7 @@ a.meta-author:hover {
     align-items: flex-start;
   }
   .article-body {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
   }
   .article-images {
     grid-template-columns: 1fr;

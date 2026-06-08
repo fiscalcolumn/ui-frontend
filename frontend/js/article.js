@@ -356,6 +356,36 @@ class ArticlePageManager {
       <div class="article-body">
         ${this.formatContent(this.article.content)}
       </div>
+
+      <!-- ── AUTHOR BIO ── -->
+      ${authorObj ? (() => {
+        const bioAvatarHtml = authorPhotoUrl
+          ? `<img src="${authorPhotoUrl}" alt="${author}" class="author-bio-photo">`
+          : `<svg class="author-bio-avatar-svg" width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="32" cy="32" r="32" fill="#1a2332"/>
+              <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">${authorInitial}</text>
+            </svg>`;
+        const twitterLink  = authorObj.twitter  ? `<a href="${authorObj.twitter}"  target="_blank" rel="noopener noreferrer" class="author-bio-social" aria-label="Twitter"><i class="fa fa-twitter"></i></a>`  : '';
+        const linkedinLink = authorObj.linkedin ? `<a href="${authorObj.linkedin}" target="_blank" rel="noopener noreferrer" class="author-bio-social" aria-label="LinkedIn"><i class="fa fa-linkedin"></i></a>` : '';
+        return `
+        <div class="author-bio">
+          <div class="author-bio-avatar">${bioAvatarHtml}</div>
+          <div class="author-bio-content">
+            <p class="author-bio-label">Written by</p>
+            <div class="author-bio-name-row">
+              ${authorSlug
+                ? `<a href="/author/${authorSlug}" class="author-bio-name">${author}</a>`
+                : `<span class="author-bio-name">${author}</span>`}
+              ${authorObj.designation ? `<span class="author-bio-designation">${authorObj.designation}</span>` : ''}
+            </div>
+            ${authorObj.bio ? `<p class="author-bio-desc">${authorObj.bio}</p>` : ''}
+            <div class="author-bio-footer">
+              <div class="author-bio-socials">${twitterLink}${linkedinLink}</div>
+              ${authorSlug ? `<a href="/author/${authorSlug}" class="author-bio-more">More articles <i class="fa fa-long-arrow-right"></i></a>` : ''}
+            </div>
+          </div>
+        </div>`;
+      })() : ''}
     `;
   }
 
