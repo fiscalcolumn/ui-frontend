@@ -156,7 +156,7 @@
 }
 .carousel-card-excerpt {
   font-size: 0.8rem;
-  color: #666;
+  color: #333;
   line-height: 1.5;
   margin: 0 0 5px 0;
   display: -webkit-box;
@@ -167,7 +167,7 @@
 }
 .carousel-card-meta {
   font-size: 0.75rem;
-  color: #999;
+  color: #555;
 }
 .carousel-card-meta .separator {
   margin: 0 4px;
@@ -391,7 +391,7 @@
 }
 .error-carousel-card-excerpt {
   font-size: 0.85rem;
-  color: #666;
+  color: #333;
   line-height: 1.5;
   margin: 0 0 10px 0;
   display: -webkit-box;
@@ -402,7 +402,7 @@
 }
 .error-carousel-card-meta {
   font-size: 0.8rem;
-  color: #888;
+  color: #444;
 }
 
 /* No-image placeholder for cwdate cards */
@@ -436,7 +436,7 @@
 
 .rca-card-meta {
   font-size: 0.78rem;
-  color: #888;
+  color: #444;
   margin-top: auto;
   display: flex;
   align-items: center;
@@ -499,7 +499,7 @@
 
 .rca-card-excerpt {
   font-size: 0.9rem;
-  color: #666;
+  color: #333;
   line-height: 1.5;
   margin: 0;
   display: -webkit-box;
@@ -598,7 +598,7 @@
 
 .rcb-featured-excerpt {
   font-size: 0.9rem;
-  color: #555;
+  color: #222;
   line-height: 1.6;
   margin: 0;
 }
@@ -670,7 +670,7 @@
 /* Date | Author meta line used in Layout B */
 .rcb-meta {
   font-size: 0.75rem;
-  color: #888;
+  color: #444;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -679,17 +679,17 @@
 }
 .rcb-meta-author {
   font-weight: 600;
-  color: #555;
+  color: #333;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
-.rcb-meta-date { color: #999; }
-.rcb-meta-sep  { color: #ccc; }
+.rcb-meta-date { color: #555; }
+.rcb-meta-sep  { color: #bbb; }
 
 .rcb-item-excerpt {
   font-size: 0.9rem;
   padding-top: 10px;
-  color: #666;
+  color: #333;
   line-height: 1.5;
   margin: 0;
   display: -webkit-box;
@@ -741,20 +741,20 @@
 .dark-mode .rca-card-excerpt,
 .dark-mode .rcb-featured-excerpt,
 .dark-mode .rcb-item-excerpt {
-  color: #aaa;
+  color: #d0dae8;
 }
 
 .dark-mode .rca-card-meta {
-  color: #777;
+  color: #b0bcd0;
 }
 
-.dark-mode .rcb-meta { color: #777; }
-.dark-mode .rcb-meta-author { color: #aaa; }
-.dark-mode .rcb-meta-date { color: #666; }
-.dark-mode .rcb-meta-sep { color: #444; }
+.dark-mode .rcb-meta { color: #b0bcd0; }
+.dark-mode .rcb-meta-author { color: #c8d4e4; }
+.dark-mode .rcb-meta-date { color: #a8b4c8; }
+.dark-mode .rcb-meta-sep { color: #5a6478; }
 
 .dark-mode .rc-author-name {
-  color: #bbb;
+  color: #d0d8e8;
 }
 
 .dark-mode .rcb-item {
@@ -856,7 +856,7 @@
 
 .bento-excerpt {
   font-size: 0.78rem;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.90);
   line-height: 1.5;
   margin: 0;
   display: -webkit-box;
@@ -889,7 +889,7 @@
 
 .bento-date {
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255,255,255,0.85);
   letter-spacing: 0.02em;
 }
 
