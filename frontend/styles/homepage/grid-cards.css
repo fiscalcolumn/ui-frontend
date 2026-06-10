@@ -39,10 +39,12 @@
 }
 
 .grid-card-title {
-  font-size: 1.2rem;
-  font-weight: 400;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: -0.01em;
   color: #1a1a1a;
-  line-height: 1.5;
+  line-height: 1.4;
   margin: 0;
 }
 
@@ -96,7 +98,7 @@
 }
 
 .grid-card-vertical .grid-card-title {
-  font-size: 0.95rem;
+  font-size: 1rem;
   margin-bottom: 8px;
 }
 

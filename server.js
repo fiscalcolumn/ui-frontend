@@ -68,7 +68,7 @@ app.get('/config.js', (req, res) => {
 });
 
 // Google Fonts — preconnect early, load stylesheet non-blocking (display=optional = no CLS)
-const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=optional';
+const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700&display=optional';
 
 // Preconnect hints injected at the very top of <head> — establishes TCP/TLS early
 const PRECONNECT_HINTS = `<link rel="preconnect" href="https://fonts.googleapis.com">

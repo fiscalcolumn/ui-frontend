@@ -49,6 +49,43 @@
 }
 
 /*********************************
+Container — FT-style wide layout
+Widens Bootstrap's 1140px cap so content fills more of the
+viewport, matching editorial sites like FT. Minimal padding
+— auto-centering handles side whitespace on very wide screens.
+*********************************/
+
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1400px;
+    padding-left:  40px;
+    padding-right: 40px;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .container {
+    max-width: 1320px;
+    padding-left:  28px;
+    padding-right: 28px;
+  }
+}
+
+@media (max-width: 1199px) {
+  .container {
+    padding-left:  24px;
+    padding-right: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding-left:  16px;
+    padding-right: 16px;
+  }
+}
+
+/*********************************
 2. Body and some general stuff
 *********************************/
 

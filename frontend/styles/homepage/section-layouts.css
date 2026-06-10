@@ -16,9 +16,9 @@
 /* Each item: thumbnail left, text right */
 .dg-item {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   align-items: flex-start;
-  padding: 20px 24px 20px 0;
+  padding: 22px 24px 22px 0;
   border-bottom: 1px solid #ebebeb;
   text-decoration: none;
 }
@@ -67,14 +67,16 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
 }
 
 .dg-title {
-  font-size: 0.98rem;
+  font-size: 1.1rem;
   font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
   color: #1a1a2e;
-  line-height: 1.38;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -88,11 +90,11 @@
 .dg-excerpt {
   font-size: 0.82rem;
   color: #333;
-  line-height: 1.55;
+  line-height: 1.5;
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -161,10 +163,11 @@
 .eh-featured-text:hover { text-decoration: none; }
 
 .eh-featured-title {
-  font-size: 1.85rem;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.9rem;
+  font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
   color: #1a1a1a;
   margin: 0;
   transition: color 0.15s;
@@ -174,11 +177,11 @@
 .eh-featured-excerpt {
   font-size: 0.95rem;
   color: #222;
-  line-height: 1.65;
+  line-height: 1.6;
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -223,8 +226,8 @@
 .eh-grid-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 20px 28px 20px 0;
+  gap: 10px;
+  padding: 22px 28px 22px 0;
   border-bottom: 1px solid #e2e8f0;
   text-decoration: none;
 }
@@ -260,11 +263,12 @@
 }
 
 .eh-grid-title {
-  font-size: 0.97rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'DM Sans', sans-serif;
   color: #1a1a1a;
   line-height: 1.4;
+  letter-spacing: -0.01em;
   margin: 0;
   transition: color 0.15s;
 }
@@ -348,7 +352,7 @@
 /* ── Left: text-only article stack ──────────────────────────────── */
 .mp-list-item {
   display: block;
-  padding: 16px 0;
+  padding: 20px 0;
   border-bottom: 1px solid #e2e8f0;
   text-decoration: none;
 }
@@ -366,11 +370,12 @@
 }
 
 .mp-list-title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'DM Sans', sans-serif;
   color: #1a1a1a;
-  line-height: 1.38;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
   margin: 0 0 8px;
   transition: color 0.15s;
 }
@@ -379,11 +384,11 @@
 .mp-list-excerpt {
   font-size: 0.83rem;
   color: #333;
-  line-height: 1.55;
+  line-height: 1.5;
   margin: 0 0 8px;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -419,11 +424,12 @@
 }
 
 .mp-center-title {
-  font-size: 1.45rem;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.6rem;
+  font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
   color: #1a1a1a;
-  line-height: 1.3;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   margin: 0 0 10px;
   transition: color 0.15s;
 }
@@ -432,11 +438,11 @@
 .mp-center-excerpt {
   font-size: 0.9rem;
   color: #222;
-  line-height: 1.6;
+  line-height: 1.55;
   margin: 0 0 10px;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -482,23 +488,24 @@
   margin-bottom: 5px;
 }
 .mp-sub-title {
-  font-size: 0.97rem;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.05rem;
+  font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   color: #1a1a1a;
-  line-height: 1.38;
-  margin: 0 0 7px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
   transition: color 0.15s;
 }
 .mp-sub:hover .mp-sub-title { color: #14bdee; }
 .mp-sub-excerpt {
   font-size: 0.8rem;
   color: #333;
-  line-height: 1.55;
-  margin: 0 0 7px;
+  line-height: 1.5;
+  margin: 0 0 8px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -544,11 +551,12 @@
 }
 
 .mp-right-title {
-  font-size: 1.05rem;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.1rem;
+  font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   color: #1a1a1a;
-  line-height: 1.35;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
   margin: 0 0 8px;
   transition: color 0.15s;
 }
@@ -557,11 +565,11 @@
 .mp-right-excerpt {
   font-size: 0.8rem;
   color: #333;
-  line-height: 1.55;
+  line-height: 1.5;
   margin: 0 0 8px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -597,16 +605,17 @@
 .mp-mini-body { flex: 1; min-width: 0; }
 
 .mp-mini-title {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'DM Sans', sans-serif;
   color: #1a1a1a;
-  line-height: 1.38;
-  margin: 0 0 5px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
   transition: color 0.15s;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

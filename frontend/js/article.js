@@ -432,7 +432,7 @@ class ArticlePageManager {
       <div class="sidebar-section">
         <h3 class="sb-section-title">More in ${catName}</h3>
         <div class="sb-article-list">
-          ${relatedArticles.map(a => this.renderSidebarArticle(a)).join('')}
+          ${relatedArticles.map(a => this.renderSidebarArticle(a, false)).join('')}
         </div>
         ${catSlug ? `<a href="/${catSlug}" class="sb-more-link">More from ${catName} <i class="fa fa-chevron-right"></i></a>` : ''}
       </div>
@@ -453,7 +453,7 @@ class ArticlePageManager {
   /**
    * Render a single sidebar article item
    */
-  renderSidebarArticle(article) {
+  renderSidebarArticle(article, showCategory = true) {
     const thumbUrl = Utils.resolveImgUrl(article.image?.url);
     const thumbHtml = thumbUrl
       ? `<img loading="lazy" src="${thumbUrl}" alt="${article.title}">`
@@ -470,7 +470,7 @@ class ArticlePageManager {
     return `
       <div class="sb-article-item">
         <div class="sb-article-body">
-          ${categoryName ? `<div class="sb-article-category">${categoryName}</div>` : ''}
+          ${showCategory && categoryName ? `<div class="sb-article-category">${categoryName}</div>` : ''}
           <h4 class="sb-article-title">
             <a href="/${categorySlug}/${article.slug}">${article.title}</a>
           </h4>
