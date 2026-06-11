@@ -971,47 +971,6 @@ class RatePageManager {
     if (headingEl) headingEl.textContent = location === 'All India' ? 'Check Rate by City' : `Rate in ${location}`;
   }
 
-  bindLocationSelectors() {
-    const stateEl = document.getElementById('rp-state-select');
-    const cityEl  = document.getElementById('rp-city-select');
-    if (!stateEl) return;
-
-    const loadCitiesForState = async (stateName, autoSelectFirst = false) => {
-      cityEl.innerHTML = '<option>Loading…</option>';
-      cityEl.disabled  = true;
-
-      const cities = await this.fetchCitiesForState(stateName);
-      if (cities.length > 0) {
-        cityEl.innerHTML = cities.map((c, i) =>
-          `<option value="${esc(c)}"${i === 0 && autoSelectFirst ? ' selected' : ''}>${esc(c)}</option>`
-        ).join('');
-        cityEl.disabled = false;
-        if (autoSelectFirst) this.updateLocPrice(`${cities[0]}, ${stateName}`);
-      } else {
-        cityEl.innerHTML = '<option value="">No cities found</option>';
-      }
-    };
-
-    if (stateEl.value) loadCitiesForState(stateEl.value, true);
-
-    stateEl.addEventListener('change', async () => {
-      const stateName = stateEl.value;
-      if (!stateName) {
-        cityEl.innerHTML = '<option value="">Select State first</option>';
-        cityEl.disabled  = true;
-        this.updateLocPrice('All India');
-        return;
-      }
-      await loadCitiesForState(stateName, true);
-    });
-
-    cityEl.addEventListener('change', () => {
-      const cityName  = cityEl.value;
-      const stateName = stateEl.value;
-      this.updateLocPrice(cityName ? `${cityName}, ${stateName}` : stateName);
-    });
-  }
-
   // ── City Finder ──────────────────────────────────────────────────────────────
   bindCityFinder() {
     const stateEl = document.getElementById('rp-cf-state');

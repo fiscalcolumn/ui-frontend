@@ -649,17 +649,9 @@ class StaticPageManager {
     `;
   }
 
-  removeFirstHeading(html) {
-    return html.replace(/<h[12][^>]*>.*?<\/h[12]>/i, '');
-  }
-
-  slugToTitle(slug) {
-    return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  }
-
   showError(message) {
     const slug  = this.getSlugFromUrl() || '';
-    const title = this.slugToTitle(slug) || 'Page Not Found';
+    const title = Utils.formatSlugAsTitle(slug) || 'Page Not Found';
     document.title = `${title} | FiscalColumn`;
     const bc = document.getElementById('breadcrumb-page');
     if (bc) bc.textContent = title;

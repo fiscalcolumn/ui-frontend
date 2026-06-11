@@ -296,26 +296,6 @@ const CalculatorUtils = {
   },
 
   /**
-   * Animate number from 0 to target
-   */
-  animateValue(elementId, start, end, duration = 500) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    const startTime = performance.now();
-    const update = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const current = start + (end - start) * progress;
-      element.textContent = this.formatIndianNumber(Math.round(current));
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      }
-    };
-    requestAnimationFrame(update);
-  },
-
-  /**
    * Update slider track progress color
    */
   updateSliderProgress(slider) {

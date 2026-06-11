@@ -251,41 +251,6 @@ function normalizeUrl(url) {
   return url;
 }
 
-// Update active state in navigation without re-rendering
-function updateActiveNavLink(currentPage) {
-  const headerContainer = document.querySelector('.header');
-  if (!headerContainer) return;
-  
-  const normalizedCurrentPage = normalizeUrl(currentPage);
-  
-  const mainNav = headerContainer.querySelector('.main_nav');
-  if (!mainNav) return;
-  
-  const allLinks = mainNav.querySelectorAll('li');
-  allLinks.forEach(li => {
-    li.classList.remove('active');
-    const link = li.querySelector('a');
-    if (link) {
-      const href = normalizeUrl(link.getAttribute('href'));
-          if (href === normalizedCurrentPage) {
-        li.classList.add('active');
-      }
-    }
-  });
-  
-  const dropdownLinks = mainNav.querySelectorAll('.dropdown-menu li');
-  dropdownLinks.forEach(li => {
-    li.classList.remove('active');
-    const link = li.querySelector('a');
-    if (link) {
-      const href = normalizeUrl(link.getAttribute('href'));
-      if (href === normalizedCurrentPage) {
-        li.classList.add('active');
-      }
-    }
-  });
-}
-
 // Render header component
 async function renderHeader(currentPage = '') {
   const headerContainer = document.querySelector('.header');
