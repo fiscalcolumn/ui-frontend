@@ -94,12 +94,11 @@ class TagGroupPageManager {
     if (canonicalEl) canonicalEl.setAttribute('href', pageUrl);
 
     // OG + Twitter
-    const setMeta = (id, val) => { const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
-    setMeta('og-url', pageUrl);
-    setMeta('og-title', metaTitle);
-    setMeta('og-description', metaDesc);
-    setMeta('twitter-title', metaTitle);
-    setMeta('twitter-description', metaDesc);
+    Utils.setMetaContent('og-url', pageUrl);
+    Utils.setMetaContent('og-title', metaTitle);
+    Utils.setMetaContent('og-description', metaDesc);
+    Utils.setMetaContent('twitter-title', metaTitle);
+    Utils.setMetaContent('twitter-description', metaDesc);
 
     const origin = window.location.origin;
     const breadcrumbEl = document.getElementById('schema-breadcrumb');

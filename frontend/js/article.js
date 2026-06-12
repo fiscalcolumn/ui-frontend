@@ -184,16 +184,16 @@ class ArticlePageManager {
     if (canonicalEl) canonicalEl.setAttribute('href', url);
 
     // Open Graph Tags
-    this.setMetaContent('og-url', url);
-    this.setMetaContent('og-title', title);
-    this.setMetaContent('og-description', description);
-    this.setMetaContent('og-image', imageUrl);
+    Utils.setMetaContent('og-url', url);
+    Utils.setMetaContent('og-title', title);
+    Utils.setMetaContent('og-description', description);
+    Utils.setMetaContent('og-image', imageUrl);
 
     // Twitter Card Tags
-    this.setMetaContent('twitter-url', url);
-    this.setMetaContent('twitter-title', title);
-    this.setMetaContent('twitter-description', description);
-    this.setMetaContent('twitter-image', imageUrl);
+    Utils.setMetaContent('twitter-url', url);
+    Utils.setMetaContent('twitter-title', title);
+    Utils.setMetaContent('twitter-description', description);
+    Utils.setMetaContent('twitter-image', imageUrl);
 
     // JSON-LD Article Schema
     const articleSchema = {
@@ -267,10 +267,6 @@ class ArticlePageManager {
   /**
    * Helper to set meta tag content by ID
    */
-  setMetaContent(id, content) {
-    const el = document.getElementById(id);
-    if (el) el.setAttribute('content', content);
-  }
 
   /**
    * Render article content
@@ -283,7 +279,7 @@ class ArticlePageManager {
     const author = authorObj?.name || (typeof authorObj === 'string' ? authorObj : 'Admin');
     const authorSlug = authorObj?.slug || null;
     const views = this.article.views || 0;
-    const readTime = this.article.minutesToread || 3;
+    const readTime = this.article.minutesToRead || 3;
     const category = this.article.category;
 
     const shareUrl = encodeURIComponent(window.location.href);
@@ -460,7 +456,7 @@ class ArticlePageManager {
       : '<div class="sb-article-thumb-placeholder"></div>';
     const categorySlug = article.category?.slug || 'article';
     const categoryName = article.category?.name || '';
-    const readTime = article.minutesToread || Utils.calculateReadingTime(article.content) || 3;
+    const readTime = article.minutesToRead || Utils.calculateReadingTime(article.content) || 3;
     const date = Utils.formatDate(article.publishedDate);
     const meta = [
       `${readTime} min read`,

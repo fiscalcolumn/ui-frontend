@@ -8,14 +8,6 @@ class HomepageSectionsManager {
     this.sectionsContainer = document.getElementById('homepage-sections-container');
   }
 
-  /** Resolve a Strapi image URL to an absolute URL. Returns null if no URL provided. */
-  imgUrl(url) {
-    if (!url) return null;
-    if (url.startsWith('http')) return url;
-    const base = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
-    return base + url;
-  }
-
   /**
    * Initialize - fetch and render all sections
    */
@@ -71,13 +63,12 @@ class HomepageSectionsManager {
       
       if (!category) continue;
 
-      const sectionType = section.sectionStyle || 'article-list';
-      console.log(`[HomepageSections] section "${section.category?.name}" → sectionStyle = "${section.sectionStyle}" (resolved: "${sectionType}"`);
-      const itemsToShow = section.itemsToShow || 5;
-    const isScrollRow     = sectionType === 'scroll-row' || sectionType === 'calculator-grid';
-    const isEditorialHero = sectionType === 'editorial-hero';
-    const isMediaPortal   = sectionType === 'media-editorial-layout';
-    const limit           = isScrollRow ? 10 : isEditorialHero ? 7 : isMediaPortal ? 8 : itemsToShow;
+      const sectionType     = section.sectionStyle || 'article-list';
+      const itemsToShow     = section.itemsToShow || 5;
+      const isScrollRow     = sectionType === 'scroll-row' || sectionType === 'calculator-grid';
+      const isEditorialHero = sectionType === 'editorial-hero';
+      const isMediaPortal   = sectionType === 'media-editorial-layout';
+      const limit           = isScrollRow ? 10 : isEditorialHero ? 7 : isMediaPortal ? 8 : itemsToShow;
 
       const articles = await this.fetchArticlesByCategory(category.documentId, limit);
 
@@ -137,14 +128,14 @@ class HomepageSectionsManager {
     const categorySlug = article.category?.slug || 'news';
     const categoryName = article.category?.name  || 'Latest News';
     const url          = `/${categorySlug}/${article.slug}`;
-    const imageUrl     = this.imgUrl(article.image?.url);
+    const imageUrl     = Utils.resolveImgUrl(article.image?.url);
     const date         = article.publishedDate || article.createdAt;
     const formattedDate = date ? Utils.formatDate(date) : '';
     const readingTime  = Utils.calculateReadingTimeString(article.content || article.excerpt || '');
 
     // Author
     const author   = article.author;
-    const photoUrl = this.imgUrl(author?.photo?.url);
+    const photoUrl = Utils.resolveImgUrl(author?.photo?.url);
     const authorHtml = author?.name ? `
       <div class="ha-author">
         ${photoUrl
@@ -205,11 +196,11 @@ class HomepageSectionsManager {
 
   renderBrowseByCategory(categories) {
     const cards = categories.map((cat, idx) => {
-      const label = (cat.displayname || cat.name || '').toUpperCase();
+      const label = (cat.displayName || cat.name || '').toUpperCase();
       const initial = label.charAt(0);
 
       if (cat.categoryImage?.url) {
-        const imgUrl = this.imgUrl(cat.categoryImage.url);
+        const imgUrl = Utils.resolveImgUrl(cat.categoryImage.url);
         return `
           <a href="/${cat.slug}" class="browse-cat-card">
             <img loading="lazy" src="${imgUrl}" alt="${label}">
@@ -247,11 +238,11 @@ class HomepageSectionsManager {
     const featured = articles[0];
     const sideArticles = articles.slice(1, 4);
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
-    const sectionTitle = category?.displayname || category?.name || 'News';
+    const sectionTitle = category?.displayName || category?.name || 'News';
 
     if (!featured) return '';
 
-    const featuredImgUrl = this.imgUrl(featured.image?.url);
+    const featuredImgUrl = Utils.resolveImgUrl(featured.image?.url);
     const featuredExcerpt = featured.excerpt || Utils.truncateText(featured.content, 100);
     const featuredUrl = `/${featured.category?.slug || 'article'}/${featured.slug}`;
 
@@ -263,7 +254,7 @@ class HomepageSectionsManager {
     };
 
     const sideItemsHtml = sideArticles.map(a => {
-      const imgUrl = this.imgUrl(a.image?.url);
+      const imgUrl = Utils.resolveImgUrl(a.image?.url);
       const url = `/${a.category?.slug || 'article'}/${a.slug}`;
       const excerpt = a.excerpt || Utils.truncateText(a.content, 60);
       return `
@@ -310,7 +301,7 @@ class HomepageSectionsManager {
    */
   renderGridSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
-    const sectionTitle = category?.displayname || category?.name || 'Articles';
+    const sectionTitle = category?.displayName || category?.name || 'Articles';
     const five = articles.slice(0, 5);
 
     // Bento layout: tile 1 (wide top-left), 2+3 (small top-right), 4 (small bottom-left), 5 (wide bottom-right)
@@ -332,11 +323,11 @@ class HomepageSectionsManager {
   }
 
   renderBentoTile(article, sizeClass) {
-    const imgUrl = this.imgUrl(article.image?.url);
+    const imgUrl = Utils.resolveImgUrl(article.image?.url);
     const url = `/${article.category?.slug || 'article'}/${article.slug}`;
     const excerpt = article.excerpt || Utils.truncateText(article.content, 90);
     const author = article.author;
-    const photoUrl = this.imgUrl(author?.photo?.url);
+    const photoUrl = Utils.resolveImgUrl(author?.photo?.url);
     const isLarge = sizeClass === 'bento-1' || sizeClass === 'bento-5';
 
     const avatarHtml = author ? `
@@ -370,13 +361,13 @@ class HomepageSectionsManager {
    */
   renderDigestSection(section, articles, bgClass, index, category) {
     const categoryUrl  = category?.slug ? `/${category.slug}` : '#';
-    const sectionTitle = category?.displayname || category?.name || 'Articles';
+    const sectionTitle = category?.displayName || category?.name || 'Articles';
 
     const items = articles.slice(0, 8).map(a => {
       const url     = `/${a.category?.slug || 'article'}/${a.slug}`;
-      const imgUrl  = this.imgUrl(a.image?.url);
+      const imgUrl  = Utils.resolveImgUrl(a.image?.url);
       const author  = a.author?.name || '';
-      const read    = a.minutesToread || Utils.calculateReadingTime(a.content) || 3;
+      const read    = a.minutesToRead || Utils.calculateReadingTime(a.content) || 3;
       const date    = Utils.formatDate(a.publishedDate);
       const excerpt = a.excerpt || Utils.truncateText(a.content, 70);
       return `
@@ -418,9 +409,9 @@ class HomepageSectionsManager {
     if (!featured) return '';
 
     const categoryUrl  = category?.slug ? `/${category.slug}` : '#';
-    const sectionTitle = category?.displayname || category?.name || 'News';
+    const sectionTitle = category?.displayName || category?.name || 'News';
     const featuredUrl  = `/${featured.category?.slug || 'article'}/${featured.slug}`;
-    const imgUrl       = this.imgUrl(featured.image?.url);
+    const imgUrl       = Utils.resolveImgUrl(featured.image?.url);
     const excerpt      = featured.excerpt || Utils.truncateText(featured.content, 140);
     const author       = featured.author?.name || '';
     const date         = featured.publishedDate ? Utils.formatDate(featured.publishedDate) : '';
@@ -477,7 +468,7 @@ class HomepageSectionsManager {
     if (!articles.length) return '';
 
     const categoryUrl  = category?.slug ? `/${category.slug}` : '#';
-    const sectionTitle = category?.displayname || category?.name || 'News';
+    const sectionTitle = category?.displayName || category?.name || 'News';
 
     const hero       = articles[0];
     const leftItems  = articles.slice(1, 4);
@@ -490,7 +481,7 @@ class HomepageSectionsManager {
       const parts = [];
       if (a.author?.name)  parts.push(`<span class="mp-meta-author">${a.author.name}</span>`);
       if (a.publishedDate) parts.push(`<span>${Utils.formatDate(a.publishedDate)}</span>`);
-      if (a.minutesToread) parts.push(`<span>${a.minutesToread} min read</span>`);
+      if (a.minutesToRead) parts.push(`<span>${a.minutesToRead} min read</span>`);
       return parts.length
         ? `<p class="mp-meta">${parts.join('<span class="mp-meta-sep"> · </span>')}</p>`
         : '';
@@ -513,14 +504,14 @@ class HomepageSectionsManager {
 
     // ── Center top: hero ──────────────────────────────────────────
     const heroUrl     = `/${hero.category?.slug || 'article'}/${hero.slug}`;
-    const heroImg     = this.imgUrl(hero.image?.url);
+    const heroImg     = Utils.resolveImgUrl(hero.image?.url);
     const heroCat     = (hero.category?.name || '').toUpperCase();
     const heroExcerpt = hero.excerpt || Utils.truncateText(hero.content, 120);
 
     // ── Center bottom: sub-article (image left) ───────────────────
     const subHtml = subArticle ? (() => {
       const url     = `/${subArticle.category?.slug || 'article'}/${subArticle.slug}`;
-      const img     = this.imgUrl(subArticle.image?.url);
+      const img     = Utils.resolveImgUrl(subArticle.image?.url);
       const catName = (subArticle.category?.name || '').toUpperCase();
       const excerpt = subArticle.excerpt || Utils.truncateText(subArticle.content, 90);
       return `
@@ -542,7 +533,7 @@ class HomepageSectionsManager {
     // ── Right: medium top + two minis ────────────────────────────
     const rightTopHtml = rightTop ? (() => {
       const url     = `/${rightTop.category?.slug || 'article'}/${rightTop.slug}`;
-      const img     = this.imgUrl(rightTop.image?.url);
+      const img     = Utils.resolveImgUrl(rightTop.image?.url);
       const catName = (rightTop.category?.name || '').toUpperCase();
       const excerpt = rightTop.excerpt || Utils.truncateText(rightTop.content, 80);
       return `
@@ -561,7 +552,7 @@ class HomepageSectionsManager {
 
     const rightMiniHtml = rightMini.map(a => {
       const url = `/${a.category?.slug || 'article'}/${a.slug}`;
-      const img = this.imgUrl(a.image?.url);
+      const img = Utils.resolveImgUrl(a.image?.url);
       return `
         <a href="${url}" class="mp-mini">
           <div class="mp-mini-image">
@@ -620,7 +611,7 @@ class HomepageSectionsManager {
    */
   renderCarouselSection(section, articles, bgClass, index, category) {
     const categoryUrl = category?.slug ? `/${category.slug}` : '#';
-    const sectionTitle = category?.displayname || category?.name || 'Articles';
+    const sectionTitle = category?.displayName || category?.name || 'Articles';
     return `
       <div class="related-category-section content-section section-${index + 1} ${bgClass}">
         <div class="container">
@@ -639,11 +630,11 @@ class HomepageSectionsManager {
    * Render Carousel Card — editorial grid style (matches category page Layout A, no badge)
    */
   renderCarouselCard(article) {
-    const imgUrl = article.image?.url ? this.imgUrl(article.image.url) : null;
+    const imgUrl = article.image?.url ? Utils.resolveImgUrl(article.image.url) : null;
     const excerpt = article.excerpt || Utils.truncateText(article.content, 80);
     const url = `/${article.category?.slug || 'article'}/${article.slug}`;
     const author = article.author;
-    const photoUrl = author?.photo?.url ? this.imgUrl(author.photo.url) : null;
+    const photoUrl = author?.photo?.url ? Utils.resolveImgUrl(author.photo.url) : null;
     const authorHtml = author ? `
       <div class="rc-author">
         ${photoUrl

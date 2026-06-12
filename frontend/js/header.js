@@ -151,7 +151,7 @@ async function fetchHeaderConfig() {
         categoryCount: typeof d.categorycount === 'number' ? d.categorycount : DEFAULT_CATEGORY_COUNT,
         pills: Array.isArray(d.brandbar)
           ? d.brandbar
-              .filter(p => p.displayname && p.brandurl)
+              .filter(p => p.displayName && p.brandurl)
               .sort((a, b) => (parseInt(a.order) || 0) - (parseInt(b.order) || 0))
           : []
       };
@@ -285,7 +285,7 @@ async function renderHeader(currentPage = '') {
     brandPillsEl.innerHTML = headerConfig.pills
       .map(p => {
         const url  = p.brandurl.startsWith('/') ? p.brandurl : '/' + p.brandurl;
-        const name = (p.displayname || '').toLowerCase();
+        const name = (p.displayName || '').toLowerCase();
         const icon = name.includes('gold')       ? 'fa-sun-o'
                    : name.includes('silver')     ? 'fa-moon-o'
                    : name.includes('calc')       ? 'fa-calculator'
@@ -295,7 +295,7 @@ async function renderHeader(currentPage = '') {
                    :                              'fa-link';
         const iconColor = p.brandcolor ? ` style="color:${p.brandcolor}"` : '';
         return `<a href="${url}" class="brand-rate-btn">
-          <i class="fa ${icon} brand-rate-icon"${iconColor} aria-hidden="true"></i>${p.displayname}
+          <i class="fa ${icon} brand-rate-icon"${iconColor} aria-hidden="true"></i>${p.displayName}
         </a>`;
       })
       .join('');

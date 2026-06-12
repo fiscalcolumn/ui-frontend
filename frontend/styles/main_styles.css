@@ -1882,57 +1882,6 @@ section
 	box-shadow: 0px 1px 10px rgba(0,0,0,0.3);
 }
 
-.dark-mode .course_title a,
-.dark-mode .event_title a
-{
-	color: var(--text-primary);
-}
-
-.dark-mode .course_title a:hover,
-.dark-mode .event_title a:hover
-{
-	color: #f0f0f0;
-}
-
-.dark-mode .course_teacher,
-.dark-mode .course_text,
-.dark-mode .event_text
-{
-	color: var(--text-secondary);
-}
-
-.dark-mode .course_footer_content
-{
-	border-top-color: var(--border-color);
-}
-
-/* Dark Mode News Posts */
-.dark-mode .news_post_large_title a,
-.dark-mode .news_post_small_title a
-{
-	color: var(--text-primary);
-}
-
-.dark-mode .news_post_large_title a:hover,
-.dark-mode .news_post_small_title a:hover
-{
-	color: #f0f0f0;
-}
-
-.dark-mode .news_post_text
-{
-	color: var(--text-secondary);
-}
-
-.dark-mode .news_post_meta ul li a
-{
-	color: var(--text-secondary);
-}
-
-.dark-mode .news_post_small:not(:last-child)
-{
-	border-bottom-color: var(--border-color);
-}
 
 /* Dark Mode Section Titles */
 .dark-mode .section_title
@@ -2314,4 +2263,12 @@ section
 .dark-mode .loading-container .spinner {
   border-color: var(--border-color);
   border-top-color: #14bdee;
+}
+/* Broken-image placeholder */
+img.img-placeholder-fallback {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #ede9e3;
 }

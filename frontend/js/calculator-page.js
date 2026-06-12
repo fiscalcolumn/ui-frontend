@@ -122,13 +122,13 @@ class CalculatorPageManager {
     if (canonicalEl) canonicalEl.setAttribute('href', url);
 
     // Open Graph Tags
-    this.setMetaContent('og-url', url);
-    this.setMetaContent('og-title', title);
-    this.setMetaContent('og-description', description);
+    Utils.setMetaContent('og-url', url);
+    Utils.setMetaContent('og-title', title);
+    Utils.setMetaContent('og-description', description);
 
     // Twitter Card Tags
-    this.setMetaContent('twitter-title', title);
-    this.setMetaContent('twitter-description', description);
+    Utils.setMetaContent('twitter-title', title);
+    Utils.setMetaContent('twitter-description', description);
 
     // JSON-LD Breadcrumb Schema
     const breadcrumbSchema = {
@@ -150,10 +150,6 @@ class CalculatorPageManager {
   /**
    * Helper to set meta tag content by ID
    */
-  setMetaContent(id, content) {
-    const el = document.getElementById(id);
-    if (el) el.setAttribute('content', content);
-  }
 
   /**
    * Render the calculator header + pre-defined two-panel widget

@@ -90,14 +90,13 @@ class AuthorPageManager {
     if (canonicalEl) canonicalEl.setAttribute('href', pageUrl);
 
     // OG
-    const setMeta = (id, val) => { const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
-    setMeta('og-url', pageUrl);
-    setMeta('og-title', metaTitle);
-    setMeta('og-description', metaDesc);
-    setMeta('og-image', ogImage);
-    setMeta('twitter-title', metaTitle);
-    setMeta('twitter-description', metaDesc);
-    setMeta('twitter-image', ogImage);
+    Utils.setMetaContent('og-url', pageUrl);
+    Utils.setMetaContent('og-title', metaTitle);
+    Utils.setMetaContent('og-description', metaDesc);
+    Utils.setMetaContent('og-image', ogImage);
+    Utils.setMetaContent('twitter-title', metaTitle);
+    Utils.setMetaContent('twitter-description', metaDesc);
+    Utils.setMetaContent('twitter-image', ogImage);
 
     const breadcrumbEl = document.getElementById('schema-breadcrumb');
     if (breadcrumbEl) breadcrumbEl.textContent = JSON.stringify({

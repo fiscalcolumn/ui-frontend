@@ -249,7 +249,7 @@ class RatePageManager {
     const catSlug    = this.isGold ? 'gold-rate' : 'silver-rate';
     this.articles    = await this.apiFetch(
       `/articles?filters[category][slug][$eq]=${catSlug}` +
-      `&sort=publishedAt:desc&pagination[limit]=10` +
+      `&sort=publishedDate:desc&pagination[limit]=10` +
       `&populate[image]=true&populate[category]=true&populate[author][populate][photo]=true`
     );
   }

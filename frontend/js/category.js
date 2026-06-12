@@ -43,9 +43,9 @@ class CategoryPageManager {
       // Update page with actual category info
       this.updateCategoryInfo();
       
-      // categorycontenttype is a flat string field in Strapi v5
-      this.contentType = (typeof this.category.categorycontenttype === 'string'
-        ? this.category.categorycontenttype
+      // contentType is a flat string field in Strapi v5
+      this.contentType = (typeof this.category.contentType === 'string'
+        ? this.category.contentType
         : 'articles'
       ).toLowerCase().trim();
 
@@ -276,7 +276,7 @@ class CategoryPageManager {
    * Load and render related tags from tag groups
    */
   loadRelatedTags() {
-    const tagGroups = this.category.relatedtaggroups;
+    const tagGroups = this.category.relatedTagGroups;
     
     if (!tagGroups || tagGroups.length === 0) {
       return;
@@ -318,7 +318,7 @@ class CategoryPageManager {
    * Load and render related categories with their articles
    */
   async loadRelatedCategories() {
-    const relatedCategories = this.category.relatedcategories;
+    const relatedCategories = this.category.relatedCategories;
     
     // If no related categories, don't show anything
     if (!relatedCategories || relatedCategories.length === 0) {
@@ -508,11 +508,11 @@ class CategoryPageManager {
   }
 
   /**
-   * Fetch category details by slug (with related categories, toparticle, populartags, and categorycontenttype)
+   * Fetch category details by slug (with related categories, topArticle, popularTags, and contentType)
    */
   async fetchCategory(slug) {
-    // Note: categorycontenttype is an enum (scalar) — it returns automatically, do NOT populate it
-    const url = getApiUrl(`/categories?filters[slug][$eq]=${slug}&populate[relatedcategories]=true&populate[relatedtaggroups][populate][tags]=true&populate[categoryImage]=true&populate[toparticle][populate][category]=true&populate[toparticle][populate][image]=true&populate[populartags]=true`);
+    // Note: contentType is an enum (scalar) — it returns automatically, do NOT populate it
+    const url = getApiUrl(`/categories?filters[slug][$eq]=${slug}&populate[relatedCategories]=true&populate[relatedTagGroups][populate][tags]=true&populate[categoryImage]=true&populate[topArticle][populate][category]=true&populate[topArticle][populate][image]=true&populate[popularTags]=true`);
     const response = await fetch(url);
     const data = await response.json();
     const category = data.data && data.data.length > 0 ? data.data[0] : null;
@@ -574,15 +574,15 @@ class CategoryPageManager {
       : `${window.location.origin}/images/og-category.jpg`;
 
     // Open Graph Tags
-    this.setMetaContent('og-url', url);
-    this.setMetaContent('og-title', `${name} | FiscalColumn`);
-    this.setMetaContent('og-description', description);
-    this.setMetaContent('og-image', ogImage);
+    Utils.setMetaContent('og-url', url);
+    Utils.setMetaContent('og-title', `${name} | FiscalColumn`);
+    Utils.setMetaContent('og-description', description);
+    Utils.setMetaContent('og-image', ogImage);
 
     // Twitter Card Tags
-    this.setMetaContent('twitter-title', `${name} | FiscalColumn`);
-    this.setMetaContent('twitter-description', description);
-    this.setMetaContent('twitter-image', ogImage);
+    Utils.setMetaContent('twitter-title', `${name} | FiscalColumn`);
+    Utils.setMetaContent('twitter-description', description);
+    Utils.setMetaContent('twitter-image', ogImage);
 
     // JSON-LD Breadcrumb Schema
     const breadcrumbSchema = {
@@ -613,10 +613,6 @@ class CategoryPageManager {
   /**
    * Helper to set meta tag content by ID
    */
-  setMetaContent(id, content) {
-    const el = document.getElementById(id);
-    if (el) el.setAttribute('content', content);
-  }
 
   /**
    * Load and render articles
@@ -632,24 +628,24 @@ class CategoryPageManager {
 
     const articles = await this.fetchArticles(this.currentPage);
     
-    // Get toparticle from category if it exists
-    // Handle different possible structures: toparticle could be an object or have data property
-    let toparticle = this.category?.toparticle;
-    if (toparticle && toparticle.data) {
-      toparticle = toparticle.data;
+    // Get topArticle from category if it exists
+    // Handle different possible structures: topArticle could be an object or have data property
+    let topArticle = this.category?.topArticle;
+    if (topArticle && topArticle.data) {
+      topArticle = topArticle.data;
     }
     
-    // If toparticle exists and is valid, filter it out from regular articles to avoid duplication
+    // If topArticle exists and is valid, filter it out from regular articles to avoid duplication
     let filteredArticles = articles;
-    if (toparticle && (toparticle.documentId || toparticle.id)) {
-      const toparticleId = toparticle.documentId || toparticle.id;
+    if (topArticle && (topArticle.documentId || topArticle.id)) {
+      const topArticleId = topArticle.documentId || topArticle.id;
       filteredArticles = articles.filter(article => {
         const articleId = article.documentId || article.id;
-        return articleId !== toparticleId;
+        return articleId !== topArticleId;
       });
     }
     
-    if (filteredArticles.length === 0 && !toparticle) {
+    if (filteredArticles.length === 0 && !topArticle) {
       this.articlesContainer.innerHTML = `
         <div class="no-articles">
           <h3>No articles found</h3>
@@ -660,11 +656,11 @@ class CategoryPageManager {
       return;
     }
 
-    // Determine featured article: toparticle if exists and valid, otherwise first article
-    const featuredArticle = (toparticle && toparticle.title) ? toparticle : filteredArticles[0];
+    // Determine featured article: topArticle if exists and valid, otherwise first article
+    const featuredArticle = (topArticle && topArticle.title) ? topArticle : filteredArticles[0];
     
-    // Adjust article slicing based on whether we have toparticle
-    const startIndex = toparticle ? 0 : 1;
+    // Adjust article slicing based on whether we have topArticle
+    const startIndex = topArticle ? 0 : 1;
     const cardArticles = filteredArticles.slice(startIndex, startIndex + this.cardsLimit);
     const remainingArticles = filteredArticles.slice(startIndex + this.cardsLimit);
     
@@ -675,17 +671,17 @@ class CategoryPageManager {
 
     let html = '';
     
-    // Render featured article (toparticle or first article)
+    // Render featured article (topArticle or first article)
     html += this.renderFeaturedArticle(featuredArticle);
     
     // Render popular tags below the first article if they exist
-    // Handle different possible structures: populartags could be an array or have data property
-    let populartags = this.category?.populartags;
-    if (populartags && populartags.data && Array.isArray(populartags.data)) {
-      populartags = populartags.data;
+    // Handle different possible structures: popularTags could be an array or have data property
+    let popularTags = this.category?.popularTags;
+    if (popularTags && popularTags.data && Array.isArray(popularTags.data)) {
+      popularTags = popularTags.data;
     }
-    if (populartags && Array.isArray(populartags) && populartags.length > 0) {
-      html += this.renderPopularTags(populartags);
+    if (popularTags && Array.isArray(popularTags) && popularTags.length > 0) {
+      html += this.renderPopularTags(popularTags);
     }
     
     // Render card articles in 2-column grid
@@ -723,7 +719,7 @@ class CategoryPageManager {
   }
 
   /**
-   * Render featured article (first article or toparticle - large layout)
+   * Render featured article (first article or topArticle - large layout)
    */
   renderFeaturedArticle(article) {
     if (!article || !article.title) {

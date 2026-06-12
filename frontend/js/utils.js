@@ -50,7 +50,7 @@ const Utils = {
   },
 
   getReadTime(article) {
-    return article.minutesToread || this.calculateReadingTime(article.content) || 3;
+    return article.minutesToRead || this.calculateReadingTime(article.content) || 3;
   },
 
   formatSlugAsTitle(slug) {
@@ -71,7 +71,7 @@ const Utils = {
       ? `<div class="featured-image"><img loading="lazy" src="${imgUrl}" alt="${article.title}"></div>`
       : '';
     const categoryName = article.category?.name || 'Article';
-    const readTime = article.minutesToread || 3;
+    const readTime = article.minutesToRead || 3;
     const excerpt = article.excerpt || this.truncateText(article.content, 200);
 
     return `
@@ -99,7 +99,7 @@ const Utils = {
       ? `<div class="article-card-thumb"><img loading="lazy" src="${imgUrl}" alt="${article.title}"></div>`
       : '<div class="article-card-thumb"><div class="article-card-thumb-placeholder"></div></div>';
     const categoryName = article.category?.name || 'Article';
-    const readTime = article.minutesToread || 3;
+    const readTime = article.minutesToRead || 3;
     const excerpt = article.excerpt || this.truncateText(article.content, 80);
 
     return `
@@ -180,7 +180,23 @@ const Utils = {
         }
       });
     });
+  },
+
+  setMetaContent(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('content', value);
   }
 };
 
 window.Utils = Utils;
+
+// Global broken-image fallback — fires in capture phase so it catches
+// dynamically-rendered <img> tags added to the DOM after page load.
+document.addEventListener('error', (e) => {
+  const el = e.target;
+  if (el.tagName === 'IMG' && !el.dataset.fallback) {
+    el.dataset.fallback = '1';
+    el.src = '/images/img-placeholder.svg';
+    el.classList.add('img-placeholder-fallback');
+  }
+}, true);

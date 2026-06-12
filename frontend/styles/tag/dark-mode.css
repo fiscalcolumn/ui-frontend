@@ -3,19 +3,6 @@
  * All dark mode overrides for tag page components
  */
 
-/* CSS Variables for Dark Mode */
-:root {
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2d2d2d;
-  --bg-tertiary: #3a3a3a;
-  --text-primary: #eee;
-  --text-secondary: #aaa;
-  --text-muted: #888;
-  --border-color: #404040;
-  --primary-color: #f0f0f0;
-}
-
-
 /* Tag Info Bar */
 .dark-mode .tag-info-bar {
   border-bottom-color: var(--border-color);

@@ -266,7 +266,7 @@ class SearchPageManager {
     const catSlug = article.category?.slug || 'article';
     const href    = `/${catSlug}/${article.slug}`;
     const excerpt = article.excerpt || Utils.truncateText(article.content || '', 120);
-    const rt      = article.minutesToread || Utils.calculateReadingTime(article.content || '');
+    const rt      = article.minutesToRead || Utils.calculateReadingTime(article.content || '');
     const date    = Utils.formatDate(article.publishedDate);
 
     const thumb = hasImg
