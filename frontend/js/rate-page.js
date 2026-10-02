@@ -1,11 +1,11 @@
 /**
  * Rate Page — Gold / Silver
- * Works with /gold-rate and /silver-rate
  *
- * NOTE on Strapi v5 deep filtering:
- *   filters[metal][name][$eq]=Gold does NOT work for oneToOne relations without
- *   a bidirectional inverse in Strapi v5 — the filter is silently ignored.
- *   We therefore fetch with populate=* and filter client-side by record.metal.name.
+ * Each series is the metal relation plus its canonical unit:
+ *   Gold   → per 10g
+ *   Silver → per kg
+ * National pages use rows with no city. A city page uses that city's rows
+ * and falls back to the national series when the city has none.
  */
 
 const METAL_CONFIG = {
@@ -15,6 +15,7 @@ const METAL_CONFIG = {
     colorLight: 'rgba(212,160,23,0.12)',
     icon:       '🥇',
     unitLabel:  '10g',
+    unitOfMeasure: 'per 10g',
     // Derived purity ratios from 24K base
     purities: [
       { label: '24K', ratio: 1,       desc: '99.9% Pure' },
@@ -38,6 +39,7 @@ const METAL_CONFIG = {
     colorLight: 'rgba(107,114,128,0.12)',
     icon:       '🥈',
     unitLabel:  'kg',
+    unitOfMeasure: 'per kg',
     purities: [
       { label: '999', ratio: 1,         desc: '99.9% Pure'     },
       { label: '925', ratio: 925/999,   desc: '92.5% Sterling' },
@@ -164,66 +166,109 @@ class RatePageManager {
 
   // ── API ──────────────────────────────────────────────────────────────────────
 
-  /**
-   * Latest rates: fetch the last 4 records WITH populate=* (1 API call, tiny payload)
-   * and filter client-side by metal.name.
-   * (Strapi v5 deep relation filter is broken for oneToOne — silently returns all records.)
-   */
-  async fetchLatestRates() {
-    const url  = getApiUrl(`/daily-rates?sort=date:desc&pagination[limit]=4&populate=*`);
-    const res  = await fetch(url);
-    const json = await res.json();
-    const mine = (json.data || []).filter(r => r.metal?.name === this.metal.name);
-
-    const byDate = {};
-    mine.forEach(r => { if (!byDate[r.date]) byDate[r.date] = r; });
-    const dates = Object.keys(byDate).sort().reverse();
-    this.todayRate = byDate[dates[0]] || null;
-    this.yestRate  = byDate[dates[1]] || null;
+  unitFor(metalName) {
+    return metalName === 'Gold' ? METAL_CONFIG.gold.unitOfMeasure : METAL_CONFIG.silver.unitOfMeasure;
   }
 
   /**
-   * Fetch the latest rate for the OTHER metal (needed for the Gold:Silver ratio widget).
+   * Query for one metal in its canonical unit.
+   * national=true keeps rows that are not tied to a city.
+   */
+  seriesQuery(metalName, { national }) {
+    const unit = this.unitFor(metalName);
+    const place = national
+      ? 'filters[city][id][$null]=true'
+      : `filters[city][slug][$eq]=${encodeURIComponent(this.citySlug)}`;
+    return [
+      `filters[metal][name][$eq]=${encodeURIComponent(metalName)}`,
+      `filters[unitmeasure][unitofmeasure][$eq]=${encodeURIComponent(unit)}`,
+      place,
+      'populate[metal][fields][0]=name',
+      'populate[unitmeasure][fields][0]=unitofmeasure',
+      'populate[city][fields][0]=slug',
+    ].join('&');
+  }
+
+  belongsToSeries(record, metalName, { national }) {
+    if (record?.metal?.name !== metalName) return false;
+    if (record?.unitmeasure?.unitofmeasure !== this.unitFor(metalName)) return false;
+    const citySlug = record.city?.slug || null;
+    if (national) return !citySlug;
+    return citySlug === this.citySlug;
+  }
+
+  async fetchSeriesRows(metalName, { national, fromDate, limit }) {
+    const rows = [];
+    let page = 1;
+    let hasMore = true;
+    while (hasMore) {
+      const sort = fromDate ? 'date:asc' : 'date:desc';
+      let path = `/daily-rates?${this.seriesQuery(metalName, { national })}&sort=${sort}`;
+      if (fromDate) path += `&filters[date][$gte]=${fromDate}`;
+      if (limit) {
+        path += `&pagination[limit]=${limit}`;
+        hasMore = false;
+      } else {
+        path += `&pagination[page]=${page}&pagination[pageSize]=100`;
+      }
+      const res = await fetch(getApiUrl(path));
+      if (!res.ok) break;
+      const json = await res.json();
+      const batch = (json.data || []).filter(r => this.belongsToSeries(r, metalName, { national }));
+      rows.push(...batch);
+      if (limit) break;
+      const pag = json.meta?.pagination;
+      hasMore = pag ? page < pag.pageCount : false;
+      page++;
+    }
+    return rows;
+  }
+
+  async loadSeries(metalName, options = {}) {
+    const national = !this.citySlug;
+    let rows = await this.fetchSeriesRows(metalName, { ...options, national });
+    if (!national && rows.length === 0) {
+      rows = await this.fetchSeriesRows(metalName, { ...options, national: true });
+    }
+    return rows;
+  }
+
+  /**
+   * Latest two rates for this metal, identified by the metal relation and unit.
+   */
+  async fetchLatestRates() {
+    const rows = await this.loadSeries(this.metal.name, { limit: 2 });
+    this.todayRate = rows[0] || null;
+    this.yestRate  = rows[1] || null;
+  }
+
+  /**
+   * Latest rate for the other metal, same unit rule, for the Gold:Silver ratio.
    */
   async fetchOtherMetalRate() {
     const otherName = this.isGold ? 'Silver' : 'Gold';
     try {
-      const url  = getApiUrl(`/daily-rates?sort=date:desc&pagination[limit]=4&populate=*`);
-      const res  = await fetch(url);
-      const json = await res.json();
-      const mine = (json.data || []).filter(r => r.metal?.name === otherName);
-      const byDate = {};
-      mine.forEach(r => { if (!byDate[r.date]) byDate[r.date] = r; });
-      const dates = Object.keys(byDate).sort().reverse();
-      this.otherMetalRate = byDate[dates[0]] || null;
+      const rows = await this.loadSeries(otherName, { limit: 1 });
+      this.otherMetalRate = rows[0] || null;
     } catch { this.otherMetalRate = null; }
   }
 
   /**
-   * Historical rates: fetch WITHOUT populate (lean payload).
-   * For each date there are exactly 2 records (one gold, one silver).
-   * We group by date and pick using buyingRate sort:
-   *   - Gold (per 10g) is ALWAYS the lower-priced record in INR.
-   *   - Silver (per kg) is ALWAYS the higher-priced record in INR.
-   * This is validated by the seeded data across the full 2016-2026 range.
+   * History for the chart. One row per date from the metal + unit series.
+   * A missing day is skipped. Another metal, unit, or city cannot take its place.
    */
   async fetchHistoricalRange(days) {
     const fromDate = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
     if (this.allRates.length > 0 && this.allRates[0].date <= fromDate) return;
 
-    const rows = await this.fetchAllPages(
-      `/daily-rates?filters[date][$gte]=${fromDate}&sort=date:asc`
-    );
-
-    // Group by date, pick correct metal by price rank
+    const rows = await this.loadSeries(this.metal.name, { fromDate });
     const byDate = {};
-    rows.forEach(r => { (byDate[r.date] ??= []).push(r); });
+    rows.forEach(r => { if (!byDate[r.date]) byDate[r.date] = r; });
 
-    this.allRates = Object.keys(byDate).sort().map(date => {
-      const sorted = byDate[date].sort((a, b) => a.buyingRate - b.buyingRate);
-      const rec    = this.isGold ? sorted[0] : sorted[sorted.length - 1];
-      return rec ? { date, buyingRate: parseFloat(rec.buyingRate) } : null;
-    }).filter(Boolean);
+    this.allRates = Object.keys(byDate).sort().map(date => ({
+      date,
+      buyingRate: parseFloat(byDate[date].buyingRate),
+    }));
   }
 
   rangeDays() {

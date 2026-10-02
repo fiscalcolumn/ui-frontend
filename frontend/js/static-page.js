@@ -422,47 +422,34 @@ class StaticPageManager {
 
       try {
         const apiBase = window.API_CONFIG?.BASE_URL || 'http://localhost:1337';
+        const res = await fetch(`${apiBase}/api/subscriptions/unsubscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: { email } }),
+        });
+        const json = await res.json();
 
-        // Step 1: find the subscription by email
-        const findRes  = await fetch(`${apiBase}/api/subscriptions?filters[email][$eq]=${encodeURIComponent(email)}`);
-        const findJson = await findRes.json();
-
-        if (!findRes.ok) {
-          msg.textContent = findJson.error?.message || 'Unable to look up subscription. Please try again.';
+        if (!res.ok) {
+          msg.textContent = json.error?.message || 'Something went wrong. Please try again.';
           msg.classList.add('sp-nl-msg--error');
           return;
         }
 
-        const record = findJson.data?.[0];
-
-        if (!record) {
+        if (json.message === 'not_found') {
           msg.textContent = 'No subscription found for this email address.';
           msg.classList.add('sp-nl-msg--error');
           return;
         }
 
-        if (record.subscribed === false) {
+        if (json.message === 'already_unsubscribed') {
           msg.textContent = 'This email is already unsubscribed.';
           msg.classList.add('sp-nl-msg--error');
           return;
         }
 
-        // Step 2: update subscribed → false
-        const updateRes = await fetch(`${apiBase}/api/subscriptions/${record.documentId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ data: { subscribed: false, unsubscribedAt: new Date().toISOString() } })
-        });
-
-        if (updateRes.ok) {
-          msg.textContent = 'You have been successfully unsubscribed. We\'re sorry to see you go!';
-          msg.classList.add('sp-nl-msg--success');
-          input.value = '';
-        } else {
-          const errJson = await updateRes.json();
-          msg.textContent = errJson.error?.message || 'Something went wrong. Please try again.';
-          msg.classList.add('sp-nl-msg--error');
-        }
+        msg.textContent = 'You have been successfully unsubscribed. We\'re sorry to see you go!';
+        msg.classList.add('sp-nl-msg--success');
+        input.value = '';
       } catch {
         msg.textContent = 'Network error. Please try again.';
         msg.classList.add('sp-nl-msg--error');
