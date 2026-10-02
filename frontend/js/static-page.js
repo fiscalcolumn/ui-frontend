@@ -88,11 +88,14 @@ class StaticPageManager {
 
   md(content) {
     if (!content) return '';
+    let html;
     if (typeof marked !== 'undefined') {
       marked.setOptions({ breaks: true, gfm: true, mangle: false, headerIds: false });
-      return marked.parse(content);
+      html = marked.parse(content);
+    } else {
+      html = String(content).split('\n\n').map(p => `<p>${Utils.escapeHtml(p)}</p>`).join('');
     }
-    return content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+    return Utils.sanitizeHtml(html);
   }
 
   removeFirstHeading(html) {
@@ -101,8 +104,10 @@ class StaticPageManager {
 
   pageHeader(subtitle = '') {
     const hasImage = this.page.featuredImage?.url;
-    const imageUrl = hasImage ? Utils.resolveImgUrl(this.page.featuredImage.url) : '';
+    const imageUrl = hasImage ? Utils.safeUrl(Utils.resolveImgUrl(this.page.featuredImage.url)) : '';
     const desc     = subtitle || this.page.excerpt || '';
+    const titleText = Utils.escapeHtml(this.page.title);
+    const descText = Utils.escapeHtml(desc);
 
     const fallbackIcons = {
       about:   { icon: 'fa-info-circle',  color: '#b8860b' },
@@ -117,16 +122,16 @@ class StaticPageManager {
         <div class="container">
           <div class="sp-info-content">
             <div class="sp-info-avatar">
-              ${hasImage
-                ? `<img loading="lazy" src="${imageUrl}" alt="${this.page.title}" class="sp-info-img">`
+              ${imageUrl
+                ? `<img loading="lazy" src="${Utils.escapeHtml(imageUrl)}" alt="${titleText}" class="sp-info-img">`
                 : `<div class="sp-info-icon-circle" style="background:${fb.color}">
                      <i class="fa ${fb.icon}"></i>
                    </div>`
               }
             </div>
             <div class="sp-info-text">
-              <h1 class="sp-info-title">${this.page.title}</h1>
-              ${desc ? `<p class="sp-info-desc">${desc}</p>` : ''}
+              <h1 class="sp-info-title">${titleText}</h1>
+              ${descText ? `<p class="sp-info-desc">${descText}</p>` : ''}
             </div>
           </div>
         </div>
@@ -529,7 +534,7 @@ class StaticPageManager {
       { icon: 'fa-bullhorn',    label: 'Advertising',      email: 'ads@fiscalcolumn.com',          desc: 'For advertising enquiries, media kits, and sponsorship opportunities.', link: { label: 'View advertising options', href: '/advertise' } },
       { icon: 'fa-newspaper-o', label: 'Editorial',         email: 'editorial@fiscalcolumn.com',    desc: 'For story tips, content corrections, or editorial feedback.',            link: { label: 'Our editorial process', href: '/editorial-process' } },
       { icon: 'fa-envelope-o',  label: 'Newsletter',        email: 'newsletter@fiscalcolumn.com',   desc: 'For newsletter-related enquiries or to manage your subscription.',       link: { label: 'Subscribe for free', href: '/newsletter' } },
-      { icon: 'fa-comments-o',  label: 'General Inquiries', email: this.page.contactEmail || 'hello@fiscalcolumn.com', desc: 'Have other questions? Our team is happy to help.', link: null },
+      { icon: 'fa-comments-o',  label: 'General Inquiries', email: Utils.safeEmail(this.page.contactEmail) || 'hello@fiscalcolumn.com', desc: 'Have other questions? Our team is happy to help.', link: null },
     ];
 
     const contentHtml = this.removeFirstHeading(this.md(this.page.content));
@@ -545,7 +550,7 @@ class StaticPageManager {
                   <i class="fa ${d.icon} cus-icon"></i>
                   <span class="cus-label">${d.label}</span>
                 </div>
-                <a href="mailto:${d.email}" class="cus-email">${d.email}</a>
+                <a href="mailto:${Utils.escapeHtml(d.email)}" class="cus-email">${Utils.escapeHtml(d.email)}</a>
                 <p class="cus-desc">${d.desc}</p>
                 ${d.link ? `<a href="${d.link.href}" class="cus-link">${d.link.label} <i class="fa fa-arrow-right"></i></a>` : ''}
               </div>`).join('')}
@@ -567,10 +572,10 @@ class StaticPageManager {
 
     // Extract TOC entries
     const headings = [...(this.page.content?.matchAll(/^### (.+)$/mg) || [])].map((m, i) => ({
-      id: `sec-${i + 1}`, label: m[1]
+      id: `sec-${i + 1}`, label: Utils.escapeHtml(m[1])
     }));
 
-    const lastUpdated = this.page.content?.match(/\*\*Last updated:\s*([^*]+)\*\*/)?.[1]?.trim() || '';
+    const lastUpdated = Utils.escapeHtml(this.page.content?.match(/\*\*Last updated:\s*([^*]+)\*\*/)?.[1]?.trim() || '');
 
     this.pageContainer.innerHTML = `
       ${this.pageHeader()}
@@ -645,7 +650,7 @@ class StaticPageManager {
     this.pageContainer.innerHTML = `
       <div class="static-page-error">
         <h1>Page Not Found</h1>
-        <p>${message}</p>
+        <p>${Utils.escapeHtml(message)}</p>
         <a href="/" class="btn-home"><i class="fa fa-home"></i> Back to Home</a>
       </div>`;
   }

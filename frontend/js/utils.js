@@ -185,6 +185,43 @@ const Utils = {
   setMetaContent(id, value) {
     const el = document.getElementById(id);
     if (el) el.setAttribute('content', value);
+  },
+
+  /** Text that must not be treated as HTML. */
+  escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  },
+
+  /** http(s), mailto, or a same-site path. Anything else is dropped. */
+  safeUrl(url) {
+    const value = String(url ?? '').trim();
+    if (/^https?:\/\//i.test(value)) return value;
+    if (/^mailto:/i.test(value)) return value;
+    if (value.startsWith('/') && !value.startsWith('//') && !value.startsWith('/\\')) return value;
+    return '';
+  },
+
+  safeEmail(email) {
+    const value = String(email ?? '').trim();
+    return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value) ? value : '';
+  },
+
+  /**
+   * HTML produced from Markdown. DOMPurify keeps headings, lists, links, and
+   * images, and removes scripts, event handlers, and javascript: addresses.
+   * If the sanitizer did not load, the text is escaped instead.
+   */
+  sanitizeHtml(html) {
+    const input = String(html ?? '');
+    if (typeof DOMPurify !== 'undefined' && typeof DOMPurify.sanitize === 'function') {
+      return DOMPurify.sanitize(input, { USE_PROFILES: { html: true } });
+    }
+    return this.escapeHtml(input);
   }
 };
 

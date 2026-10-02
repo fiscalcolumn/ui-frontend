@@ -258,7 +258,7 @@ class ArticlePageManager {
     
     if (category) {
       categoryLink.textContent = category.name;
-      categoryLink.href = `/${category.slug}`;
+      categoryLink.href = `/${encodeURIComponent(category.slug || '')}`;
     }
     
     articleBreadcrumb.textContent = Utils.truncateText(title, 40);
@@ -273,38 +273,40 @@ class ArticlePageManager {
    */
   renderArticle() {
     const hasImage = this.article.image?.url;
-    const imageUrl = hasImage ? Utils.resolveImgUrl(this.article.image.url) : '';
+    const imageUrl = hasImage ? Utils.safeUrl(Utils.resolveImgUrl(this.article.image.url)) : '';
     const publishDate = Utils.formatDateLong(this.article.publishedDate);
     const authorObj = this.article.author;
     const author = authorObj?.name || (typeof authorObj === 'string' ? authorObj : 'Admin');
     const authorSlug = authorObj?.slug || null;
     const views = this.article.views || 0;
-    const readTime = this.article.minutesToRead || 3;
-    const category = this.article.category;
+    const readTime = Number(this.article.minutesToRead) || 3;
 
     const shareUrl = encodeURIComponent(window.location.href);
     const shareTitle = encodeURIComponent(this.article.title);
+    const titleText = Utils.escapeHtml(this.article.title);
+    const authorText = Utils.escapeHtml(author);
+    const authorHref = authorSlug ? `/author/${encodeURIComponent(authorSlug)}` : '';
 
     const tagsHtml = this.article.tags?.length > 0
-      ? this.article.tags.map(tag => `<a href="/tag/${tag.slug}">${tag.name}</a>`).join('<span class="tag-sep">,</span>')
+      ? this.article.tags.map(tag => `<a href="/tag/${encodeURIComponent(tag.slug || '')}">${Utils.escapeHtml(tag.name)}</a>`).join('<span class="tag-sep">,</span>')
       : '';
 
-    const authorInitial = author.charAt(0).toUpperCase();
-    const authorPhotoUrl = Utils.resolveImgUrl(authorObj?.photo?.url);
+    const authorInitial = Utils.escapeHtml(author.charAt(0).toUpperCase());
+    const authorPhotoUrl = Utils.safeUrl(Utils.resolveImgUrl(authorObj?.photo?.url));
     const authorAvatarSvg = authorPhotoUrl
-      ? `<img loading="lazy" src="${authorPhotoUrl}" alt="${author}" class="author-avatar-img" width="32" height="32">`
+      ? `<img loading="lazy" src="${Utils.escapeHtml(authorPhotoUrl)}" alt="${authorText}" class="author-avatar-img" width="32" height="32">`
       : `<svg class="author-avatar-svg" width="32" height="32" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <circle cx="18" cy="18" r="18" fill="#1a2332"/>
       <text x="18" y="23" text-anchor="middle" font-size="15" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">${authorInitial}</text>
     </svg>`;
-    const authorNameHtml = authorSlug
-      ? `<a href="/author/${authorSlug}" class="meta-author">${author}</a>`
-      : `<span class="meta-author">${author}</span>`;
+    const authorNameHtml = authorHref
+      ? `<a href="${authorHref}" class="meta-author">${authorText}</a>`
+      : `<span class="meta-author">${authorText}</span>`;
 
     this.articleContainer.innerHTML = `
 
       <!-- ── ARTICLE HEADER ── -->
-      <h1 class="article-title">${this.article.title}</h1>
+      <h1 class="article-title">${titleText}</h1>
 
       <div class="article-meta-bar">
         ${authorAvatarSvg}
@@ -318,14 +320,14 @@ class ArticlePageManager {
       </div>
 
       <!-- ── FEATURED IMAGE ── -->
-      ${hasImage ? `
+      ${imageUrl ? `
       <div class="article-featured-image">
-        <img loading="eager" fetchpriority="high" src="${imageUrl}" alt="${this.article.title}">
+        <img loading="eager" fetchpriority="high" src="${Utils.escapeHtml(imageUrl)}" alt="${titleText}">
       </div>` : ''}
 
       <!-- ── DESCRIPTION / EXCERPT ── -->
       ${this.article.excerpt ? `
-      <p class="article-subtitle">${this.article.excerpt}</p>` : ''}
+      <p class="article-subtitle">${Utils.escapeHtml(this.article.excerpt)}</p>` : ''}
 
       <!-- ── TAGS + SHARE ── -->
       <div class="article-tags-share-bar">
@@ -356,28 +358,32 @@ class ArticlePageManager {
       <!-- ── AUTHOR BIO ── -->
       ${authorObj ? (() => {
         const bioAvatarHtml = authorPhotoUrl
-          ? `<img src="${authorPhotoUrl}" alt="${author}" class="author-bio-photo">`
+          ? `<img src="${Utils.escapeHtml(authorPhotoUrl)}" alt="${authorText}" class="author-bio-photo">`
           : `<svg class="author-bio-avatar-svg" width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <circle cx="32" cy="32" r="32" fill="#1a2332"/>
               <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="700" font-family="DM Sans, sans-serif" fill="#ffffff">${authorInitial}</text>
             </svg>`;
-        const twitterLink  = authorObj.twitter  ? `<a href="${authorObj.twitter}"  target="_blank" rel="noopener noreferrer" class="author-bio-social" aria-label="Twitter"><i class="fa fa-twitter"></i></a>`  : '';
-        const linkedinLink = authorObj.linkedin ? `<a href="${authorObj.linkedin}" target="_blank" rel="noopener noreferrer" class="author-bio-social" aria-label="LinkedIn"><i class="fa fa-linkedin"></i></a>` : '';
+        const twitterHref = Utils.safeUrl(authorObj.twitter);
+        const linkedinHref = Utils.safeUrl(authorObj.linkedin);
+        const twitterLink  = twitterHref  ? `<a href="${Utils.escapeHtml(twitterHref)}"  target="_blank" rel="noopener noreferrer" class="author-bio-social" aria-label="Twitter"><i class="fa fa-twitter"></i></a>`  : '';
+        const linkedinLink = linkedinHref ? `<a href="${Utils.escapeHtml(linkedinHref)}" target="_blank" rel="noopener noreferrer" class="author-bio-social" aria-label="LinkedIn"><i class="fa fa-linkedin"></i></a>` : '';
+        const designation = authorObj.designation ? Utils.escapeHtml(authorObj.designation) : '';
+        const bio = authorObj.bio ? Utils.escapeHtml(authorObj.bio) : '';
         return `
         <div class="author-bio">
           <div class="author-bio-avatar">${bioAvatarHtml}</div>
           <div class="author-bio-content">
             <p class="author-bio-label">Written by</p>
             <div class="author-bio-name-row">
-              ${authorSlug
-                ? `<a href="/author/${authorSlug}" class="author-bio-name">${author}</a>`
-                : `<span class="author-bio-name">${author}</span>`}
-              ${authorObj.designation ? `<span class="author-bio-designation">${authorObj.designation}</span>` : ''}
+              ${authorHref
+                ? `<a href="${authorHref}" class="author-bio-name">${authorText}</a>`
+                : `<span class="author-bio-name">${authorText}</span>`}
+              ${designation ? `<span class="author-bio-designation">${designation}</span>` : ''}
             </div>
-            ${authorObj.bio ? `<p class="author-bio-desc">${authorObj.bio}</p>` : ''}
+            ${bio ? `<p class="author-bio-desc">${bio}</p>` : ''}
             <div class="author-bio-footer">
               <div class="author-bio-socials">${twitterLink}${linkedinLink}</div>
-              ${authorSlug ? `<a href="/author/${authorSlug}" class="author-bio-more">More articles <i class="fa fa-long-arrow-right"></i></a>` : ''}
+              ${authorHref ? `<a href="${authorHref}" class="author-bio-more">More articles <i class="fa fa-long-arrow-right"></i></a>` : ''}
             </div>
           </div>
         </div>`;
@@ -392,28 +398,20 @@ class ArticlePageManager {
     if (!content) return '<p>No content available.</p>';
     
     let html = '';
-    
-    // Check if marked library is available
+
     if (typeof marked !== 'undefined') {
-      // Configure marked options
       marked.setOptions({
-        breaks: true,        // Convert \n to <br>
-        gfm: true,           // GitHub Flavored Markdown
-        headerIds: true,     // Add IDs to headers
-        mangle: false,       // Don't mangle email addresses
+        breaks: true,
+        gfm: true,
+        headerIds: true,
+        mangle: false,
       });
-      
-      // Parse Markdown to HTML
       html = marked.parse(content);
-    } else if (content.includes('<p>') || content.includes('<div>')) {
-      // Fallback: If content is already HTML, use as is
-      html = content;
     } else {
-      // Fallback: wrap in paragraphs
-      html = content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+      html = String(content).split('\n\n').map(p => `<p>${Utils.escapeHtml(p)}</p>`).join('');
     }
-    
-    return html;
+
+    return Utils.sanitizeHtml(html);
   }
 
   /**
@@ -421,8 +419,8 @@ class ArticlePageManager {
    */
   renderSidebar(latestArticles, relatedArticles, tags) {
     const category = this.article?.category;
-    const catName = category?.name || '';
-    const catSlug = category?.slug || '';
+    const catName = Utils.escapeHtml(category?.name || '');
+    const catSlug = category?.slug ? encodeURIComponent(category.slug) : '';
 
     const relatedSection = relatedArticles.length > 0 ? `
       <div class="sidebar-section">
@@ -450,13 +448,15 @@ class ArticlePageManager {
    * Render a single sidebar article item
    */
   renderSidebarArticle(article, showCategory = true) {
-    const thumbUrl = Utils.resolveImgUrl(article.image?.url);
+    const thumbUrl = Utils.safeUrl(Utils.resolveImgUrl(article.image?.url));
+    const titleText = Utils.escapeHtml(article.title);
     const thumbHtml = thumbUrl
-      ? `<img loading="lazy" src="${thumbUrl}" alt="${article.title}">`
+      ? `<img loading="lazy" src="${Utils.escapeHtml(thumbUrl)}" alt="${titleText}">`
       : '<div class="sb-article-thumb-placeholder"></div>';
-    const categorySlug = article.category?.slug || 'article';
-    const categoryName = article.category?.name || '';
-    const readTime = article.minutesToRead || Utils.calculateReadingTime(article.content) || 3;
+    const categorySlug = encodeURIComponent(article.category?.slug || 'article');
+    const articleSlug = encodeURIComponent(article.slug || '');
+    const categoryName = Utils.escapeHtml(article.category?.name || '');
+    const readTime = Number(article.minutesToRead) || Utils.calculateReadingTime(article.content) || 3;
     const date = Utils.formatDate(article.publishedDate);
     const meta = [
       `${readTime} min read`,
@@ -468,12 +468,12 @@ class ArticlePageManager {
         <div class="sb-article-body">
           ${showCategory && categoryName ? `<div class="sb-article-category">${categoryName}</div>` : ''}
           <h4 class="sb-article-title">
-            <a href="/${categorySlug}/${article.slug}">${article.title}</a>
+            <a href="/${categorySlug}/${articleSlug}">${titleText}</a>
           </h4>
           <div class="sb-article-meta">${meta}</div>
         </div>
         <div class="sb-article-thumb">
-          <a href="/${categorySlug}/${article.slug}">${thumbHtml}</a>
+          <a href="/${categorySlug}/${articleSlug}">${thumbHtml}</a>
         </div>
       </div>
     `;
@@ -488,7 +488,7 @@ class ArticlePageManager {
       <div class="article-error">
         <i class="fa fa-exclamation-circle"></i>
         <h2>Article Not Found</h2>
-        <p>${message}</p>
+        <p>${Utils.escapeHtml(message)}</p>
         <div class="error-actions">
           <a href="/" class="error-btn primary">Go to Homepage</a>
           <a href="javascript:history.back()" class="error-btn secondary">Go Back</a>
