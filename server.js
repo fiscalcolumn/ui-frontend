@@ -19,6 +19,48 @@ if (TRUST_PROXY) {
   app.set('trust proxy', 1);
 }
 
+function originOf(value) {
+  try {
+    return new URL(value).origin;
+  } catch (error) {
+    return '';
+  }
+}
+
+// script-src-attr stays loose because deferred stylesheets use onload="this.media='all'"
+// and a few widgets use onclick/onerror. script-src does not, so an injected <script> is blocked.
+// style-src allows inline styles because templates and the SEO preview write style attributes and a <style> block.
+function contentSecurityPolicy() {
+  const strapiOrigin = originOf(STRAPI_URL);
+  const connectSrc = ["'self'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
+  if (strapiOrigin && !connectSrc.includes(strapiOrigin)) connectSrc.push(strapiOrigin);
+
+  const imgSrc = ["'self'", 'data:', 'blob:', 'https:'];
+  if (strapiOrigin && !imgSrc.includes(strapiOrigin)) imgSrc.push(strapiOrigin);
+
+  const directives = [
+    "default-src 'self'",
+    "script-src 'self' https://cdn.jsdelivr.net",
+    "script-src-attr 'unsafe-inline'",
+    "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'",
+    "font-src 'self' https://fonts.gstatic.com data:",
+    `img-src ${imgSrc.join(' ')}`,
+    `media-src ${imgSrc.join(' ')}`,
+    `connect-src ${connectSrc.join(' ')}`,
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    "frame-src 'none'",
+  ];
+
+  if (SITE_URL.startsWith('https')) {
+    directives.push('upgrade-insecure-requests');
+  }
+
+  return directives.join('; ');
+}
+
 // Security Headers (Production)
 if (NODE_ENV === 'production') {
   app.use((req, res, next) => {
@@ -28,6 +70,7 @@ if (NODE_ENV === 'production') {
     res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+    res.setHeader('Content-Security-Policy', contentSecurityPolicy());
     
     // HTTPS enforcement in production
     if (req.header('x-forwarded-proto') !== 'https' && SITE_URL.startsWith('https')) {
