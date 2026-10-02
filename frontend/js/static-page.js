@@ -3,6 +3,8 @@
  * Fetches and renders static pages from Strapi with rich, page-specific UI.
  */
 
+const CONTACT_EMAIL = 'fiscalcolumn@gmail.com';
+
 class StaticPageManager {
   constructor() {
     this.pageContainer = document.getElementById('page-content');
@@ -267,7 +269,7 @@ class StaticPageManager {
 
         <div class="sp-corrections-note">
           <i class="fa fa-envelope-o"></i>
-          Spotted an error? Email <a href="mailto:editorial@fiscalcolumn.com">editorial@fiscalcolumn.com</a> — we take corrections seriously and respond within one business day.
+          Spotted an error? Email <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> — we take corrections seriously and respond within one business day.
         </div>
 
       </div>
@@ -517,8 +519,8 @@ class StaticPageManager {
 
         <div class="sp-adv-cta">
           <div class="sp-adv-cta-text">Ready to reach India's investors?</div>
-          <a href="mailto:ads@fiscalcolumn.com" class="sp-adv-cta-btn">
-            <i class="fa fa-envelope-o"></i> ads@fiscalcolumn.com
+          <a href="mailto:${CONTACT_EMAIL}" class="sp-adv-cta-btn">
+            <i class="fa fa-envelope-o"></i> ${CONTACT_EMAIL}
           </a>
           <div class="sp-adv-cta-note">We respond to all advertising enquiries within 2 business days.</div>
         </div>
@@ -531,10 +533,10 @@ class StaticPageManager {
 
   renderContact() {
     const departments = [
-      { icon: 'fa-bullhorn',    label: 'Advertising',      email: 'ads@fiscalcolumn.com',          desc: 'For advertising enquiries, media kits, and sponsorship opportunities.', link: { label: 'View advertising options', href: '/advertise' } },
-      { icon: 'fa-newspaper-o', label: 'Editorial',         email: 'editorial@fiscalcolumn.com',    desc: 'For story tips, content corrections, or editorial feedback.',            link: { label: 'Our editorial process', href: '/editorial-process' } },
-      { icon: 'fa-envelope-o',  label: 'Newsletter',        email: 'newsletter@fiscalcolumn.com',   desc: 'For newsletter-related enquiries or to manage your subscription.',       link: { label: 'Subscribe for free', href: '/newsletter' } },
-      { icon: 'fa-comments-o',  label: 'General Inquiries', email: Utils.safeEmail(this.page.contactEmail) || 'hello@fiscalcolumn.com', desc: 'Have other questions? Our team is happy to help.', link: null },
+      { icon: 'fa-bullhorn',    label: 'Advertising',      email: CONTACT_EMAIL, desc: 'For advertising enquiries, media kits, and sponsorship opportunities.', link: { label: 'View advertising options', href: '/advertise' } },
+      { icon: 'fa-newspaper-o', label: 'Editorial',         email: CONTACT_EMAIL, desc: 'For story tips, content corrections, or editorial feedback.',            link: { label: 'Our editorial process', href: '/editorial-process' } },
+      { icon: 'fa-envelope-o',  label: 'Newsletter',        email: CONTACT_EMAIL, desc: 'For newsletter-related enquiries or to manage your subscription.',       link: { label: 'Subscribe for free', href: '/newsletter' } },
+      { icon: 'fa-comments-o',  label: 'General Inquiries', email: Utils.safeEmail(this.page.contactEmail) || CONTACT_EMAIL, desc: 'Have other questions? Our team is happy to help.', link: null },
     ];
 
     const contentHtml = this.removeFirstHeading(this.md(this.page.content));

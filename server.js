@@ -180,21 +180,59 @@ function optimizeHtml(htmlContent) {
 }
 
 // Helper function to send HTML file with optimisations and cache headers
-function sendVersionedHtml(res, filePath) {
+function sendVersionedHtml(res, filePath, options = {}) {
+  const statusCode = options.statusCode || 200;
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
-      return res.status(500).send('Error loading page');
+      return res.status(500).type('text/plain').send('Error loading page');
     }
     const processedHtml = optimizeHtml(data);
+    res.status(statusCode);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    // HTML: allow short cache + stale-while-revalidate for fast repeat visits
-    if (NODE_ENV === 'production') {
+    if (statusCode === 404) {
+      res.setHeader('X-Robots-Tag', 'noindex');
+      res.setHeader('Cache-Control', 'no-store');
+    } else if (NODE_ENV === 'production') {
       res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=3600');
     } else {
       res.setHeader('Cache-Control', 'no-store');
     }
     res.send(processedHtml);
   });
+}
+
+function sendNotFound(res) {
+  sendVersionedHtml(res, path.join(__dirname, 'frontend', '404.html'), { statusCode: 404 });
+}
+
+const contentLookupCache = new Map();
+const CONTENT_LOOKUP_TTL_MS = 60 * 1000;
+
+async function publishedContentExists(cacheKey, apiPath) {
+  const cached = contentLookupCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < CONTENT_LOOKUP_TTL_MS) return cached.found;
+  if (contentLookupCache.size > 1000) contentLookupCache.clear();
+
+  const url = `${STRAPI_URL}${STRAPI_API_PATH}${apiPath}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} looking up ${cacheKey}`);
+  }
+  const data = await response.json();
+  const found = Array.isArray(data.data) && data.data.length > 0;
+  contentLookupCache.set(cacheKey, { found, at: Date.now() });
+  return found;
+}
+
+async function sendHtmlIfPublished(res, cacheKey, apiPath, htmlFile) {
+  try {
+    const found = await publishedContentExists(cacheKey, apiPath);
+    if (!found) return sendNotFound(res);
+    sendVersionedHtml(res, path.join(__dirname, 'frontend', htmlFile));
+  } catch (error) {
+    console.error('Content lookup failed:', error.message);
+    res.status(503).type('text/plain').send('Temporarily unavailable');
+  }
 }
 
 // Serve static files from the frontend directory
@@ -533,8 +571,8 @@ async function generateFeed() {
     <description>In-depth articles on personal finance, gold &amp; silver rates, banking, investing, and market trends in India.</description>
     <language>en-in</language>
     <copyright>Copyright ${new Date().getFullYear()} FiscalColumn</copyright>
-    <managingEditor>hello@fiscalcolumn.com (FiscalColumn)</managingEditor>
-    <webMaster>hello@fiscalcolumn.com (FiscalColumn)</webMaster>
+    <managingEditor>fiscalcolumn@gmail.com (FiscalColumn)</managingEditor>
+    <webMaster>fiscalcolumn@gmail.com (FiscalColumn)</webMaster>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <ttl>60</ttl>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
@@ -681,35 +719,37 @@ app.get('/commodities/:page', (req, res) => {
 });
 
 // Article pages - /:category/:article-slug
+// Only a published article is a page. Anything else is a 404, not an empty article shell.
 app.get('/:category/:article', (req, res, next) => {
   const { category, article } = req.params;
-  
-  // Skip if it looks like a file request (has extension)
+
   if (category.includes('.') || article.includes('.')) {
     return next();
   }
-  
-  // Skip rate page categories (handled by rate page routes above)
+
   if (category === 'gold-rates' || category === 'silver-rates' || category === 'commodities') {
     return next();
   }
-  
-  // Serve article page
-  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'article.html'));
+
+  const apiPath =
+    `/articles?filters[slug][$eq]=${encodeURIComponent(article)}` +
+    `&filters[category][slug][$eq]=${encodeURIComponent(category)}` +
+    `&fields[0]=documentId&pagination[pageSize]=1`;
+  return sendHtmlIfPublished(res, `article:${category}/${article}`, apiPath, 'article.html');
 });
 
-// Category pages - serve category.html for any slug that looks like a category
-// This should be last to avoid catching other routes
+// Category pages. An unknown slug is a 404, not the category template.
 app.get('/:slug', (req, res, next) => {
   const slug = req.params.slug;
-  
-  // Skip if it looks like a file request (has extension)
+
   if (slug.includes('.')) {
     return next();
   }
-  
-  // Serve category page for category slugs
-  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'category.html'));
+
+  const apiPath =
+    `/categories?filters[slug][$eq]=${encodeURIComponent(slug)}` +
+    `&fields[0]=documentId&pagination[pageSize]=1`;
+  return sendHtmlIfPublished(res, `category:${slug}`, apiPath, 'category.html');
 });
 
 // Error handling middleware
@@ -720,9 +760,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
+// 404 handler. Status 404 so crawlers do not index the homepage at this URL.
 app.use((req, res) => {
-  sendVersionedHtml(res, path.join(__dirname, 'frontend', 'index.html'));
+  sendNotFound(res);
 });
 
 app.listen(PORT, () => {
