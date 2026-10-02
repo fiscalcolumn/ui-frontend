@@ -5,7 +5,7 @@
 
 /* Related Categories Carousel */
 .related-category-section {
-  padding: 40px 0;
+  padding: 22px 0;
 }
 .related-category-section:nth-child(odd) {
   background: #f8f9fa;
@@ -554,7 +554,7 @@
 .rcb-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 36px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -618,7 +618,7 @@
   display: grid;
   grid-template-columns: 120px 1fr;
   gap: 14px;
-  padding: 25px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #eee;
   text-decoration: none;
   color: inherit;

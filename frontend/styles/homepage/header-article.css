@@ -6,7 +6,7 @@
 .header-article-section {
   display: none;
   background: transparent;
-  padding: 36px 0 32px;
+  padding: 24px 0 16px;
   margin-top: 150px;   /* clears the fixed header */
   border-bottom: 1px solid #e8e8e8;
 }
@@ -154,7 +154,7 @@
 
 /* ── Mid-page article section wrapper ── */
 .mid-article-section {
-  padding: 36px 0 32px;
+  padding: 20px 0 16px;
   border-bottom: 1px solid #e8e8e8;
   background: transparent;
 }
