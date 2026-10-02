@@ -66,42 +66,74 @@ class EducationLoanEMICalculator {
   }
 
   bindEvents() {
-    [['edu-amount', 'loanAmount'], ['edu-rate', 'interestRate'], ['edu-course', 'courseDuration'], ['edu-repay', 'repaymentTenure']].forEach(([id, field]) => {
-      document.getElementById(id).addEventListener('input', e => {
-        this[field] = parseFloat(e.target.value) || 0;
-        document.getElementById(`${id}-value`).textContent = CalculatorUtils.formatIndianNumber(this[field]);
-        CalculatorUtils.updateSliderProgress(e.target);
-      });
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'edu-amount', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'edu-rate', display: (n) => n.toFixed(2), end: (n) => `${n}%` },
+      { id: 'edu-course', display: (n) => String(n), end: (n) => `${n} yrs` },
+      { id: 'edu-repay', display: (n) => String(n), end: (n) => `${n} months` },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Repayment starts after the course plus one year. Interest during that pause is simple interest.',
+      tiles: [
+        { id: 'edu-course-interest', label: 'Interest during course' },
+        { id: 'edu-total-interest', label: 'Total interest' },
+      ],
+      canvasId: 'edu-chart',
+      legend: ['Amount borrowed', 'Interest'],
+      compareTitle: 'Same loan, different rates',
+      leadId: 'edu-compare-lead',
+      listId: 'edu-compare-list',
     });
-    document.getElementById('edu-calculate').addEventListener('click', () => this.calculate());
-    setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
+  }
+
+  quote(amount, annualPercent, courseYears, repayMonths) {
+    const annualRate = annualPercent / 100;
+    const moratoriumYears = courseYears + 1;
+    const simpleInterest = amount * annualRate * moratoriumYears;
+    const principalAtRepayStart = amount + simpleInterest;
+    const emi = CalculatorUtils.calculateEMI(principalAtRepayStart, annualRate / 12, repayMonths);
+    const totalInterest = simpleInterest + (emi * repayMonths - principalAtRepayStart);
+    return { emi, simpleInterest, totalInterest };
   }
 
   calculate() {
-    const P = this.loanAmount;
-    const annualRate = this.interestRate / 100;
-    const moratoriumYears = this.courseDuration + 1; // course + 1 year
-    const moratoriumMonths = moratoriumYears * 12;
-    const repayMonths = this.repaymentTenure;
+    this.loanAmount = parseFloat(document.getElementById('edu-amount').value) || 0;
+    this.interestRate = parseFloat(document.getElementById('edu-rate').value) || 0;
+    this.courseDuration = parseFloat(document.getElementById('edu-course').value) || 0;
+    this.repaymentTenure = parseFloat(document.getElementById('edu-repay').value) || 0;
 
-    // Simple interest during moratorium
-    const simpleInterest = P * annualRate * moratoriumYears;
-    const principalAtRepayStart = P + simpleInterest;
+    const quote = this.quote(this.loanAmount, this.interestRate, this.courseDuration, this.repaymentTenure);
+    document.getElementById('edu-course-interest').textContent = CalculatorUtils.formatCurrency(quote.simpleInterest);
+    document.getElementById('edu-total-interest').textContent = CalculatorUtils.formatCurrency(quote.totalInterest);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'edu-chart',
+      [this.loanAmount, Math.max(0, quote.totalInterest)],
+      'EMI',
+      CalculatorUtils.formatCurrency(quote.emi)
+    );
 
-    // EMI calculation on inflated principal
-    const monthlyRate = annualRate / 12;
-    const emi = CalculatorUtils.calculateEMI(principalAtRepayStart, monthlyRate, repayMonths);
-    const totalRepaid = emi * repayMonths;
-    const totalInterestDuringRepayment = totalRepaid - principalAtRepayStart;
-    const totalPaid = simpleInterest + totalRepaid;
-
-    document.getElementById('edu-results').style.display = 'block';
-    document.getElementById('edu-emi').textContent = CalculatorUtils.formatCurrency(emi);
-    document.getElementById('edu-course-interest').textContent = CalculatorUtils.formatCurrency(simpleInterest);
-    document.getElementById('edu-total').textContent = CalculatorUtils.formatCurrency(totalPaid);
-    document.getElementById('edu-principal-repay').textContent = CalculatorUtils.formatCurrency(principalAtRepayStart);
-    document.getElementById('edu-total-interest').textContent = CalculatorUtils.formatCurrency(simpleInterest + totalInterestDuringRepayment);
+    const rateSlider = document.getElementById('edu-rate');
+    const rates = CalculatorUtils.ratesInRange(this.interestRate, parseFloat(rateSlider.min), parseFloat(rateSlider.max), [8, 10.5, 12]);
+    CalculatorUtils.fillCompare('edu-compare-list', 'edu-compare-lead',
+      `${CalculatorUtils.formatCurrency(this.loanAmount)}, ${this.courseDuration} year course, then ${this.repaymentTenure} months of repayment.`,
+      rates.map(rate => {
+        const row = this.quote(this.loanAmount, rate, this.courseDuration, this.repaymentTenure);
+        const yours = Math.abs(rate - this.interestRate) < 0.05;
+        return {
+          primary: `${Number.isInteger(rate) ? rate : rate.toFixed(2)}%`,
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'EMI', value: CalculatorUtils.formatCurrency(row.emi) },
+            { label: 'Interest', value: CalculatorUtils.formatCurrency(row.totalInterest) },
+          ],
+        };
+      })
+    );
   }
 }
 

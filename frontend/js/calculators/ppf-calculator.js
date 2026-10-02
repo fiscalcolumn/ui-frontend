@@ -77,9 +77,26 @@ class PPFCalculator {
       this.tenure = parseInt(e.target.value);
       document.getElementById('ppf-tenure-value').textContent = this.tenure;
     });
-    document.getElementById('ppf-calculate').addEventListener('click', () => this.calculate());
-    ['ppf-yearly', 'ppf-rate', 'ppf-tenure'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'ppf-yearly', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'ppf-rate', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'ppf-tenure', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'A deposit goes in once a year, and that year’s balance earns the rate you chose.',
+      tiles: [
+        { id: 'ppf-invested', label: 'You deposit' },
+        { id: 'ppf-interest', label: 'Interest' },
+      ],
+      canvasId: 'ppf-chart',
+      legend: ['You deposit', 'Interest'],
+      compareTitle: 'Same deposit, different rates',
+      leadId: 'ppf-compare-lead',
+      listId: 'ppf-compare-list',
     });
   }
 
@@ -95,12 +112,37 @@ class PPFCalculator {
     const invested = P * n;
     const interest = maturity - invested;
 
-    document.getElementById('ppf-results').style.display = 'block';
-    document.getElementById('ppf-invested').textContent = CalculatorUtils.formatCurrency(invested);
-    document.getElementById('ppf-interest').textContent = CalculatorUtils.formatCurrency(interest);
-    document.getElementById('ppf-maturity').textContent = CalculatorUtils.formatCurrency(maturity);
-
-    this.renderChart();
+    const rates = CalculatorUtils.ratesInRange(this.interestRate, 5, 10, [7, 7.1, 8]);
+    const quote = (rate) => {
+      let value = 0;
+      const yearlyRate = rate / 100;
+      for (let i = 0; i < n; i++) value = (value + P) * (1 + yearlyRate);
+      return { interest: value - P * n, maturity: value };
+    };
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'ppf-invested',
+      gainId: 'ppf-interest',
+      canvasId: 'ppf-chart',
+      invested: invested,
+      gained: interest,
+      centerLabel: 'Maturity',
+      listId: 'ppf-compare-list',
+      leadId: 'ppf-compare-lead',
+      lead: CalculatorUtils.formatCurrency(P) + ' each year for ' + n + ' years. Only the yearly rate changes.',
+      rows: rates.map(rate => {
+        const row = quote(rate);
+        const yours = Math.abs(rate - this.interestRate) < 0.05;
+        return {
+          primary: rate + '%',
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'Interest', value: CalculatorUtils.formatCurrency(row.interest) },
+            { label: 'Maturity', value: CalculatorUtils.formatCurrency(row.maturity) },
+          ],
+        };
+      }),
+    });
   }
 
   renderChart() {

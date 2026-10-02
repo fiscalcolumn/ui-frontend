@@ -216,22 +216,28 @@ class LoanPrepaymentCalculator {
   }
 
   bindEvents() {
-    const sliders = ['lp-outstanding', 'lp-rate', 'lp-tenure', 'lp-prepay'];
-    sliders.forEach(id => {
-      document.getElementById(id).addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        const valueEl = document.getElementById(`${id}-value`);
-        if (id === 'lp-outstanding' || id === 'lp-prepay') {
-          valueEl.textContent = CalculatorUtils.formatIndianNumber(val);
-        } else if (id === 'lp-rate') {
-          valueEl.textContent = val.toFixed(2);
-        } else {
-          valueEl.textContent = val;
-        }
-      });
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'lp-outstanding', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'lp-rate', display: (n) => n.toFixed(2), end: (n) => `${n}%` },
+      { id: 'lp-tenure', display: (n) => String(n), end: (n) => `${n} months` },
+      { id: 'lp-prepay', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'The EMI stays the same. The prepayment shortens how long you keep paying.',
+      tiles: [
+        { id: 'lp-old-interest', label: 'Interest before' },
+        { id: 'lp-new-interest', label: 'Interest after' },
+      ],
+      canvasId: 'lp-chart',
+      legend: ['Interest saved', 'Interest still due'],
+      compareTitle: 'Before and after this prepayment',
+      leadId: 'lp-compare-lead',
+      listId: 'lp-compare-list',
     });
-    document.getElementById('lp-calculate').addEventListener('click', () => this.calculate());
   }
 
   calculate() {
@@ -269,20 +275,36 @@ class LoanPrepaymentCalculator {
     const yearsSaved = Math.floor(tenureSaved / 12);
     const monthsSaved = tenureSaved % 12;
 
-    document.getElementById('lp-results').style.display = 'block';
-    document.getElementById('lp-savings').textContent = CalculatorUtils.formatCurrency(Math.max(0, interestSaved));
-    document.getElementById('lp-old-emi').textContent = CalculatorUtils.formatCurrency(currentEMI);
-    document.getElementById('lp-old-tenure').textContent = `${this.remainingTenure} months`;
+    const saved = Math.max(0, interestSaved);
+    const stillDue = Math.max(0, newTotalInterest);
     document.getElementById('lp-old-interest').textContent = CalculatorUtils.formatCurrency(oldTotalInterest);
-    document.getElementById('lp-new-emi').textContent = CalculatorUtils.formatCurrency(currentEMI);
-    document.getElementById('lp-new-tenure').textContent = `${newTenure} months`;
-    document.getElementById('lp-new-interest').textContent = CalculatorUtils.formatCurrency(Math.max(0, newTotalInterest));
-    
+    document.getElementById('lp-new-interest').textContent = CalculatorUtils.formatCurrency(stillDue);
+    this.chart = CalculatorUtils.modernDoughnut(this.chart, 'lp-chart', [saved, stillDue], 'Saved', CalculatorUtils.formatCurrency(saved));
     let tenureSavedText = `${tenureSaved} months`;
     if (yearsSaved > 0) {
-      tenureSavedText = `${tenureSaved} months (${yearsSaved} year${yearsSaved > 1 ? 's' : ''}${monthsSaved > 0 ? ` ${monthsSaved} months` : ''})`;
+      tenureSavedText = `${yearsSaved} year${yearsSaved > 1 ? 's' : ''}${monthsSaved > 0 ? ` ${monthsSaved} months` : ''}`;
     }
-    document.getElementById('lp-tenure-saved').textContent = tenureSavedText;
+    CalculatorUtils.fillCompare('lp-compare-list', 'lp-compare-lead',
+      `Paying ${CalculatorUtils.formatCurrency(this.prepaymentAmount)} now. Tenure drops by ${tenureSavedText}.`,
+      [
+        {
+          primary: 'Before',
+          figures: [
+            { label: 'EMI', value: CalculatorUtils.formatCurrency(currentEMI) },
+            { label: 'Tenure', value: `${this.remainingTenure} mo` },
+          ],
+        },
+        {
+          primary: 'After',
+          tag: 'This plan',
+          yours: true,
+          figures: [
+            { label: 'EMI', value: CalculatorUtils.formatCurrency(currentEMI) },
+            { label: 'Tenure', value: `${newTenure} mo` },
+          ],
+        },
+      ]
+    );
   }
 }
 

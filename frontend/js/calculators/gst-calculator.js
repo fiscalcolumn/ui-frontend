@@ -83,6 +83,21 @@ class GSTCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Add GST puts the tax on top. Remove GST pulls the tax out of a price that already includes it.',
+      tiles: [
+        { id: 'gst-orig', label: 'Before GST' },
+        { id: 'gst-amount-result', label: 'GST' },
+      ],
+      canvasId: 'gst-chart',
+      legend: ['Before GST', 'GST'],
+      compareTitle: 'Same amount, different GST rates',
+      leadId: 'gst-compare-lead',
+      listId: 'gst-compare-list',
+    });
+  }
+
   bindEvents() {
     document.querySelectorAll('input[name="gst-mode"]').forEach(r =>
       r.addEventListener('change', e => { this.mode = e.target.value; this.calculate(); })
@@ -109,7 +124,9 @@ class GSTCalculator {
       });
     });
 
-    document.getElementById('gst-calculate').addEventListener('click', () => this.calculate());
+    document.getElementById('gst-amount').addEventListener('input', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([], () => this.calculate(), () => this.chart);
   }
 
   syncQuickButtons() {
@@ -136,39 +153,45 @@ class GSTCalculator {
     const cgst = gstAmount / 2;
     const sgst = gstAmount / 2;
 
-    document.getElementById('gst-results').style.display = 'block';
-    document.getElementById('gst-orig').textContent = CalculatorUtils.formatCurrency(baseAmount, 2);
-    document.getElementById('gst-amount-result').textContent = CalculatorUtils.formatCurrency(gstAmount, 2);
-    document.getElementById('gst-final').textContent = CalculatorUtils.formatCurrency(totalAmount, 2);
-    document.getElementById('gst-orig-label').textContent = this.mode === 'add' ? 'Original Amount' : 'Pre-GST Amount';
-    document.getElementById('gst-final-label').textContent = this.mode === 'add' ? 'Total (with GST)' : 'Total Paid';
+    const split = (ratePercent) => {
+      const r = ratePercent / 100;
+      if (this.mode === 'add') {
+        const gst = amt * r;
+        return { base: amt, gst, total: amt + gst };
+      }
+      const base = amt / (1 + r);
+      return { base, gst: amt - base, total: amt };
+    };
+    const rates = [0, 5, 12, 18, 28];
+    if (!rates.some(rate => Math.abs(rate - this.gstRate) < 0.05)) rates.push(this.gstRate);
+    rates.sort((a, b) => a - b);
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'gst-orig',
+      gainId: 'gst-amount-result',
+      canvasId: 'gst-chart',
+      invested: baseAmount,
+      gained: gstAmount,
+      centerLabel: 'Total',
+      centerValue: CalculatorUtils.formatCurrency(totalAmount, 2),
+      listId: 'gst-compare-list',
+      leadId: 'gst-compare-lead',
+      lead: (this.mode === 'add' ? 'GST added on top of ' : 'GST taken out of ') + CalculatorUtils.formatCurrency(amt) + '.',
+      rows: rates.map(rate => {
+        const row = split(rate);
+        const yours = Math.abs(rate - this.gstRate) < 0.05;
+        return {
+          primary: rate + '%',
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'GST', value: CalculatorUtils.formatCurrency(row.gst, 2) },
+            { label: 'Total', value: CalculatorUtils.formatCurrency(row.total, 2) },
+          ],
+        };
+      }),
+    });
+    return;
 
-    const rows = [
-      ['Pre-GST Amount', CalculatorUtils.formatCurrency(baseAmount, 2)],
-      [`CGST @ ${this.gstRate / 2}%`, CalculatorUtils.formatCurrency(cgst, 2)],
-      [`SGST/UTGST @ ${this.gstRate / 2}%`, CalculatorUtils.formatCurrency(sgst, 2)],
-      [`Total GST @ ${this.gstRate}%`, CalculatorUtils.formatCurrency(gstAmount, 2)],
-      ['Total Amount (with GST)', CalculatorUtils.formatCurrency(totalAmount, 2)],
-    ];
-
-    document.getElementById('gst-detail-table').innerHTML = `
-      <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
-        <thead>
-          <tr>
-            <th style="padding:9px 14px; text-align:left; border-bottom:2px solid var(--calc-border); color:var(--calc-slate-light); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.4px;">Description</th>
-            <th style="padding:9px 14px; text-align:right; border-bottom:2px solid var(--calc-border); color:var(--calc-slate-light); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.4px;">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map((r, i) => `
-            <tr style="${i === rows.length - 1 ? 'font-weight:700;' : ''}">
-              <td style="padding:9px 14px; border-bottom:1px solid var(--calc-border-soft); color:${i === rows.length - 1 ? 'var(--calc-slate)' : 'var(--calc-slate-light)'};">${r[0]}</td>
-              <td style="padding:9px 14px; border-bottom:1px solid var(--calc-border-soft); text-align:right; color:${i === rows.length - 1 ? '#10B981' : 'var(--calc-slate)'};">${r[1]}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
   }
 }
 

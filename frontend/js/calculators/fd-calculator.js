@@ -67,43 +67,63 @@ class FDCalculator {
   }
 
   bindEvents() {
-    document.getElementById('fd-principal').addEventListener('input', (e) => {
-      this.principal = parseFloat(e.target.value);
-      document.getElementById('fd-principal-value').textContent = CalculatorUtils.formatIndianNumber(this.principal);
-    });
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'fd-principal', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'fd-rate', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'fd-tenure', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
+  }
 
-    document.getElementById('fd-rate').addEventListener('input', (e) => {
-      this.interestRate = parseFloat(e.target.value);
-      document.getElementById('fd-rate-value').textContent = this.interestRate.toFixed(1);
-    });
-
-    document.getElementById('fd-tenure').addEventListener('input', (e) => {
-      this.tenure = parseInt(e.target.value);
-      document.getElementById('fd-tenure-value').textContent = this.tenure;
-    });
-
-    document.getElementById('fd-calculate').addEventListener('click', () => this.calculate());
-
-    ['fd-principal', 'fd-rate', 'fd-tenure'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Interest is compounded every quarter. That frequency stays fixed.',
+      tiles: [
+        { id: 'fd-principal-display', label: 'You invest' },
+        { id: 'fd-interest', label: 'Interest' },
+      ],
+      canvasId: 'fd-chart',
+      legend: ['You invest', 'Interest'],
+      compareTitle: 'Same deposit, different rates',
+      leadId: 'fd-compare-lead',
+      listId: 'fd-compare-list',
     });
   }
 
   calculate() {
+    this.principal = parseFloat(document.getElementById('fd-principal').value) || 0;
+    this.interestRate = parseFloat(document.getElementById('fd-rate').value) || 0;
+    this.tenure = parseInt(document.getElementById('fd-tenure').value, 10) || 0;
     const P = this.principal;
-    const r = this.interestRate / 100;
     const n = this.compounding;
     const t = this.tenure;
-
-    const maturityAmount = CalculatorUtils.compoundInterest(P, r, n, t);
+    const maturityAmount = CalculatorUtils.compoundInterest(P, this.interestRate / 100, n, t);
     const interest = maturityAmount - P;
-
-    document.getElementById('fd-results').style.display = 'block';
-    document.getElementById('fd-principal-display').textContent = CalculatorUtils.formatCurrency(P);
-    document.getElementById('fd-interest').textContent = CalculatorUtils.formatCurrency(interest);
-    document.getElementById('fd-maturity').textContent = CalculatorUtils.formatCurrency(maturityAmount);
-
-    this.renderChart();
+    const rates = CalculatorUtils.ratesInRange(this.interestRate, 1, 15, [6, 7, 8]);
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'fd-principal-display',
+      gainId: 'fd-interest',
+      canvasId: 'fd-chart',
+      invested: P,
+      gained: interest,
+      centerLabel: 'Maturity',
+      listId: 'fd-compare-list',
+      leadId: 'fd-compare-lead',
+      lead: CalculatorUtils.formatCurrency(P) + ' for ' + t + ' years, compounded quarterly. Only the yearly rate changes.',
+      rows: rates.map(rate => {
+        const maturity = CalculatorUtils.compoundInterest(P, rate / 100, n, t);
+        const yours = Math.abs(rate - this.interestRate) < 0.05;
+        return {
+          primary: rate + '%',
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'Interest', value: CalculatorUtils.formatCurrency(maturity - P) },
+            { label: 'Maturity', value: CalculatorUtils.formatCurrency(maturity) },
+          ],
+        };
+      }),
+    });
   }
 
   renderChart() {

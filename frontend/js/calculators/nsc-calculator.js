@@ -51,6 +51,21 @@ class NSCCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'NSC grows at 7.7% a year for 5 years. Interest is added back each year.',
+      tiles: [
+        { id: 'nsc-invested', label: 'You invest' },
+        { id: 'nsc-interest', label: 'Interest' },
+      ],
+      canvasId: 'nsc-chart',
+      legend: ['You invest', 'Interest'],
+      compareTitle: 'Year by year',
+      leadId: 'nsc-compare-lead',
+      listId: 'nsc-compare-list',
+    });
+  }
+
   bindEvents() {
     document.getElementById('nsc-invest').addEventListener('input', e => {
       this.investment = parseFloat(e.target.value) || 0;
@@ -58,11 +73,14 @@ class NSCCalculator {
       CalculatorUtils.updateSliderProgress(e.target);
     });
     document.getElementById('nsc-invest').addEventListener('change', () => this.calculate());
-    document.getElementById('nsc-calculate').addEventListener('click', () => this.calculate());
-    setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'nsc-invest', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+    ], () => this.calculate(), () => this.chart);
   }
 
   calculate() {
+    this.investment = parseFloat(document.getElementById('nsc-invest').value) || 0;
     const P = this.investment;
     const rate = this.NSC_RATE / 100;
     let balance = P;
@@ -76,32 +94,26 @@ class NSCCalculator {
 
     const maturityValue = balance;
     const totalInterest = maturityValue - P;
-
-    document.getElementById('nsc-results').style.display = 'block';
-    document.getElementById('nsc-invested').textContent = CalculatorUtils.formatCurrency(P);
-    document.getElementById('nsc-interest').textContent = CalculatorUtils.formatCurrency(totalInterest);
-    document.getElementById('nsc-maturity').textContent = CalculatorUtils.formatCurrency(maturityValue);
-
-    document.getElementById('nsc-yearly-table').innerHTML = `
-      <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
-        <thead><tr style="background:#f5f5f5;">
-          <th style="padding:8px 12px; text-align:left; border-bottom:1px solid #e0e0e0;">Year</th>
-          <th style="padding:8px 12px; text-align:right; border-bottom:1px solid #e0e0e0;">Opening Balance</th>
-          <th style="padding:8px 12px; text-align:right; border-bottom:1px solid #e0e0e0;">Interest Earned</th>
-          <th style="padding:8px 12px; text-align:right; border-bottom:1px solid #e0e0e0;">Closing Balance</th>
-        </tr></thead>
-        <tbody>
-          ${rows.map((r, i) => `
-            <tr style="${i === rows.length - 1 ? 'background:#f9f9f9; font-weight:700;' : ''}">
-              <td style="padding:7px 12px; border-bottom:1px solid #f5f5f5;">Year ${r.year}</td>
-              <td style="padding:7px 12px; border-bottom:1px solid #f5f5f5; text-align:right;">${CalculatorUtils.formatCurrency(r.openingBalance, 2)}</td>
-              <td style="padding:7px 12px; border-bottom:1px solid #f5f5f5; text-align:right; color:#4caf50;">${CalculatorUtils.formatCurrency(r.interest, 2)}</td>
-              <td style="padding:7px 12px; border-bottom:1px solid #f5f5f5; text-align:right;">${CalculatorUtils.formatCurrency(r.closingBalance, 2)}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'nsc-invested',
+      gainId: 'nsc-interest',
+      canvasId: 'nsc-chart',
+      invested: P,
+      gained: totalInterest,
+      centerLabel: 'Maturity',
+      listId: 'nsc-compare-list',
+      leadId: 'nsc-compare-lead',
+      lead: CalculatorUtils.formatCurrency(P) + ' at 7.7% a year. The rate and the 5-year term are fixed.',
+      rows: rows.map(row => ({
+        primary: 'Year ' + row.year,
+        tag: row.year === this.TENURE ? 'Maturity' : '',
+        yours: row.year === this.TENURE,
+        figures: [
+          { label: 'Interest', value: CalculatorUtils.formatCurrency(row.interest) },
+          { label: 'Balance', value: CalculatorUtils.formatCurrency(row.closingBalance) },
+        ],
+      })),
+    });
   }
 }
 

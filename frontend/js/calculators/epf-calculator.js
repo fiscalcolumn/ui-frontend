@@ -72,6 +72,21 @@ class EPFCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'You put in 12% of basic pay. The employer puts 3.67% into EPF. The balance earns 8.25% a year.',
+      tiles: [
+        { id: 'epf-emp-contrib', label: 'Contributed' },
+        { id: 'epf-interest', label: 'Interest' },
+      ],
+      canvasId: 'epf-chart',
+      legend: ['Contributed', 'Interest'],
+      compareTitle: 'Same salary, different yearly raises',
+      leadId: 'epf-compare-lead',
+      listId: 'epf-compare-list',
+    });
+  }
+
   bindEvents() {
     const map = [
       ['epf-basic', 'basicSalary'],
@@ -88,8 +103,14 @@ class EPFCalculator {
       });
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
-    document.getElementById('epf-calculate').addEventListener('click', () => this.calculate());
-    setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'epf-basic', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'epf-age', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'epf-retire', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'epf-existing', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'epf-growth', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+    ], () => this.calculate(), () => this.chart);
   }
 
   calculate() {
@@ -122,14 +143,51 @@ class EPFCalculator {
     const totalContrib = totalEmpContrib + totalErContrib;
     const interestEarned = balance - totalContrib - this.existingBalance;
 
-    document.getElementById('epf-results').style.display = 'block';
-    document.getElementById('epf-emp-contrib').textContent = CalculatorUtils.formatCurrency(totalEmpContrib);
-    document.getElementById('epf-er-contrib').textContent = CalculatorUtils.formatCurrency(totalErContrib);
-    document.getElementById('epf-interest').textContent = CalculatorUtils.formatCurrency(Math.max(0, interestEarned));
-    document.getElementById('epf-total').textContent = CalculatorUtils.formatCurrency(balance);
-    document.getElementById('epf-years-label').textContent = `Over ${years} years at ${this.EPF_RATE}% p.a.`;
-
-    this.renderChart(yearlyData);
+    const contributed = totalContrib + this.existingBalance;
+    const run = (growthPercent) => {
+      let nextBalance = this.existingBalance;
+      let emp = 0;
+      let er = 0;
+      let pay = this.basicSalary;
+      const growth = growthPercent / 100;
+      for (let y = 1; y <= years; y++) {
+        const yearlyEmp = pay * empPct * 12;
+        const yearlyEr = pay * erPct * 12;
+        nextBalance = (nextBalance + yearlyEmp + yearlyEr) * (1 + rate);
+        emp += yearlyEmp;
+        er += yearlyEr;
+        pay = pay * (1 + growth);
+      }
+      return { balance: nextBalance, interest: nextBalance - emp - er - this.existingBalance };
+    };
+    const growths = [0, 5, 10];
+    if (!growths.some(growth => Math.abs(growth - this.salaryGrowth) < 0.05)) growths.push(this.salaryGrowth);
+    growths.sort((a, b) => a - b);
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'epf-emp-contrib',
+      gainId: 'epf-interest',
+      canvasId: 'epf-chart',
+      invested: contributed,
+      gained: Math.max(0, interestEarned),
+      centerLabel: 'Balance',
+      centerValue: CalculatorUtils.formatCurrency(balance),
+      listId: 'epf-compare-list',
+      leadId: 'epf-compare-lead',
+      lead: CalculatorUtils.formatCurrency(this.basicSalary) + ' basic pay, from age ' + this.currentAge + ' to ' + this.retirementAge + '. Only the yearly raise changes.',
+      rows: growths.map(growth => {
+        const row = run(growth);
+        const yours = Math.abs(growth - this.salaryGrowth) < 0.05;
+        return {
+          primary: growth + '%',
+          tag: yours ? 'Your raise' : '',
+          yours,
+          figures: [
+            { label: 'Interest', value: CalculatorUtils.formatCurrency(Math.max(0, row.interest)) },
+            { label: 'Balance', value: CalculatorUtils.formatCurrency(row.balance) },
+          ],
+        };
+      }),
+    });
   }
 
   renderChart(data) {

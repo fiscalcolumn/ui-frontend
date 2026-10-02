@@ -77,9 +77,26 @@ class NPSCalculator {
       this.expectedReturn = parseFloat(e.target.value);
       document.getElementById('nps-return-value').textContent = this.expectedReturn.toFixed(1);
     });
-    document.getElementById('nps-calculate').addEventListener('click', () => this.calculate());
-    ['nps-age', 'nps-monthly', 'nps-return'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'nps-age', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'nps-monthly', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'nps-return', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Contributions run until age 60. 60% can be taken out, and 40% buys an annuity at 6%.',
+      tiles: [
+        { id: 'nps-lumpsum', label: 'Lump sum, 60%' },
+        { id: 'nps-pension', label: 'Pension a month' },
+      ],
+      canvasId: 'nps-chart',
+      legend: ['You contribute', 'Estimated return'],
+      compareTitle: 'Same contribution, different returns',
+      leadId: 'nps-compare-lead',
+      listId: 'nps-compare-list',
     });
   }
 
@@ -93,12 +110,38 @@ class NPSCalculator {
     const annuityCorpus = corpus * 0.4;
     const monthlyPension = (annuityCorpus * 0.06) / 12;
 
-    document.getElementById('nps-results').style.display = 'block';
-    document.getElementById('nps-corpus').textContent = CalculatorUtils.formatCurrency(corpus);
+    const contributed = this.monthlyContribution * months;
+    const rates = CalculatorUtils.ratesInRange(this.expectedReturn, 8, 14, [8, 10, 12]);
+    const quote = (rate) => {
+      const value = CalculatorUtils.sipFutureValue(this.monthlyContribution, rate / 100 / 12, months);
+      return { lumpSum: value * 0.6, pension: (value * 0.4 * 0.06) / 12 };
+    };
     document.getElementById('nps-lumpsum').textContent = CalculatorUtils.formatCurrency(lumpSum);
     document.getElementById('nps-pension').textContent = CalculatorUtils.formatCurrency(monthlyPension);
-
-    this.renderChart();
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'nps-chart',
+      [Math.max(0, contributed), Math.max(0, corpus - contributed)],
+      'Corpus',
+      CalculatorUtils.formatCurrency(corpus)
+    );
+    CalculatorUtils.fillCompare(
+      'nps-compare-list',
+      'nps-compare-lead',
+      CalculatorUtils.formatCurrency(this.monthlyContribution) + ' a month from age ' + this.currentAge + ' to 60. Only the yearly return changes.',
+      rates.map(rate => {
+        const row = quote(rate);
+        const yours = Math.abs(rate - this.expectedReturn) < 0.05;
+        return {
+          primary: rate + '%',
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'Lump sum', value: CalculatorUtils.formatCurrency(row.lumpSum) },
+            { label: 'Pension', value: CalculatorUtils.formatCurrency(row.pension) },
+          ],
+        };
+      })
+    );
   }
 
   renderChart() {

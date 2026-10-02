@@ -65,21 +65,26 @@ class RDCalculator {
   }
 
   bindEvents() {
-    document.getElementById('rd-monthly').addEventListener('input', (e) => {
-      this.monthlyDeposit = parseFloat(e.target.value);
-      document.getElementById('rd-monthly-value').textContent = CalculatorUtils.formatIndianNumber(this.monthlyDeposit);
-    });
-    document.getElementById('rd-rate').addEventListener('input', (e) => {
-      this.interestRate = parseFloat(e.target.value);
-      document.getElementById('rd-rate-value').textContent = this.interestRate.toFixed(1);
-    });
-    document.getElementById('rd-tenure').addEventListener('input', (e) => {
-      this.tenure = parseInt(e.target.value);
-      document.getElementById('rd-tenure-value').textContent = this.tenure;
-    });
-    document.getElementById('rd-calculate').addEventListener('click', () => this.calculate());
-    ['rd-monthly', 'rd-rate', 'rd-tenure'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'rd-monthly', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'rd-rate', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'rd-tenure', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Each monthly deposit earns interest compounded every quarter.',
+      tiles: [
+        { id: 'rd-deposited', label: 'You deposit' },
+        { id: 'rd-interest', label: 'Interest' },
+      ],
+      canvasId: 'rd-chart',
+      legend: ['You deposit', 'Interest'],
+      compareTitle: 'Same deposit, different rates',
+      leadId: 'rd-compare-lead',
+      listId: 'rd-compare-list',
     });
   }
 
@@ -93,20 +98,39 @@ class RDCalculator {
   }
 
   calculate() {
+    this.monthlyDeposit = parseFloat(document.getElementById('rd-monthly').value) || 0;
+    this.interestRate = parseFloat(document.getElementById('rd-rate').value) || 0;
+    this.tenure = parseInt(document.getElementById('rd-tenure').value, 10) || 0;
     const P = this.monthlyDeposit;
-    const r = this.interestRate / 100;
     const n = this.tenure * 12;
-    
-    const maturity = this.calculateRDMaturity(P, r, n);
+    const maturity = this.calculateRDMaturity(P, this.interestRate / 100, n);
     const deposited = P * n;
     const interest = maturity - deposited;
-
-    document.getElementById('rd-results').style.display = 'block';
-    document.getElementById('rd-deposited').textContent = CalculatorUtils.formatCurrency(deposited);
-    document.getElementById('rd-interest').textContent = CalculatorUtils.formatCurrency(interest);
-    document.getElementById('rd-maturity').textContent = CalculatorUtils.formatCurrency(maturity);
-
-    this.renderChart();
+    const rates = CalculatorUtils.ratesInRange(this.interestRate, 4, 10, [6, 7, 8]);
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'rd-deposited',
+      gainId: 'rd-interest',
+      canvasId: 'rd-chart',
+      invested: deposited,
+      gained: interest,
+      centerLabel: 'Maturity',
+      listId: 'rd-compare-list',
+      leadId: 'rd-compare-lead',
+      lead: `${CalculatorUtils.formatCurrency(P)} every month for ${this.tenure} years. Only the yearly rate changes.`,
+      rows: rates.map(rate => {
+        const rowMaturity = this.calculateRDMaturity(P, rate / 100, n);
+        const yours = Math.abs(rate - this.interestRate) < 0.05;
+        return {
+          primary: `${rate}%`,
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'Interest', value: CalculatorUtils.formatCurrency(rowMaturity - deposited) },
+            { label: 'Maturity', value: CalculatorUtils.formatCurrency(rowMaturity) },
+          ],
+        };
+      }),
+    });
   }
 
   renderChart() {

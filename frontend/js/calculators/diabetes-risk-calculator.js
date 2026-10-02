@@ -144,6 +144,21 @@ class DiabetesRiskCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'The score adds points for age, BMI, waist, family history, blood pressure, and inactivity. 30 is the highest.',
+      tiles: [
+        { id: 'dr-score', label: 'Score' },
+        { id: 'dr-level', label: 'Reading' },
+      ],
+      canvasId: 'dr-chart',
+      legend: ['Points', 'Remaining'],
+      compareTitle: 'Where the points come from',
+      leadId: 'dr-compare-lead',
+      listId: 'dr-compare-list',
+    });
+  }
+
   bindEvents() {
     ['dr-age', 'dr-bmi', 'dr-waist'].forEach(id => {
       document.getElementById(id).addEventListener('input', (e) => {
@@ -183,7 +198,12 @@ class DiabetesRiskCalculator {
       });
     });
     
-    document.getElementById('dr-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'dr-age', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'dr-bmi', display: (n) => n.toFixed(1), end: (n) => String(n) },
+      { id: 'dr-waist', display: (n) => String(n), end: (n) => n + ' cm' },
+    ], () => this.calculate(), () => this.chart);
   }
 
   calculate() {
@@ -286,12 +306,30 @@ class DiabetesRiskCalculator {
       `;
     }
 
-    const display = document.getElementById('dr-display');
-    display.style.background = bgColor;
-
-    document.getElementById('dr-results').style.display = 'block';
-    document.getElementById('dr-score').textContent = score;
+    const agePoints = this.age >= 65 ? 7 : this.age >= 55 ? 5 : this.age >= 45 ? 3 : 0;
+    const bmiPoints = this.bmi >= 35 ? 7 : this.bmi >= 30 ? 4 : this.bmi >= 25 ? 2 : 0;
+    const waistPoints = this.waist >= 100 ? 5 : this.waist >= 90 ? 3 : 0;
+    const familyPoints = this.familyHistory === 'yes' ? 5 : 0;
+    const bpPoints = this.highBP === 'yes' ? 3 : 0;
+    const activityPoints = this.physicalActivity === 'no' ? 3 : 0;
+    document.getElementById('dr-score').textContent = String(score);
     document.getElementById('dr-level').textContent = level;
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'dr-chart',
+      [score, Math.max(0, maxScore - score)],
+      'Score',
+      String(score),
+      false
+    );
+    CalculatorUtils.fillCompare('dr-compare-list', 'dr-compare-lead', level + '. ' + score + ' points out of ' + maxScore + '.', [
+      { primary: 'Age', tag: agePoints ? 'Adds points' : '', yours: agePoints > 0, figures: [{ label: 'Points', value: String(agePoints) }, { label: 'You', value: this.age + ' yr' }] },
+      { primary: 'BMI', tag: bmiPoints ? 'Adds points' : '', yours: bmiPoints > 0, figures: [{ label: 'Points', value: String(bmiPoints) }, { label: 'You', value: String(this.bmi) }] },
+      { primary: 'Waist', tag: waistPoints ? 'Adds points' : '', yours: waistPoints > 0, figures: [{ label: 'Points', value: String(waistPoints) }, { label: 'You', value: this.waist + ' cm' }] },
+      { primary: 'Family', tag: familyPoints ? 'Adds points' : '', yours: familyPoints > 0, figures: [{ label: 'Points', value: String(familyPoints) }, { label: 'You', value: this.familyHistory === 'yes' ? 'Yes' : 'No' }] },
+      { primary: 'Blood pressure', tag: bpPoints ? 'Adds points' : '', yours: bpPoints > 0, figures: [{ label: 'Points', value: String(bpPoints) }, { label: 'You', value: this.highBP === 'yes' ? 'High' : 'No' }] },
+      { primary: 'Inactivity', tag: activityPoints ? 'Adds points' : '', yours: activityPoints > 0, figures: [{ label: 'Points', value: String(activityPoints) }, { label: 'You', value: this.physicalActivity === 'yes' ? 'Active' : 'Not active' }] },
+    ]);
+    return;
     document.getElementById('dr-fill').style.left = `${percentage}%`;
     document.getElementById('dr-recommendations').innerHTML = recommendations;
   }

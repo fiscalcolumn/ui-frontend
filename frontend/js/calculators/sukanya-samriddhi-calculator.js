@@ -72,6 +72,21 @@ class SukanyaSamriddhiCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Deposits go in for 15 years. The account keeps earning 8.2% until year 21.',
+      tiles: [
+        { id: 'ssy-invested', label: 'You deposit' },
+        { id: 'ssy-interest', label: 'Interest' },
+      ],
+      canvasId: 'ssy-chart',
+      legend: ['You deposit', 'Interest'],
+      compareTitle: 'Deposits stop, then the account keeps growing',
+      leadId: 'ssy-compare-lead',
+      listId: 'ssy-compare-list',
+    });
+  }
+
   bindEvents() {
     document.getElementById('ssy-deposit').addEventListener('input', e => {
       this.yearlyDeposit = parseFloat(e.target.value) || 0;
@@ -83,7 +98,11 @@ class SukanyaSamriddhiCalculator {
       document.getElementById('ssy-age-value').textContent = this.girlAge;
       CalculatorUtils.updateSliderProgress(e.target);
     });
-    document.getElementById('ssy-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'ssy-deposit', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'ssy-age', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
     ['ssy-deposit', 'ssy-age'].forEach(id => {
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
@@ -114,14 +133,39 @@ class SukanyaSamriddhiCalculator {
     const maturityYear = new Date().getFullYear() + totalYears;
     const ageAtMaturity = this.girlAge + totalYears;
 
-    document.getElementById('ssy-results').style.display = 'block';
-    document.getElementById('ssy-invested').textContent = CalculatorUtils.formatCurrency(totalDeposited);
-    document.getElementById('ssy-interest').textContent = CalculatorUtils.formatCurrency(interestEarned);
-    document.getElementById('ssy-maturity').textContent = CalculatorUtils.formatCurrency(maturityValue);
-    document.getElementById('ssy-year').textContent = maturityYear;
-    document.getElementById('ssy-age-maturity').textContent = `${ageAtMaturity} yrs`;
-
-    this.renderChart(yearlyData, depositYears);
+    const depositsStop = yearlyData[depositYears];
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'ssy-invested',
+      gainId: 'ssy-interest',
+      canvasId: 'ssy-chart',
+      invested: totalDeposited,
+      gained: interestEarned,
+      centerLabel: 'Maturity',
+      centerValue: CalculatorUtils.formatCurrency(maturityValue),
+      listId: 'ssy-compare-list',
+      leadId: 'ssy-compare-lead',
+      lead: CalculatorUtils.formatCurrency(yearly) + ' a year for 15 years. She will be ' + ageAtMaturity + ' when it matures in ' + maturityYear + '.',
+      rows: [
+        {
+          primary: 'Year 15',
+          tag: 'Deposits stop',
+          yours: false,
+          figures: [
+            { label: 'Deposited', value: CalculatorUtils.formatCurrency(depositsStop.deposited) },
+            { label: 'Balance', value: CalculatorUtils.formatCurrency(depositsStop.balance) },
+          ],
+        },
+        {
+          primary: 'Year 21',
+          tag: 'Maturity',
+          yours: true,
+          figures: [
+            { label: 'Deposited', value: CalculatorUtils.formatCurrency(totalDeposited) },
+            { label: 'Balance', value: CalculatorUtils.formatCurrency(maturityValue) },
+          ],
+        },
+      ],
+    });
   }
 
   renderChart(data, depositYears) {

@@ -161,22 +161,29 @@ class LoanEligibilityCalculator {
   }
 
   bindEvents() {
-    const sliders = ['le-income', 'le-emi', 'le-rate', 'le-tenure', 'le-foir'];
-    sliders.forEach(id => {
-      document.getElementById(id).addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        const valueEl = document.getElementById(`${id}-value`);
-        if (id === 'le-income' || id === 'le-emi') {
-          valueEl.textContent = CalculatorUtils.formatIndianNumber(val);
-        } else if (id === 'le-rate') {
-          valueEl.textContent = val.toFixed(2);
-        } else {
-          valueEl.textContent = val;
-        }
-      });
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'le-income', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'le-emi', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'le-rate', display: (n) => n.toFixed(2), end: (n) => `${n}%` },
+      { id: 'le-tenure', display: (n) => String(n), end: (n) => `${n} months` },
+      { id: 'le-foir', display: (n) => String(n), end: (n) => `${n}%` },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Eligibility uses your income, existing EMIs, and the share of income a lender will allow for EMIs.',
+      tiles: [
+        { id: 'le-max-emi', label: 'Maximum EMI' },
+        { id: 'le-available-emi', label: 'Available for a new EMI' },
+      ],
+      canvasId: 'le-chart',
+      legend: ['Existing EMIs', 'Room for a new EMI'],
+      compareTitle: 'Same income, different tenures',
+      leadId: 'le-compare-lead',
+      listId: 'le-compare-list',
     });
-    document.getElementById('le-calculate').addEventListener('click', () => this.calculate());
   }
 
   calculate() {
@@ -203,11 +210,38 @@ class LoanEligibilityCalculator {
     const expectedEMI = eligibleAmount * monthlyRate * Math.pow(1 + monthlyRate, this.tenure) / 
                         (Math.pow(1 + monthlyRate, this.tenure) - 1);
 
-    document.getElementById('le-results').style.display = 'block';
-    document.getElementById('le-eligible').textContent = CalculatorUtils.formatCurrency(eligibleAmount);
+    const room = Math.max(0, availableEMI);
+    const used = Math.min(this.existingEMI, maxEMI);
     document.getElementById('le-max-emi').textContent = CalculatorUtils.formatCurrency(maxEMI);
-    document.getElementById('le-available-emi').textContent = CalculatorUtils.formatCurrency(availableEMI);
-    document.getElementById('le-expected-emi').textContent = CalculatorUtils.formatCurrency(expectedEMI);
+    document.getElementById('le-available-emi').textContent = CalculatorUtils.formatCurrency(room);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'le-chart',
+      [used, room],
+      'Eligible',
+      CalculatorUtils.formatCurrency(Math.max(0, eligibleAmount))
+    );
+    const tenureSlider = document.getElementById('le-tenure');
+    const tenures = CalculatorUtils.ratesInRange(this.tenure, parseFloat(tenureSlider.min), parseFloat(tenureSlider.max), [120, 180, 240]);
+    const eligibleFor = (months) => {
+      const monthlyRate = this.interestRate / 12 / 100;
+      if (room <= 0 || monthlyRate <= 0) return 0;
+      return room * (Math.pow(1 + monthlyRate, months) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, months));
+    };
+    CalculatorUtils.fillCompare('le-compare-list', 'le-compare-lead',
+      `${CalculatorUtils.formatCurrency(this.monthlyIncome)} a month at ${this.interestRate}% and ${this.foirPercent}% of income for EMIs.`,
+      tenures.map(months => {
+        const yours = Math.abs(months - this.tenure) < 0.5;
+        return {
+          primary: `${months / 12} yr`,
+          tag: yours ? 'Your tenure' : '',
+          yours,
+          figures: [
+            { label: 'Eligible', value: CalculatorUtils.formatCurrency(eligibleFor(months)) },
+            { label: 'EMI room', value: CalculatorUtils.formatCurrency(room) },
+          ],
+        };
+      })
+    );
 
     // Dynamic tip
     let tip = 'Tip: ';
@@ -223,7 +257,8 @@ class LoanEligibilityCalculator {
     if (tip === 'Tip: ') {
       tip = 'Tip: Add a co-applicant to combine incomes and increase eligibility.';
     }
-    document.getElementById('le-tip').textContent = tip;
+    const tipEl = document.getElementById('le-tip');
+    if (tipEl) tipEl.textContent = tip;
   }
 }
 

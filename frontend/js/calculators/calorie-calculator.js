@@ -169,6 +169,21 @@ class CalorieCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Maintenance is your resting burn times the activity you picked. Losing or gaining a little weight shifts that by 500 calories.',
+      tiles: [
+        { id: 'cal-maintain', label: 'Maintain' },
+        { id: 'cal-loss', label: 'Lose slowly' },
+      ],
+      canvasId: 'cal-chart',
+      legend: ['At rest', 'Activity'],
+      compareTitle: 'Three ways to eat',
+      leadId: 'cal-compare-lead',
+      listId: 'cal-compare-list',
+    });
+  }
+
   bindEvents() {
     ['cal-age', 'cal-weight', 'cal-height'].forEach(id => {
       document.getElementById(id).addEventListener('input', (e) => {
@@ -188,7 +203,12 @@ class CalorieCalculator {
     });
     
     document.getElementById('cal-activity').addEventListener('change', () => this.calculate());
-    document.getElementById('cal-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'cal-age', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'cal-weight', display: (n) => String(n), end: (n) => n + ' kg' },
+      { id: 'cal-height', display: (n) => String(n), end: (n) => n + ' cm' },
+    ], () => this.calculate(), () => this.chart);
   }
 
   calculate() {
@@ -202,8 +222,25 @@ class CalorieCalculator {
     const maintenance = bmr * this.activity;
     const loss = maintenance - 500;
     const gain = maintenance + 500;
-
-    document.getElementById('cal-results').style.display = 'block';
+    const cal = (n) => CalculatorUtils.formatIndianNumber(Math.round(n)) + ' cal';
+    document.getElementById('cal-maintain').textContent = cal(maintenance);
+    document.getElementById('cal-loss').textContent = cal(loss);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'cal-chart',
+      [Math.round(bmr), Math.max(0, Math.round(maintenance - bmr))],
+      'Maintain',
+      cal(maintenance),
+      false
+    );
+    CalculatorUtils.fillCompare('cal-compare-list', 'cal-compare-lead',
+      'Resting burn is ' + cal(bmr) + '. Maintenance uses the activity you selected.',
+      [
+        { primary: 'Lose slowly', tag: '', yours: false, figures: [{ label: 'A day', value: cal(loss) }, { label: 'Versus rest', value: cal(loss - bmr) }] },
+        { primary: 'Maintain', tag: 'Your day', yours: true, figures: [{ label: 'A day', value: cal(maintenance) }, { label: 'Versus rest', value: cal(maintenance - bmr) }] },
+        { primary: 'Gain slowly', tag: '', yours: false, figures: [{ label: 'A day', value: cal(gain) }, { label: 'Versus rest', value: cal(gain - bmr) }] },
+      ]
+    );
+    return;
     document.getElementById('cal-maintain').textContent = `${CalculatorUtils.formatIndianNumber(Math.round(maintenance))} cal`;
     document.getElementById('cal-loss').textContent = `${CalculatorUtils.formatIndianNumber(Math.round(loss))} cal`;
     document.getElementById('cal-gain').textContent = `${CalculatorUtils.formatIndianNumber(Math.round(gain))} cal`;

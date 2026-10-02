@@ -115,6 +115,21 @@ class IdealWeightCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'The healthy band is a BMI of 18.5 to 24.9. The rows are four older height formulas.',
+      tiles: [
+        { id: 'iw-bmi-range', label: 'Healthy band' },
+        { id: 'iw-devine', label: 'Devine' },
+      ],
+      canvasId: 'iw-chart',
+      legend: ['Low end', 'Up to the high end'],
+      compareTitle: 'Four formulas, same height',
+      leadId: 'iw-compare-lead',
+      listId: 'iw-compare-list',
+    });
+  }
+
   bindEvents() {
     document.getElementById('iw-height').addEventListener('input', (e) => {
       this.height = parseInt(e.target.value);
@@ -131,7 +146,10 @@ class IdealWeightCalculator {
         this.calculate();
       });
     });
-    document.getElementById('iw-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'iw-height', display: (n) => String(n), end: (n) => n + ' cm' },
+    ], () => this.calculate(), () => this.chart);
     document.getElementById('iw-height').addEventListener('change', () => this.calculate());
   }
 
@@ -159,8 +177,26 @@ class IdealWeightCalculator {
 
     const minWeight = 18.5 * heightM * heightM;
     const maxWeight = 24.9 * heightM * heightM;
-
-    document.getElementById('iw-results').style.display = 'block';
+    const kg = (n) => n.toFixed(1) + ' kg';
+    document.getElementById('iw-bmi-range').textContent = kg(minWeight) + ' – ' + kg(maxWeight);
+    document.getElementById('iw-devine').textContent = kg(devine);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'iw-chart',
+      [minWeight, Math.max(0, maxWeight - minWeight)],
+      'Band',
+      kg((minWeight + maxWeight) / 2),
+      false
+    );
+    CalculatorUtils.fillCompare('iw-compare-list', 'iw-compare-lead',
+      'Healthy weight at this height is ' + kg(minWeight) + ' to ' + kg(maxWeight) + '.',
+      [
+        { primary: 'Robinson', tag: '', yours: false, figures: [{ label: 'Weight', value: kg(robinson) }, { label: 'Versus band', value: kg(robinson - minWeight) }] },
+        { primary: 'Miller', tag: '', yours: false, figures: [{ label: 'Weight', value: kg(miller) }, { label: 'Versus band', value: kg(miller - minWeight) }] },
+        { primary: 'Devine', tag: '', yours: false, figures: [{ label: 'Weight', value: kg(devine) }, { label: 'Versus band', value: kg(devine - minWeight) }] },
+        { primary: 'Hamwi', tag: '', yours: false, figures: [{ label: 'Weight', value: kg(hamwi) }, { label: 'Versus band', value: kg(hamwi - minWeight) }] },
+      ]
+    );
+    return;
     document.getElementById('iw-bmi-range').textContent = `${minWeight.toFixed(1)} - ${maxWeight.toFixed(1)} kg`;
     document.getElementById('iw-robinson').textContent = `${robinson.toFixed(1)} kg`;
     document.getElementById('iw-miller').textContent = `${miller.toFixed(1)} kg`;

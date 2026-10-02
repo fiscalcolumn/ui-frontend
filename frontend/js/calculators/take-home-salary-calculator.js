@@ -82,6 +82,21 @@ class TakeHomeSalaryCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Basic pay is 40% of CTC. HRA is half of basic. PF, when included, is 12% of basic and capped at 21,600 a year. Professional tax is 2,400 a year.',
+      tiles: [
+        { id: 'ths-monthly', label: 'In hand a month' },
+        { id: 'ths-deductions', label: 'Tax a year' },
+      ],
+      canvasId: 'ths-chart',
+      legend: ['In hand', 'Deductions'],
+      compareTitle: 'Same CTC, both tax regimes',
+      leadId: 'ths-compare-lead',
+      listId: 'ths-compare-list',
+    });
+  }
+
   bindEvents() {
     document.getElementById('ths-ctc').addEventListener('input', e => {
       this.ctc = parseFloat(e.target.value) || 0;
@@ -95,7 +110,10 @@ class TakeHomeSalaryCalculator {
     document.querySelectorAll('input[name="ths-pf"]').forEach(r =>
       r.addEventListener('change', e => { this.pfContribution = e.target.value; this.calculate(); })
     );
-    document.getElementById('ths-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'ths-ctc', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+    ], () => this.calculate(), () => this.chart);
     setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
   }
 
@@ -123,11 +141,44 @@ class TakeHomeSalaryCalculator {
     const annualTakeHome = gross - totalDeductions;
     const monthlyTakeHome = annualTakeHome / 12;
 
-    document.getElementById('ths-results').style.display = 'block';
-    document.getElementById('ths-gross').textContent = CalculatorUtils.formatCurrency(gross);
-    document.getElementById('ths-deductions').textContent = CalculatorUtils.formatCurrency(totalDeductions);
-    document.getElementById('ths-annual').textContent = CalculatorUtils.formatCurrency(annualTakeHome);
+    const quoteRegime = (regime) => {
+      const basicPay = ctc * 0.40;
+      const gratuityCut = this.gratuity === 'yes' ? ctc * 0.0481 : 0;
+      const grossPay = ctc - gratuityCut;
+      const pf = this.pfContribution === 'yes' ? Math.min(basicPay * 0.12, 21600) : 0;
+      const standard = regime === 'new' ? 75000 : 50000;
+      const taxable = Math.max(0, grossPay - pf - standard - this.professionalTax);
+      const taxDue = this.calculateTax(taxable, regime);
+      const taxWithCess = taxDue + taxDue * 0.04;
+      const deductions = pf + this.professionalTax + taxWithCess;
+      const inHand = grossPay - deductions;
+      return { taxWithCess, deductions, inHand, monthly: inHand / 12 };
+    };
     document.getElementById('ths-monthly').textContent = CalculatorUtils.formatCurrency(monthlyTakeHome);
+    document.getElementById('ths-deductions').textContent = CalculatorUtils.formatCurrency(totalTax);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'ths-chart',
+      [Math.max(0, annualTakeHome), Math.max(0, totalDeductions)],
+      'A month',
+      CalculatorUtils.formatCurrency(monthlyTakeHome)
+    );
+    CalculatorUtils.fillCompare('ths-compare-list', 'ths-compare-lead',
+      CalculatorUtils.formatCurrency(ctc) + ' CTC. PF is ' + (this.pfContribution === 'yes' ? 'included' : 'left out') + '.',
+      ['new', 'old'].map(regime => {
+        const row = quoteRegime(regime);
+        const yours = regime === this.taxRegime;
+        return {
+          primary: regime === 'new' ? 'New regime' : 'Old regime',
+          tag: yours ? 'Your regime' : '',
+          yours,
+          figures: [
+            { label: 'In hand', value: CalculatorUtils.formatCurrency(row.monthly) },
+            { label: 'Tax', value: CalculatorUtils.formatCurrency(row.taxWithCess) },
+          ],
+        };
+      })
+    );
+    return;
 
     document.getElementById('ths-breakdown-table').innerHTML = `
       <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">

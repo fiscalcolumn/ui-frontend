@@ -109,6 +109,21 @@ class WalkCalorieCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Calories use a walking intensity for your speed, plus a little more for the slope.',
+      tiles: [
+        { id: 'walk-calories', label: 'Calories' },
+        { id: 'walk-distance', label: 'Distance' },
+      ],
+      canvasId: 'walk-chart',
+      legend: ['A slower walk', 'Extra at your pace'],
+      compareTitle: 'Same time, different speeds',
+      leadId: 'walk-compare-lead',
+      listId: 'walk-compare-list',
+    });
+  }
+
   bindEvents() {
     document.getElementById('walk-weight').addEventListener('input', (e) => {
       this.weight = parseFloat(e.target.value);
@@ -126,7 +141,13 @@ class WalkCalorieCalculator {
       this.incline = parseInt(e.target.value);
       document.getElementById('walk-incline-value').textContent = this.incline;
     });
-    document.getElementById('walk-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'walk-weight', display: (n) => String(n), end: (n) => n + ' kg' },
+      { id: 'walk-duration', display: (n) => String(n), end: (n) => n + ' min' },
+      { id: 'walk-speed', display: (n) => n.toFixed(1), end: (n) => n + ' km/h' },
+      { id: 'walk-incline', display: (n) => String(n), end: (n) => n + '%' },
+    ], () => this.calculate(), () => this.chart);
     ['walk-weight', 'walk-duration', 'walk-speed', 'walk-incline'].forEach(id => {
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
@@ -147,20 +168,59 @@ class WalkCalorieCalculator {
     return baseMET + inclineBonus;
   }
 
-  calculate() {
-    const met = this.getMET(this.speed, this.incline);
-    const durationHours = this.duration / 60;
-    const calories = Math.round(met * this.weight * durationHours);
-    
-    // Calculate distance from duration and speed
-    const distance = this.speed * durationHours;
-    
-    // Estimate steps (average stride ~0.75m, reduced slightly on incline)
-    const strideLength = 0.75 - (this.incline * 0.01); // Shorter strides on incline
-    const steps = Math.round((distance * 1000) / strideLength);
+  quoteWalk(speed) {
+    const met = this.getMET(speed, this.incline);
+    const hours = this.duration / 60;
+    const calories = Math.round(met * this.weight * hours);
+    const distance = speed * hours;
+    const stride = 0.75 - (this.incline * 0.01);
+    const steps = Math.round((distance * 1000) / stride);
+    return { met, calories, distance, steps };
+  }
 
-    document.getElementById('walk-results').style.display = 'block';
+  calculate() {
+    this.weight = parseFloat(document.getElementById('walk-weight').value) || 0;
+    this.duration = parseInt(document.getElementById('walk-duration').value, 10) || 0;
+    this.speed = parseFloat(document.getElementById('walk-speed').value) || 0;
+    this.incline = parseInt(document.getElementById('walk-incline').value, 10) || 0;
+    const chosen = this.quoteWalk(this.speed);
+    const met = chosen.met;
+    const calories = chosen.calories;
+    const distance = chosen.distance;
+    const steps = chosen.steps;
+    
     document.getElementById('walk-calories').textContent = CalculatorUtils.formatIndianNumber(calories);
+    document.getElementById('walk-distance').textContent = distance.toFixed(1) + ' km';
+    const speeds = [4, 5, 6.5];
+    if (!speeds.some(speed => Math.abs(speed - this.speed) < 0.05)) speeds.push(this.speed);
+    speeds.sort((a, b) => a - b);
+    const slower = this.quoteWalk(Math.max(3, this.speed - 1));
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'walk-chart',
+      [slower.calories, Math.max(0, calories - slower.calories)],
+      'Burned',
+      calories + ' cal',
+      false
+    );
+    CalculatorUtils.fillCompare(
+      'walk-compare-list',
+      'walk-compare-lead',
+      this.duration + ' minutes at ' + this.weight + ' kg, incline ' + this.incline + '%. About ' + CalculatorUtils.formatIndianNumber(steps) + ' steps.',
+      speeds.map(speed => {
+        const row = this.quoteWalk(speed);
+        const yours = Math.abs(speed - this.speed) < 0.05;
+        return {
+          primary: speed + ' km/h',
+          tag: yours ? 'Your pace' : '',
+          yours,
+          figures: [
+            { label: 'Calories', value: row.calories + ' cal' },
+            { label: 'Distance', value: row.distance.toFixed(1) + ' km' },
+          ],
+        };
+      })
+    );
+    return;
     document.getElementById('walk-distance').textContent = `${distance.toFixed(1)} km`;
     document.getElementById('walk-steps').textContent = `~${CalculatorUtils.formatIndianNumber(steps)}`;
     document.getElementById('walk-met').textContent = met.toFixed(1);

@@ -78,6 +78,69 @@ class RentVsBuyCalculator {
     this.calculate();
   }
 
+  mount() {
+    document.querySelector('.calculator-page-container')?.classList.add('calc-rvb');
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Buying keeps the home and the loan. Renting invests the down payment and whatever is left after rent, each month, at the return you chose.',
+      tiles: [
+        { id: 'rvb-buy-networth', label: 'If you buy' },
+        { id: 'rvb-rent-networth', label: 'If you rent' },
+      ],
+      canvasId: 'rvb-chart',
+      legend: ['Buying', 'Renting'],
+      compareTitle: 'Wealth after these years',
+      leadId: 'rvb-compare-lead',
+      listId: 'rvb-compare-list',
+    });
+    this.layoutBoard();
+  }
+
+  layoutBoard() {
+    const form = this.container.querySelector('.sip-form');
+    if (!form || form.querySelector('.rvb-board')) return;
+    const rentInput = document.getElementById('rvb-rent');
+    const buyInput = document.getElementById('rvb-price');
+    const summary = form.querySelector('.sip-summary-card');
+    const compare = form.querySelector('.sip-compare');
+    if (!rentInput || !buyInput || !summary || !compare) return;
+
+    const rentCol = rentInput.closest('.calc-input-compact').parentElement;
+    const buyCol = buyInput.closest('.calc-input-compact').parentElement;
+    const rentTitle = rentCol.querySelector('h4');
+    const buyTitle = buyCol.querySelector('h4');
+    if (rentTitle) rentTitle.textContent = 'Rent scenario';
+    if (buyTitle) buyTitle.textContent = 'Buy scenario';
+
+    const rentCard = document.createElement('section');
+    rentCard.className = 'rvb-card';
+    rentCard.appendChild(rentCol);
+
+    const buyCard = document.createElement('section');
+    buyCard.className = 'rvb-card';
+    buyCard.appendChild(buyCol);
+
+    const resultTitle = document.createElement('h2');
+    resultTitle.className = 'sip-compare-title';
+    resultTitle.textContent = 'Result';
+    summary.prepend(resultTitle);
+    summary.classList.add('rvb-output');
+
+    const years = document.getElementById('rvb-years-group');
+    const wealthTitle = compare.querySelector('.sip-compare-title');
+    if (years && wealthTitle) wealthTitle.after(years);
+
+    const hint = form.querySelector('.sip-hint');
+    const note = document.createElement('p');
+    note.className = 'rvb-note';
+    note.textContent = hint ? hint.textContent : '';
+
+    const board = document.createElement('div');
+    board.className = 'rvb-board';
+    board.append(rentCard, buyCard, summary, compare);
+    if (note.textContent) board.appendChild(note);
+    form.replaceChildren(board);
+  }
+
   bindEvents() {
     const map = [
       ['rvb-price','homePrice'], ['rvb-down','downPayment'], ['rvb-rate','loanRate'],
@@ -93,7 +156,18 @@ class RentVsBuyCalculator {
       });
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
-    document.getElementById('rvb-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'rvb-price', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'rvb-down', display: (n) => String(n), end: (n) => n + '%' },
+      { id: 'rvb-rate', display: (n) => n.toFixed(2), end: (n) => n + '%' },
+      { id: 'rvb-tenure', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'rvb-growth', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'rvb-rent', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'rvb-rent-growth', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'rvb-invest-return', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'rvb-years', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
     setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
   }
 
@@ -151,9 +225,40 @@ class RentVsBuyCalculator {
     const diff = buyNetWorth - rentInvestmentValue;
     const buyWins = diff > 0;
 
-    document.getElementById('rvb-results').style.display = 'block';
     document.getElementById('rvb-buy-networth').textContent = CalculatorUtils.formatCurrency(buyNetWorth);
     document.getElementById('rvb-rent-networth').textContent = CalculatorUtils.formatCurrency(rentInvestmentValue);
+    const tied = Math.abs(diff) < 1;
+    const ahead = tied ? 'They come out about the same' : (buyWins ? 'Buying' : 'Renting') + ' is ahead by ' + CalculatorUtils.formatCurrency(Math.abs(diff));
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'rvb-chart',
+      [Math.max(0, buyNetWorth), Math.max(0, rentInvestmentValue)],
+      'Ahead',
+      CalculatorUtils.formatCurrency(Math.abs(diff))
+    );
+    CalculatorUtils.fillCompare('rvb-compare-list', 'rvb-compare-lead',
+      ahead + ' after ' + T + ' years. EMI is ' + CalculatorUtils.formatCurrency(emi) + ' and the down payment is ' + CalculatorUtils.formatCurrency(downAmt) + '.',
+      [
+        {
+          primary: 'Buy',
+          tag: !tied && buyWins ? 'Ahead' : '',
+          yours: !tied && buyWins,
+          figures: [
+            { label: 'Wealth', value: CalculatorUtils.formatCurrency(buyNetWorth) },
+            { label: 'EMI', value: CalculatorUtils.formatCurrency(emi) },
+          ],
+        },
+        {
+          primary: 'Rent',
+          tag: !tied && !buyWins ? 'Ahead' : '',
+          yours: !tied && !buyWins,
+          figures: [
+            { label: 'Wealth', value: CalculatorUtils.formatCurrency(rentInvestmentValue) },
+            { label: 'Rent paid', value: CalculatorUtils.formatCurrency(totalRentPaid) },
+          ],
+        },
+      ]
+    );
+    return;
 
     document.getElementById('rvb-verdict').innerHTML = `
       <div style="background:${buyWins ? '#e8f5e9' : '#fff8e1'}; border-radius:10px; padding:14px 18px; border-left:4px solid ${buyWins ? '#4caf50' : '#ff9800'}; font-size:0.9rem;">

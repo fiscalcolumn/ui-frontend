@@ -65,6 +65,21 @@ class StepUpSIPCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'The monthly amount rises once a year. A flat SIP of the first-year amount is shown beside it.',
+      tiles: [
+        { id: 'sus-invested', label: 'You invest' },
+        { id: 'sus-returns', label: 'Estimated return' },
+      ],
+      canvasId: 'sus-chart',
+      legend: ['You invest', 'Estimated return'],
+      compareTitle: 'Same start, different yearly increases',
+      leadId: 'sus-compare-lead',
+      listId: 'sus-compare-list',
+    });
+  }
+
   bindEvents() {
     [['sus-monthly', 'monthlyInvestment'], ['sus-step', 'stepUpPercent'], ['sus-return', 'expectedReturn'], ['sus-years', 'timePeriod']].forEach(([id, field]) => {
       document.getElementById(id).addEventListener('input', e => {
@@ -74,44 +89,67 @@ class StepUpSIPCalculator {
       });
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
-    document.getElementById('sus-calculate').addEventListener('click', () => this.calculate());
-    setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'sus-monthly', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'sus-step', display: (n) => String(n), end: (n) => n + '%' },
+      { id: 'sus-return', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'sus-years', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
   }
 
-  calculate() {
+  project(stepPercent) {
     const r = this.expectedReturn / 100 / 12;
-    const stepUp = this.stepUpPercent / 100;
+    const stepUp = stepPercent / 100;
     const years = this.timePeriod;
     let totalInvested = 0;
     let futureValue = 0;
     let monthlyAmount = this.monthlyInvestment;
-    const yearlyData = [];
-
+    let finalSip = monthlyAmount;
     for (let y = 0; y < years; y++) {
-      const months = 12;
-      for (let m = 0; m < months; m++) {
+      finalSip = monthlyAmount;
+      for (let m = 0; m < 12; m++) {
         totalInvested += monthlyAmount;
         futureValue = (futureValue + monthlyAmount) * (1 + r);
       }
-      yearlyData.push({ year: y + 1, invested: totalInvested, total: futureValue, sip: monthlyAmount });
       monthlyAmount = monthlyAmount * (1 + stepUp);
     }
+    return { totalInvested, futureValue, finalSip };
+  }
 
-    // Regular SIP comparison (same initial SIP, no step-up)
-    const rr = r;
-    const n = years * 12;
-    const regularFV = CalculatorUtils.sipFutureValue(this.monthlyInvestment, rr, n);
-    const extraGain = futureValue - regularFV;
-    const finalSip = yearlyData.length ? yearlyData[yearlyData.length - 1].sip : monthlyAmount;
-
-    document.getElementById('sus-results').style.display = 'block';
-    document.getElementById('sus-invested').textContent = CalculatorUtils.formatCurrency(totalInvested);
-    document.getElementById('sus-returns').textContent = CalculatorUtils.formatCurrency(futureValue - totalInvested);
-    document.getElementById('sus-total').textContent = CalculatorUtils.formatCurrency(futureValue);
-    document.getElementById('sus-final-sip').textContent = CalculatorUtils.formatCurrency(finalSip);
-    document.getElementById('sus-vs-regular').textContent = '+' + CalculatorUtils.formatCurrency(Math.max(0, extraGain));
-
-    this.renderChart(yearlyData);
+  calculate() {
+    this.monthlyInvestment = parseFloat(document.getElementById('sus-monthly').value) || 0;
+    this.stepUpPercent = parseFloat(document.getElementById('sus-step').value) || 0;
+    this.expectedReturn = parseFloat(document.getElementById('sus-return').value) || 0;
+    this.timePeriod = parseFloat(document.getElementById('sus-years').value) || 0;
+    const chosen = this.project(this.stepUpPercent);
+    const steps = [0, 10, 15];
+    if (!steps.some(step => Math.abs(step - this.stepUpPercent) < 0.05)) steps.push(this.stepUpPercent);
+    steps.sort((a, b) => a - b);
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'sus-invested',
+      gainId: 'sus-returns',
+      canvasId: 'sus-chart',
+      invested: chosen.totalInvested,
+      gained: chosen.futureValue - chosen.totalInvested,
+      centerLabel: 'Total',
+      listId: 'sus-compare-list',
+      leadId: 'sus-compare-lead',
+      lead: CalculatorUtils.formatCurrency(this.monthlyInvestment) + ' in year one, at ' + this.expectedReturn + '% a year, for ' + this.timePeriod + ' years.',
+      rows: steps.map(step => {
+        const row = this.project(step);
+        const yours = Math.abs(step - this.stepUpPercent) < 0.05;
+        return {
+          primary: step === 0 ? 'No increase' : step + '%',
+          tag: yours ? 'Your plan' : '',
+          yours,
+          figures: [
+            { label: 'Invested', value: CalculatorUtils.formatCurrency(row.totalInvested) },
+            { label: 'Total', value: CalculatorUtils.formatCurrency(row.futureValue) },
+          ],
+        };
+      }),
+    });
   }
 
   renderChart(data) {

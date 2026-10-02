@@ -79,6 +79,21 @@ class GratuityCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Gratuity is last basic pay plus DA, times 15, times the years of service, divided by 26.',
+      tiles: [
+        { id: 'gratuity-amount', label: 'Gratuity' },
+        { id: 'formula-result', label: 'Per year of service' },
+      ],
+      canvasId: 'gratuity-chart',
+      legend: ['Gratuity', 'Monthly pay'],
+      compareTitle: 'Same salary, different years of service',
+      leadId: 'gratuity-compare-lead',
+      listId: 'gratuity-compare-list',
+    });
+  }
+
   bindEvents() {
     document.getElementById('gratuity-salary').addEventListener('input', (e) => {
       this.basicSalary = parseFloat(e.target.value);
@@ -88,7 +103,11 @@ class GratuityCalculator {
       this.yearsOfService = parseInt(e.target.value);
       document.getElementById('gratuity-years-value').textContent = this.yearsOfService;
     });
-    document.getElementById('gratuity-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'gratuity-salary', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'gratuity-years', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
     ['gratuity-salary', 'gratuity-years'].forEach(id => {
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
@@ -96,10 +115,40 @@ class GratuityCalculator {
 
   calculate() {
     // Gratuity = (Last Drawn Salary × 15 × Years of Service) / 26
+    this.basicSalary = parseFloat(document.getElementById('gratuity-salary').value) || 0;
+    this.yearsOfService = parseInt(document.getElementById('gratuity-years').value, 10) || 0;
     const gratuity = (this.basicSalary * 15 * this.yearsOfService) / 26;
-    
-    document.getElementById('gratuity-results').style.display = 'block';
+    const perYear = this.yearsOfService > 0 ? gratuity / this.yearsOfService : 0;
+    const years = [10, 15, 20, 25];
+    if (!years.includes(this.yearsOfService)) years.push(this.yearsOfService);
+    years.sort((a, b) => a - b);
     document.getElementById('gratuity-amount').textContent = CalculatorUtils.formatCurrency(gratuity);
+    document.getElementById('formula-result').textContent = CalculatorUtils.formatCurrency(perYear);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'gratuity-chart',
+      [gratuity, this.basicSalary],
+      'Gratuity',
+      CalculatorUtils.formatCurrency(gratuity)
+    );
+    CalculatorUtils.fillCompare(
+      'gratuity-compare-list',
+      'gratuity-compare-lead',
+      CalculatorUtils.formatCurrency(this.basicSalary) + ' last drawn. Only the years of service change.',
+      years.map(year => {
+        const amount = (this.basicSalary * 15 * year) / 26;
+        const yours = year === this.yearsOfService;
+        return {
+          primary: year + ' yr',
+          tag: yours ? 'Your service' : '',
+          yours,
+          figures: [
+            { label: 'Gratuity', value: CalculatorUtils.formatCurrency(amount) },
+            { label: 'A year', value: CalculatorUtils.formatCurrency(amount / year) },
+          ],
+        };
+      })
+    );
+    return;
     document.getElementById('formula-salary').textContent = CalculatorUtils.formatCurrency(this.basicSalary);
     document.getElementById('formula-years').textContent = this.yearsOfService;
     document.getElementById('formula-result').textContent = CalculatorUtils.formatCurrency(gratuity);

@@ -417,6 +417,7 @@ class CalculatorPageManager {
       // Investment & Savings
       'sip-calculator': 'sip',
       'lumpsum-calculator': 'lumpsum',
+      'lump-sum-calculator': 'lumpsum',
       'step-up-sip-calculator': 'step-up-sip',
       'fd-calculator': 'fd',
       'rd-calculator': 'rd',
@@ -473,6 +474,7 @@ class CalculatorPageManager {
     // Add new calculators here if slug doesn't match filename
     const slugToFileMap = {
       'walk-calorie-burn-calculator': 'walk-calorie-calculator.js',
+      'lump-sum-calculator': 'lumpsum-calculator.js',
     };
     
     // Check if there's a mapping for this slug

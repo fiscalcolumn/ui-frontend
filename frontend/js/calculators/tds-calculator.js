@@ -95,56 +95,80 @@ class TDSCalculator {
     document.querySelectorAll('input[name="tds-pan"]').forEach(r =>
       r.addEventListener('change', e => { this.panAvailable = e.target.value; this.calculate(); })
     );
-    document.getElementById('tds-calculate').addEventListener('click', () => this.calculate());
-    setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'tds-amount', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'The rate depends on the section and on whether a PAN is available.',
+      tiles: [
+        { id: 'tds-gross', label: 'Payment' },
+        { id: 'tds-deducted', label: 'TDS' },
+      ],
+      canvasId: 'tds-chart',
+      legend: ['You receive', 'TDS'],
+      compareTitle: 'With a PAN and without one',
+      leadId: 'tds-compare-lead',
+      listId: 'tds-compare-list',
+    });
   }
 
   calculate() {
+    const sectionEl = document.getElementById('tds-section');
+    const panEl = document.querySelector('input[name="tds-pan"]:checked');
+    if (sectionEl) this.selectedSection = sectionEl.value;
+    if (panEl) this.panAvailable = panEl.value;
+    this.amount = parseFloat(document.getElementById('tds-amount').value) || 0;
     const section = this.TDS_SECTIONS.find(s => s.section === this.selectedSection);
     if (!section) return;
 
     const amount = this.amount;
-    let tdsRate;
-    let note = '';
+    const rateFor = (pan) => {
+      if (section.note) return null;
+      if (amount < section.threshold) return 0;
+      const normal = section.individual || section.company || 0;
+      if (pan === 'no') return Math.max(20, normal);
+      return normal;
+    };
+    const present = (tdsRate, lead) => {
+      const deducted = tdsRate == null ? 0 : amount * tdsRate / 100;
+      const net = amount - deducted;
+      document.getElementById('tds-gross').textContent = CalculatorUtils.formatCurrency(amount);
+      document.getElementById('tds-deducted').textContent = tdsRate == null ? 'As per slab' : CalculatorUtils.formatCurrency(deducted, 2);
+      this.chart = CalculatorUtils.modernDoughnut(
+        this.chart, 'tds-chart',
+        [Math.max(0, net), Math.max(0, deducted)],
+        'You get',
+        tdsRate == null ? 'Slab' : CalculatorUtils.formatCurrency(net, 2)
+      );
+      CalculatorUtils.fillCompare('tds-compare-list', 'tds-compare-lead', lead, ['yes', 'no'].map(pan => {
+        const rate = rateFor(pan);
+        const cut = rate == null ? null : amount * rate / 100;
+        return {
+          primary: pan === 'yes' ? 'With PAN' : 'No PAN',
+          tag: pan === this.panAvailable ? 'Your plan' : '',
+          yours: pan === this.panAvailable,
+          figures: [
+            { label: 'Rate', value: rate == null ? 'Slab' : rate + '%' },
+            { label: 'TDS', value: cut == null ? 'Varies' : CalculatorUtils.formatCurrency(cut, 2) },
+          ],
+        };
+      }));
+    };
 
     if (section.note) {
-      document.getElementById('tds-results').style.display = 'block';
-      document.getElementById('tds-gross').textContent = CalculatorUtils.formatCurrency(amount);
-      document.getElementById('tds-deducted').textContent = 'As per slab';
-      document.getElementById('tds-net').textContent = 'Varies';
-      document.getElementById('tds-rate-label').textContent = '';
-      document.getElementById('tds-note').textContent = section.note;
+      present(null, section.note);
       return;
     }
-
+    const lead = 'Section ' + section.section + ', ' + section.description + '. Threshold ' + CalculatorUtils.formatCurrency(section.threshold) + '.';
     if (amount < section.threshold) {
-      note = `⚠️ No TDS applicable. Payment (${CalculatorUtils.formatCurrency(amount)}) is below the threshold of ${CalculatorUtils.formatCurrency(section.threshold)}.`;
-      document.getElementById('tds-results').style.display = 'block';
-      document.getElementById('tds-gross').textContent = CalculatorUtils.formatCurrency(amount);
-      document.getElementById('tds-deducted').textContent = '₹0';
-      document.getElementById('tds-net').textContent = CalculatorUtils.formatCurrency(amount);
-      document.getElementById('tds-rate-label').textContent = '0% (below threshold)';
-      document.getElementById('tds-note').textContent = note;
+      present(0, 'No TDS. The payment is below ' + CalculatorUtils.formatCurrency(section.threshold) + '.');
       return;
     }
-
-    if (this.panAvailable === 'no') {
-      const normalRate = (section.individual || section.company || 0);
-      tdsRate = Math.max(20, normalRate);
-      note = `⚠️ No PAN: TDS @ ${tdsRate}% (higher of 20% or applicable rate). Provide PAN to reduce deduction.`;
-    } else {
-      tdsRate = section.individual || section.company || 0;
-    }
-
-    const tdsAmount = amount * tdsRate / 100;
-    const netAmount = amount - tdsAmount;
-
-    document.getElementById('tds-results').style.display = 'block';
-    document.getElementById('tds-gross').textContent = CalculatorUtils.formatCurrency(amount);
-    document.getElementById('tds-deducted').textContent = CalculatorUtils.formatCurrency(tdsAmount, 2);
-    document.getElementById('tds-net').textContent = CalculatorUtils.formatCurrency(netAmount, 2);
-    document.getElementById('tds-rate-label').textContent = `${tdsRate}% under Section ${section.section}`;
-    document.getElementById('tds-note').textContent = note || `TDS @ ${tdsRate}% deducted under Section ${section.section} — ${section.description}. Threshold: ${CalculatorUtils.formatCurrency(section.threshold)}`;
+    present(rateFor(this.panAvailable), this.panAvailable === 'no' ? lead + ' Without a PAN the rate is at least 20%.' : lead);
   }
 }
 

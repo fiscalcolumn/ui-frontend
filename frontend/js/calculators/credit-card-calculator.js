@@ -7,7 +7,8 @@ class CreditCardCalculator {
     this.balance = 50000;
     this.interestRate = 3.5; // monthly %
     this.minPayment = 5;     // % of balance
-    this.extraPayment = 0;
+    this.extraPayment = 5000;
+    this.payMode = 'full';
     this.chart = null;
   }
 
@@ -16,8 +17,25 @@ class CreditCardCalculator {
       <div class="calc-form">
         ${CalculatorUtils.createSlider('cc-balance', 'Outstanding Balance (₹)', 1000, 1000000, this.balance, 1000, '', '₹')}
         ${CalculatorUtils.createSlider('cc-rate', 'Monthly Interest Rate (%)', 1, 5, this.interestRate, 0.1, '% /month', '')}
-        ${CalculatorUtils.createSlider('cc-min', 'Minimum Payment (% of balance)', 1, 20, this.minPayment, 1, '%', '')}
-        ${CalculatorUtils.createSlider('cc-extra', 'Extra Monthly Payment (₹)', 0, 50000, this.extraPayment, 500, '', '₹')}
+        <div class="calc-input-group cc-pay-choice">
+          <label>How will you pay this bill?</label>
+          <div class="calc-radio-group">
+            <label class="calc-radio-label">
+              <input type="radio" name="cc-mode" value="full" checked>
+              <span>Pay the full bill</span>
+            </label>
+            <label class="calc-radio-label">
+              <input type="radio" name="cc-mode" value="fixed">
+              <span>Pay a fixed amount</span>
+            </label>
+            <label class="calc-radio-label">
+              <input type="radio" name="cc-mode" value="minimum">
+              <span>Pay only the minimum</span>
+            </label>
+          </div>
+        </div>
+        ${CalculatorUtils.createSlider('cc-min', 'Minimum due, as a share of the balance', 1, 20, this.minPayment, 1, '%', '')}
+        ${CalculatorUtils.createSlider('cc-extra', 'Amount you pay each month', 500, 200000, this.extraPayment, 500, '', '₹')}
 
         <div style="text-align:center; margin-top:10px;">
           <button class="calc-btn" id="cc-calculate">
@@ -56,76 +74,141 @@ class CreditCardCalculator {
   }
 
   bindEvents() {
-    [['cc-balance', 'balance'], ['cc-rate', 'interestRate'], ['cc-min', 'minPayment'], ['cc-extra', 'extraPayment']].forEach(([id, field]) => {
-      document.getElementById(id).addEventListener('input', e => {
-        this[field] = parseFloat(e.target.value) || 0;
-        document.getElementById(`${id}-value`).textContent = CalculatorUtils.formatIndianNumber(this[field]);
-        CalculatorUtils.updateSliderProgress(e.target);
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'cc-balance', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'cc-rate', display: (n) => n.toFixed(1), end: (n) => `${n}%` },
+      { id: 'cc-min', display: (n) => String(n), end: (n) => `${n}%` },
+      { id: 'cc-extra', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+    ], () => this.calculate(), () => this.chart);
+    this.syncPayChoice();
+    document.querySelectorAll('input[name="cc-mode"]').forEach(input => {
+      input.addEventListener('change', () => {
+        this.syncPayChoice();
+        this.calculate();
       });
-      document.getElementById(id).addEventListener('change', () => this.calculate());
     });
-    document.getElementById('cc-calculate').addEventListener('click', () => this.calculate());
-    setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
+  }
+
+  syncPayChoice() {
+    const selected = document.querySelector('input[name="cc-mode"]:checked');
+    this.payMode = selected ? selected.value : 'full';
+    const fixed = document.getElementById('cc-extra-group');
+    const minimum = document.getElementById('cc-min-group');
+    if (fixed) fixed.hidden = this.payMode !== 'fixed';
+    if (minimum) minimum.hidden = this.payMode !== 'minimum';
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Paying the full bill by the due date keeps the interest at zero. The rate is the monthly rate on the card.',
+      tiles: [
+        { id: 'cc-total-interest', label: 'Interest paid' },
+        { id: 'cc-total-paid', label: 'Total paid' },
+      ],
+      canvasId: 'cc-chart',
+      legend: ['Balance', 'Interest'],
+      compareTitle: 'What each way of paying costs',
+      leadId: 'cc-compare-lead',
+      listId: 'cc-compare-list',
+    });
   }
 
   calculate() {
+    this.balance = parseFloat(document.getElementById('cc-balance').value) || 0;
+    this.interestRate = parseFloat(document.getElementById('cc-rate').value) || 0;
+    this.minPayment = parseFloat(document.getElementById('cc-min').value) || 0;
+    this.extraPayment = parseFloat(document.getElementById('cc-extra').value) || 0;
     const rate = this.interestRate / 100;
     const minPct = this.minPayment / 100;
-    const extra = this.extraPayment;
+    const fixedPayment = this.extraPayment;
+    const mode = this.payMode || 'full';
 
-    const simulate = (withExtra) => {
+    const paidInFull = () => ({
+      months: 1, totalPaid: this.balance, totalInterest: 0, infinite: false, full: true,
+    });
+
+    const simulatePayment = (paymentOf) => {
       let balance = this.balance;
       let totalPaid = 0;
       let totalInterest = 0;
       let months = 0;
-      const balances = [balance];
       const MAX_MONTHS = 600;
 
       while (balance > 0.01 && months < MAX_MONTHS) {
         const interest = balance * rate;
-        const minPay = Math.max(100, balance * minPct);
-        const payment = Math.min(balance + interest, minPay + (withExtra ? extra : 0));
+        const payment = Math.min(balance + interest, paymentOf(balance, interest));
+        if (payment <= interest && balance > 1) {
+          return { months, totalPaid, totalInterest, infinite: true, full: false };
+        }
         totalPaid += payment;
         totalInterest += interest;
-        balance = balance + interest - payment;
+        balance = Math.max(0, balance + interest - payment);
         months++;
-        balances.push(Math.max(0, balance));
       }
-      return { months, totalPaid, totalInterest, balances, infinite: months >= MAX_MONTHS };
+      return { months, totalPaid, totalInterest, infinite: months >= MAX_MONTHS, full: false };
     };
 
-    const result = simulate(true);
-    const baseResult = extra > 0 ? simulate(false) : null;
+    const minimum = simulatePayment((balance) => Math.max(100, balance * minPct));
+    const fixed = fixedPayment >= this.balance
+      ? paidInFull()
+      : simulatePayment(() => fixedPayment);
+    const chosen = mode === 'full' ? paidInFull() : mode === 'fixed' ? fixed : minimum;
 
-    document.getElementById('cc-results').style.display = 'block';
+    const timeLabel = (row) => {
+      if (!row || row.infinite) return 'Never';
+      if (row.full) return 'This month';
+      const years = Math.floor(row.months / 12);
+      const months = row.months % 12;
+      return years > 0 ? `${years}y ${months}m` : `${months} mo`;
+    };
+    const interestLabel = (row) => {
+      if (!row || row.infinite) return 'Keeps growing';
+      return CalculatorUtils.formatCurrency(row.totalInterest);
+    };
 
-    if (result.infinite) {
-      document.getElementById('cc-months').textContent = '∞';
-      document.getElementById('cc-months').style.color = '#e53935';
-      document.getElementById('cc-total-interest').textContent = 'Never payoff!';
-    } else {
-      const y = Math.floor(result.months / 12);
-      const m = result.months % 12;
-      document.getElementById('cc-months').textContent = y > 0 ? `${y}y ${m}m` : `${m} months`;
-    }
+    document.getElementById('cc-total-interest').textContent = interestLabel(chosen);
+    document.getElementById('cc-total-paid').textContent = chosen.infinite ? '—' : CalculatorUtils.formatCurrency(chosen.totalPaid);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'cc-chart',
+      [this.balance, chosen.infinite ? this.balance : Math.max(0, chosen.totalInterest)],
+      chosen.full ? 'Interest' : 'Payoff',
+      chosen.full ? '₹0' : timeLabel(chosen)
+    );
 
-    document.getElementById('cc-total-interest').textContent = CalculatorUtils.formatCurrency(result.totalInterest);
-    document.getElementById('cc-total-paid').textContent = CalculatorUtils.formatCurrency(result.totalPaid);
+    const lead = mode === 'full'
+      ? `${CalculatorUtils.formatCurrency(this.balance)} paid in full. Interest on this bill is zero.`
+      : `${CalculatorUtils.formatCurrency(this.balance)} at ${this.interestRate}% a month. Paying the bill in full keeps the interest at zero.`;
 
-    if (baseResult && !baseResult.infinite && !result.infinite) {
-      const savedMonths = baseResult.months - result.months;
-      const savedInterest = baseResult.totalInterest - result.totalInterest;
-      const box = document.getElementById('cc-savings-box');
-      box.style.display = 'block';
-      box.style.borderColor = '#4caf50';
-      box.innerHTML = `
-        <div class="calc-result-label">💡 Extra ₹${CalculatorUtils.formatIndianNumber(extra)}/month saves you</div>
-        <div class="calc-result-value" style="color:#4caf50; font-size:1.3rem">${CalculatorUtils.formatCurrency(savedInterest)} interest</div>
-        <div class="calc-result-sublabel">Pay off ${savedMonths} months sooner</div>
-      `;
-    }
-
-    this.renderChart(result.balances);
+    CalculatorUtils.fillCompare('cc-compare-list', 'cc-compare-lead', lead, [
+      {
+        primary: 'Full bill',
+        tag: mode === 'full' ? 'Your plan' : '',
+        yours: mode === 'full',
+        figures: [
+          { label: 'Time', value: 'This month' },
+          { label: 'Interest', value: '₹0' },
+        ],
+      },
+      {
+        primary: `₹${CalculatorUtils.formatIndianNumber(fixedPayment)}`,
+        tag: mode === 'fixed' ? 'Your plan' : '',
+        yours: mode === 'fixed',
+        figures: [
+          { label: 'Time', value: timeLabel(fixed) },
+          { label: 'Interest', value: interestLabel(fixed) },
+        ],
+      },
+      {
+        primary: `Min ${this.minPayment}%`,
+        tag: mode === 'minimum' ? 'Your plan' : '',
+        yours: mode === 'minimum',
+        figures: [
+          { label: 'Time', value: timeLabel(minimum) },
+          { label: 'Interest', value: interestLabel(minimum) },
+        ],
+      },
+    ]);
   }
 
   renderChart(balances) {

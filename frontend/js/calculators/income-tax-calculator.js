@@ -76,7 +76,28 @@ class IncomeTaxCalculator {
       });
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
-    document.getElementById('tax-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'tax-income', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'tax-80c', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'tax-80d', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'tax-other', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Old regime uses the deductions above plus a 50,000 standard deduction. New regime uses its own slabs and a 75,000 standard deduction.',
+      tiles: [
+        { id: 'tax-old', label: 'Old regime' },
+        { id: 'tax-new', label: 'New regime' },
+      ],
+      canvasId: 'tax-chart',
+      legend: ['Old regime', 'New regime'],
+      compareTitle: 'Same income, both regimes',
+      leadId: 'tax-compare-lead',
+      listId: 'tax-compare-list',
+    });
   }
 
   calculateOldRegimeTax(taxableIncome) {
@@ -122,19 +143,41 @@ class IncomeTaxCalculator {
     const oldTaxWithCess = oldTax * 1.04;
     const newTaxWithCess = newTax * 1.04;
 
-    document.getElementById('tax-results').style.display = 'block';
     document.getElementById('tax-old').textContent = CalculatorUtils.formatCurrency(oldTaxWithCess);
     document.getElementById('tax-new').textContent = CalculatorUtils.formatCurrency(newTaxWithCess);
-    document.getElementById('tax-old-taxable').textContent = `Taxable: ${CalculatorUtils.formatCurrency(oldTaxableIncome)}`;
-    document.getElementById('tax-new-taxable').textContent = `Taxable: ${CalculatorUtils.formatCurrency(newTaxableIncome)}`;
-
     const savings = Math.abs(oldTaxWithCess - newTaxWithCess);
-    const recommendation = oldTaxWithCess < newTaxWithCess 
-      ? `💡 Old Regime saves you ${CalculatorUtils.formatCurrency(savings)} per year`
-      : `💡 New Regime saves you ${CalculatorUtils.formatCurrency(savings)} per year`;
-    document.getElementById('tax-recommendation').textContent = recommendation;
-
-    this.renderChart(oldTaxWithCess, newTaxWithCess, oldTaxableIncome, newTaxableIncome);
+    const oldLower = oldTaxWithCess < newTaxWithCess;
+    const same = Math.abs(oldTaxWithCess - newTaxWithCess) < 1;
+    const lead = same
+      ? 'Both regimes come to the same tax.'
+      : (oldLower ? 'Old regime' : 'New regime') + ' is lower by ' + CalculatorUtils.formatCurrency(savings) + ' a year.';
+    const lower = Math.min(oldTaxWithCess, newTaxWithCess);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'tax-chart',
+      [Math.max(oldTaxWithCess, 0), Math.max(newTaxWithCess, 0)],
+      same ? 'Same' : 'Lower',
+      CalculatorUtils.formatCurrency(lower)
+    );
+    CalculatorUtils.fillCompare('tax-compare-list', 'tax-compare-lead', lead, [
+      {
+        primary: 'Old regime',
+        tag: !same && oldLower ? 'Lower tax' : '',
+        yours: !same && oldLower,
+        figures: [
+          { label: 'Taxable', value: CalculatorUtils.formatCurrency(oldTaxableIncome) },
+          { label: 'Tax', value: CalculatorUtils.formatCurrency(oldTaxWithCess) },
+        ],
+      },
+      {
+        primary: 'New regime',
+        tag: !same && !oldLower ? 'Lower tax' : '',
+        yours: !same && !oldLower,
+        figures: [
+          { label: 'Taxable', value: CalculatorUtils.formatCurrency(newTaxableIncome) },
+          { label: 'Tax', value: CalculatorUtils.formatCurrency(newTaxWithCess) },
+        ],
+      },
+    ]);
   }
 
   renderChart(oldTax, newTax, oldTaxable, newTaxable) {

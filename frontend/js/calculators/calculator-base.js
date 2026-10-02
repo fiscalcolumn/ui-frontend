@@ -415,7 +415,7 @@ if (typeof Chart !== 'undefined') {
       // Small label above center
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.font = '500 11px system-ui, -apple-system, sans-serif';
+      ctx.font = `500 ${opts.labelFontSize || 11}px system-ui, -apple-system, sans-serif`;
       ctx.fillStyle = opts.labelColor || '#6b8fa4';
       ctx.fillText(opts.label || '', cx, cy);
       // Bold value below center
@@ -481,6 +481,250 @@ CalculatorUtils.createDoughnutChart = function(canvasId, legendContainerId, { la
   }
 
   return chart;
+};
+
+CalculatorUtils.MODERN_SLICE = ['rgba(26, 115, 232, 0.72)', 'rgba(15, 157, 88, 0.72)'];
+
+CalculatorUtils.moneyEnd = function(n) {
+  const abs = Math.abs(n);
+  if (abs >= 1e7) return `₹${+(abs / 1e7).toFixed(abs % 1e7 === 0 ? 0 : 2)} Cr`;
+  if (abs >= 1e5) return `₹${+(abs / 1e5).toFixed(abs % 1e5 === 0 ? 0 : 1)} L`;
+  return `₹${CalculatorUtils.formatIndianNumber(abs)}`;
+};
+
+CalculatorUtils.paintModernSlider = function(slider) {
+  const min = parseFloat(slider.min);
+  const max = parseFloat(slider.max);
+  const val = parseFloat(slider.value);
+  const percent = max === min ? 0 : ((val - min) / (max - min)) * 100;
+  const track = document.documentElement.classList.contains('dark-mode') ? '#3A4454' : '#E4E7EC';
+  slider.style.background = `linear-gradient(to right, #1A73E8 ${percent}%, ${track} ${percent}%)`;
+};
+
+CalculatorUtils.bindModern = function(specs, calculate, getChart) {
+  document.querySelector('.calculator-page-container')?.classList.add('calc-modern');
+  specs.forEach(spec => {
+    const slider = document.getElementById(spec.id);
+    if (!slider) return;
+    const valueEl = document.getElementById(spec.id + '-value');
+    if (valueEl) valueEl.textContent = spec.display(parseFloat(slider.value));
+    if (slider.parentElement.querySelector('.sip-range')) return;
+    const row = document.createElement('div');
+    row.className = 'sip-range';
+    const min = document.createElement('span');
+    const max = document.createElement('span');
+    min.textContent = spec.end(parseFloat(slider.min));
+    max.textContent = spec.end(parseFloat(slider.max));
+    row.append(min, max);
+    slider.after(row);
+  });
+  const paintAll = () => specs.forEach(spec => {
+    const slider = document.getElementById(spec.id);
+    if (slider) CalculatorUtils.paintModernSlider(slider);
+  });
+  specs.forEach(spec => {
+    const slider = document.getElementById(spec.id);
+    if (!slider) return;
+    const onInput = () => {
+      const valueEl = document.getElementById(`${spec.id}-value`);
+      if (valueEl) valueEl.textContent = spec.display(parseFloat(slider.value));
+      calculate();
+      requestAnimationFrame(() => CalculatorUtils.paintModernSlider(slider));
+    };
+    slider.addEventListener('input', onInput);
+    slider.addEventListener('change', onInput);
+  });
+  setTimeout(() => {
+    paintAll();
+    const chart = typeof getChart === 'function' ? getChart() : null;
+    if (chart) chart.resize();
+  }, 180);
+  const observer = new MutationObserver(() => {
+    paintAll();
+    calculate();
+  });
+  observer.observe(document.documentElement, { attributeFilter: ['class'] });
+};
+
+CalculatorUtils.modernDoughnut = function(chart, canvasId, values, centerLabel, centerValue, asMoney) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return chart;
+  const isDark = document.documentElement.classList.contains('dark-mode');
+  const center = {
+    display: true,
+    label: centerLabel,
+    value: centerValue,
+    labelColor: isDark ? '#9AA0A6' : '#5F6368',
+    valueColor: isDark ? '#E8EAED' : '#202124',
+    labelFontSize: 13,
+    valueFontSize: 16,
+  };
+  const colors = CalculatorUtils.MODERN_SLICE;
+  if (chart) {
+    chart.data.datasets[0].data = values;
+    chart.data.datasets[0].backgroundColor = colors;
+    chart.options.plugins.doughnutCenterText = center;
+    chart.update();
+    return chart;
+  }
+  return new Chart(canvas.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Share A', 'Share B'],
+      datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '52%',
+      plugins: {
+        legend: { display: false },
+        doughnutCenterText: center,
+        tooltip: {
+          callbacks: {
+            label: (context) => asMoney === false ? ' ' + context.raw : ' ' + CalculatorUtils.formatCurrency(context.raw),
+          },
+        },
+      },
+    },
+  });
+};
+
+CalculatorUtils.fillCompare = function(listId, leadId, leadText, rows) {
+  const list = document.getElementById(listId);
+  const lead = leadId ? document.getElementById(leadId) : null;
+  if (!list) return;
+  if (lead) lead.textContent = leadText || '';
+  list.replaceChildren();
+  rows.forEach(row => {
+    const el = document.createElement('div');
+    el.className = 'sip-compare-row' + (row.yours ? ' is-yours' : '');
+    const primary = document.createElement('div');
+    primary.className = 'sip-compare-rate';
+    const strong = document.createElement('strong');
+    strong.textContent = row.primary;
+    primary.appendChild(strong);
+    if (row.tag) {
+      const tag = document.createElement('span');
+      tag.className = 'sip-compare-tag';
+      tag.textContent = row.tag;
+      primary.appendChild(tag);
+    }
+    el.appendChild(primary);
+    (row.figures || []).forEach(fig => {
+      const cell = document.createElement('div');
+      cell.className = 'sip-compare-figure';
+      const label = document.createElement('span');
+      label.textContent = fig.label;
+      const value = document.createElement('strong');
+      value.textContent = fig.value;
+      cell.append(label, value);
+      el.appendChild(cell);
+    });
+    list.appendChild(el);
+  });
+};
+
+CalculatorUtils.adoptModern = function(root, options) {
+  root.querySelectorAll('style').forEach(node => node.remove());
+  const form = root.querySelector('.calc-form');
+  if (!form || form.querySelector('.sip-sliders')) return;
+  form.classList.add('sip-form');
+  const results = form.querySelector('.calc-results');
+  const sliders = document.createElement('div');
+  sliders.className = 'sip-sliders';
+  while (form.firstChild && form.firstChild !== results) sliders.appendChild(form.firstChild);
+  const button = sliders.querySelector('.calc-btn');
+  if (button) {
+    const wrap = button.parentElement;
+    if (wrap && wrap !== sliders) wrap.remove();
+    else button.remove();
+  }
+  if (options.hint) {
+    const hint = document.createElement('p');
+    hint.className = 'sip-hint';
+    hint.textContent = options.hint;
+    sliders.appendChild(hint);
+  }
+  form.insertBefore(sliders, results || null);
+
+  const card = document.createElement('div');
+  card.className = 'calc-results sip-results';
+  const summary = document.createElement('div');
+  summary.className = 'sip-summary-card';
+  const stats = document.createElement('div');
+  stats.className = 'sip-stats';
+  (options.tiles || []).forEach(tile => {
+    const box = document.createElement('div');
+    box.className = 'sip-stat';
+    const label = document.createElement('span');
+    label.className = 'sip-stat-label';
+    label.textContent = tile.label;
+    const value = document.createElement('span');
+    value.className = 'sip-stat-value';
+    value.id = tile.id;
+    value.textContent = '—';
+    box.append(label, value);
+    stats.appendChild(box);
+  });
+  const wrap = document.createElement('div');
+  wrap.className = 'sip-chart-wrap';
+  const chartBox = document.createElement('div');
+  chartBox.className = 'sip-chart';
+  const canvas = document.createElement('canvas');
+  canvas.id = options.canvasId;
+  if (options.aria) canvas.setAttribute('aria-label', options.aria);
+  chartBox.appendChild(canvas);
+  const legend = document.createElement('div');
+  legend.className = 'sip-legend';
+  (options.legend || []).forEach((name, index) => {
+    const span = document.createElement('span');
+    const dot = document.createElement('i');
+    dot.className = 'sip-dot ' + (index === 0 ? 'sip-dot-invested' : 'sip-dot-gain');
+    span.append(dot, document.createTextNode(' ' + name));
+    legend.appendChild(span);
+  });
+  wrap.append(chartBox, legend);
+  summary.append(stats, wrap);
+  card.appendChild(summary);
+  if (options.compareTitle) {
+    const section = document.createElement('section');
+    section.className = 'sip-compare';
+    const title = document.createElement('h2');
+    title.className = 'sip-compare-title';
+    title.textContent = options.compareTitle;
+    const lead = document.createElement('p');
+    lead.className = 'sip-compare-lead';
+    lead.id = options.leadId;
+    const list = document.createElement('div');
+    list.id = options.listId;
+    section.append(title, lead, list);
+    card.appendChild(section);
+  }
+  if (results) results.replaceWith(card);
+  else form.appendChild(card);
+};
+
+CalculatorUtils.paintGrowth = function(chart, spec) {
+  const investedEl = document.getElementById(spec.investedId);
+  const gainEl = document.getElementById(spec.gainId);
+  if (investedEl) investedEl.textContent = CalculatorUtils.formatCurrency(spec.invested);
+  if (gainEl) gainEl.textContent = CalculatorUtils.formatCurrency(spec.gained);
+  const next = CalculatorUtils.modernDoughnut(
+    chart,
+    spec.canvasId,
+    [Math.max(0, spec.invested), Math.max(0, spec.gained)],
+    spec.centerLabel || 'Total',
+    spec.centerValue || CalculatorUtils.formatCurrency(spec.invested + spec.gained)
+  );
+  if (spec.listId) CalculatorUtils.fillCompare(spec.listId, spec.leadId, spec.lead, spec.rows || []);
+  return next;
+};
+
+CalculatorUtils.ratesInRange = function(current, min, max, candidates) {
+  const rates = candidates.filter(rate => rate >= min - 0.001 && rate <= max + 0.001);
+  if (!rates.some(rate => Math.abs(rate - current) < 0.05)) rates.push(current);
+  return rates.sort((a, b) => a - b);
 };
 
 // Calculator registry - maps calculatorType to calculator class

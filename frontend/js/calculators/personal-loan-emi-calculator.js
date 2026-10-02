@@ -101,22 +101,27 @@ class PersonalLoanEMICalculator {
   }
 
   bindEvents() {
-    const sliders = ['pl-amount', 'pl-rate', 'pl-tenure'];
-    sliders.forEach(id => {
-      document.getElementById(id).addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        const valueEl = document.getElementById(`${id}-value`);
-        if (id === 'pl-amount') {
-          valueEl.textContent = CalculatorUtils.formatIndianNumber(val);
-        } else if (id === 'pl-rate') {
-          valueEl.textContent = val.toFixed(1);
-        } else {
-          valueEl.textContent = val;
-        }
-      });
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'pl-amount', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'pl-rate', display: (n) => n.toFixed(1), end: (n) => `${n}%` },
+      { id: 'pl-tenure', display: (n) => String(n), end: (n) => `${n} months` },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'The estimate updates as you move a slider.',
+      tiles: [
+        { id: 'pl-principal', label: 'Principal' },
+        { id: 'pl-interest', label: 'Total interest' },
+      ],
+      canvasId: 'pl-chart',
+      legend: ['Principal', 'Interest'],
+      compareTitle: 'Same loan, different rates',
+      leadId: 'pl-compare-lead',
+      listId: 'pl-compare-list',
     });
-    document.getElementById('pl-calculate').addEventListener('click', () => this.calculate());
   }
 
   calculate() {
@@ -135,14 +140,34 @@ class PersonalLoanEMICalculator {
     // Effective annual rate
     const effectiveRate = (Math.pow(1 + monthlyRate, 12) - 1) * 100;
 
-    document.getElementById('pl-results').style.display = 'block';
-    document.getElementById('pl-emi').textContent = CalculatorUtils.formatCurrency(emi);
+    document.getElementById('pl-principal').textContent = CalculatorUtils.formatCurrency(this.loanAmount);
     document.getElementById('pl-interest').textContent = CalculatorUtils.formatCurrency(totalInterest);
-    document.getElementById('pl-total').textContent = CalculatorUtils.formatCurrency(totalPayment);
-    document.getElementById('pl-percent').textContent = `${interestPercent}%`;
-    document.getElementById('pl-effective').textContent = `${effectiveRate.toFixed(1)}%`;
-
-    this.renderChart(totalInterest, totalPayment);
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'pl-chart',
+      [this.loanAmount, Math.max(0, totalInterest)],
+      'EMI',
+      CalculatorUtils.formatCurrency(emi)
+    );
+    const rateSlider = document.getElementById('pl-rate');
+    const rates = CalculatorUtils.ratesInRange(this.interestRate, parseFloat(rateSlider.min), parseFloat(rateSlider.max), [12, 14, 18]);
+    CalculatorUtils.fillCompare('pl-compare-list', 'pl-compare-lead',
+      `${CalculatorUtils.formatCurrency(this.loanAmount)} over ${this.tenure} months. Only the yearly rate changes.`,
+      rates.map(rate => {
+        const rowEmi = CalculatorUtils.calculateEMI(this.loanAmount, rate / 12 / 100, this.tenure);
+        const yours = Math.abs(rate - this.interestRate) < 0.05;
+        return {
+          primary: `${Number.isInteger(rate) ? rate : rate.toFixed(1)}%`,
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'EMI', value: CalculatorUtils.formatCurrency(rowEmi) },
+            { label: 'Interest', value: CalculatorUtils.formatCurrency(rowEmi * this.tenure - this.loanAmount) },
+          ],
+        };
+      })
+    );
+    void interestPercent;
+    void effectiveRate;
   }
 
   renderChart(totalInterest, totalPayment) {

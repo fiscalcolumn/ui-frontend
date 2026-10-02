@@ -113,6 +113,21 @@ class ChildHeightCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Adult height is the average of the parents, plus 13 cm for a boy or minus 13 cm for a girl. The real range is about 10 cm either side.',
+      tiles: [
+        { id: 'ch-predicted', label: 'Expected' },
+        { id: 'ch-range', label: 'Likely range' },
+      ],
+      canvasId: 'ch-chart',
+      legend: ['Father', 'Mother'],
+      compareTitle: 'Same parents, boy or girl',
+      leadId: 'ch-compare-lead',
+      listId: 'ch-compare-list',
+    });
+  }
+
   bindEvents() {
     document.getElementById('ch-father').addEventListener('input', (e) => {
       this.fatherHeight = parseInt(e.target.value);
@@ -133,7 +148,11 @@ class ChildHeightCalculator {
         this.calculate();
       });
     });
-    document.getElementById('ch-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'ch-father', display: (n) => String(n), end: (n) => n + ' cm' },
+      { id: 'ch-mother', display: (n) => String(n), end: (n) => n + ' cm' },
+    ], () => this.calculate(), () => this.chart);
     ['ch-father', 'ch-mother'].forEach(id => {
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
@@ -151,7 +170,26 @@ class ChildHeightCalculator {
       predictedHeight = (this.fatherHeight + this.motherHeight - 13) / 2;
     }
 
-    document.getElementById('ch-results').style.display = 'block';
+    const boy = (this.fatherHeight + this.motherHeight + 13) / 2;
+    const girl = (this.fatherHeight + this.motherHeight - 13) / 2;
+    const shown = this.childGender === 'male' ? boy : girl;
+    document.getElementById('ch-predicted').textContent = Math.round(shown) + ' cm';
+    document.getElementById('ch-range').textContent = Math.round(shown - 10) + ' – ' + Math.round(shown + 10) + ' cm';
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'ch-chart',
+      [this.fatherHeight, this.motherHeight],
+      'Adult',
+      Math.round(shown) + ' cm',
+      false
+    );
+    CalculatorUtils.fillCompare('ch-compare-list', 'ch-compare-lead',
+      'Parents are ' + this.fatherHeight + ' cm and ' + this.motherHeight + ' cm.',
+      [
+        { primary: 'Boy', tag: this.childGender === 'male' ? 'Your child' : '', yours: this.childGender === 'male', figures: [{ label: 'Expected', value: Math.round(boy) + ' cm' }, { label: 'Range', value: Math.round(boy - 10) + '–' + Math.round(boy + 10) }] },
+        { primary: 'Girl', tag: this.childGender !== 'male' ? 'Your child' : '', yours: this.childGender !== 'male', figures: [{ label: 'Expected', value: Math.round(girl) + ' cm' }, { label: 'Range', value: Math.round(girl - 10) + '–' + Math.round(girl + 10) }] },
+      ]
+    );
+    return;
     document.getElementById('ch-predicted').textContent = `${predictedHeight.toFixed(0)} cm`;
     document.getElementById('ch-range').textContent = `${(predictedHeight - 10).toFixed(0)} - ${(predictedHeight + 10).toFixed(0)} cm`;
   }

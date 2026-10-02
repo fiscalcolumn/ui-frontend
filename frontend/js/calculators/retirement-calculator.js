@@ -72,6 +72,21 @@ class RetirementCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'The target assumes 25 years after retirement, with 7% a year then. Inflation still applies. The SIP is what reaches that target at the return you chose.',
+      tiles: [
+        { id: 'ret-future-exp', label: 'Monthly cost then' },
+        { id: 'ret-sip', label: 'SIP to get there' },
+      ],
+      canvasId: 'ret-chart',
+      legend: ['You invest', 'Growth'],
+      compareTitle: 'Same expenses, different returns',
+      leadId: 'ret-compare-lead',
+      listId: 'ret-compare-list',
+    });
+  }
+
   bindEvents() {
     const sliders = ['ret-age', 'ret-retire', 'ret-expenses', 'ret-inflation', 'ret-return'];
     sliders.forEach(id => {
@@ -88,7 +103,14 @@ class RetirementCalculator {
       });
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
-    document.getElementById('ret-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'ret-age', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'ret-retire', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'ret-expenses', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'ret-inflation', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'ret-return', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+    ], () => this.calculate(), () => this.chart);
   }
 
   calculate() {
@@ -100,10 +122,10 @@ class RetirementCalculator {
 
     // Validate: retirement age must be greater than current age
     if (this.retirementAge <= this.currentAge) {
-      document.getElementById('ret-results').style.display = 'block';
       document.getElementById('ret-future-exp').textContent = '—';
-      document.getElementById('ret-corpus').textContent = '—';
       document.getElementById('ret-sip').textContent = '—';
+      this.chart = CalculatorUtils.modernDoughnut(this.chart, 'ret-chart', [1, 0], 'Corpus', '—');
+      CalculatorUtils.fillCompare('ret-compare-list', 'ret-compare-lead', 'Retirement age has to come after the current age.', []);
       return;
     }
 
@@ -146,12 +168,52 @@ class RetirementCalculator {
     this.targetCorpus = Math.max(0, corpus);
     this.sipNeeded = Math.max(0, sipNeeded);
 
-    document.getElementById('ret-results').style.display = 'block';
+    const project = (preReturn) => {
+      const future = this.monthlyExpenses * Math.pow(1 + this.inflation, yearsToRetirement);
+      const annual = future * 12;
+      const postRetirementReturn = 0.07;
+      const realReturn = (1 + postRetirementReturn) / (1 + this.inflation) - 1;
+      let target;
+      if (realReturn <= 0.001) target = annual * yearsInRetirement;
+      else target = annual * ((1 - Math.pow(1 + realReturn, -yearsInRetirement)) / realReturn);
+      const monthlyRate = preReturn / 12;
+      let sip;
+      if (monthlyRate <= 0 || months <= 0) sip = target / Math.max(months, 1);
+      else {
+        const fvFactor = ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+        sip = target / fvFactor;
+      }
+      return { sip: Math.max(0, sip), corpus: Math.max(0, target) };
+    };
+    const invested = this.sipNeeded * months;
     document.getElementById('ret-future-exp').textContent = CalculatorUtils.formatCurrency(futureMonthlyExpenses);
-    document.getElementById('ret-corpus').textContent = CalculatorUtils.formatCurrency(this.targetCorpus);
     document.getElementById('ret-sip').textContent = CalculatorUtils.formatCurrency(this.sipNeeded);
-
-    this.renderChart();
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'ret-chart',
+      [Math.max(0, invested), Math.max(0, this.targetCorpus - invested)],
+      'Corpus',
+      CalculatorUtils.formatCurrency(this.targetCorpus)
+    );
+    const rates = CalculatorUtils.ratesInRange(this.expectedReturn * 100, 6, 18, [8, 12, 15]);
+    CalculatorUtils.fillCompare(
+      'ret-compare-list',
+      'ret-compare-lead',
+      CalculatorUtils.formatCurrency(this.monthlyExpenses) + ' a month now, retiring at ' + this.retirementAge + '. Only the return before retirement changes.',
+      rates.map(rate => {
+        const row = project(rate / 100);
+        const yours = Math.abs(rate - this.expectedReturn * 100) < 0.05;
+        return {
+          primary: rate + '%',
+          tag: yours ? 'Your return' : '',
+          yours,
+          figures: [
+            { label: 'SIP', value: CalculatorUtils.formatCurrency(row.sip) },
+            { label: 'Corpus', value: CalculatorUtils.formatCurrency(row.corpus) },
+          ],
+        };
+      })
+    );
+    return;
   }
 
   renderChart() {

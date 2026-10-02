@@ -65,38 +65,61 @@ class SimpleInterestCalculator {
   }
 
   bindEvents() {
-    document.getElementById('si-principal').addEventListener('input', (e) => {
-      this.principal = parseFloat(e.target.value);
-      document.getElementById('si-principal-value').textContent = CalculatorUtils.formatIndianNumber(this.principal);
-    });
-    document.getElementById('si-rate').addEventListener('input', (e) => {
-      this.rate = parseFloat(e.target.value);
-      document.getElementById('si-rate-value').textContent = this.rate.toFixed(1);
-    });
-    document.getElementById('si-time').addEventListener('input', (e) => {
-      this.time = parseInt(e.target.value);
-      document.getElementById('si-time-value').textContent = this.time;
-    });
-    document.getElementById('si-calculate').addEventListener('click', () => this.calculate());
-    ['si-principal', 'si-rate', 'si-time'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'si-principal', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'si-rate', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'si-time', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Interest is charged only on the original amount, once a year.',
+      tiles: [
+        { id: 'si-principal-result', label: 'You invest' },
+        { id: 'si-interest', label: 'Interest' },
+      ],
+      canvasId: 'si-chart',
+      legend: ['You invest', 'Interest'],
+      compareTitle: 'Same amount, different rates',
+      leadId: 'si-compare-lead',
+      listId: 'si-compare-list',
     });
   }
 
   calculate() {
+    this.principal = parseFloat(document.getElementById('si-principal').value) || 0;
+    this.rate = parseFloat(document.getElementById('si-rate').value) || 0;
+    this.time = parseInt(document.getElementById('si-time').value, 10) || 0;
     const P = this.principal;
-    const r = this.rate;
     const t = this.time;
-
-    const interest = (P * r * t) / 100;
-    const total = P + interest;
-
-    document.getElementById('si-results').style.display = 'block';
-    document.getElementById('si-principal-result').textContent = CalculatorUtils.formatCurrency(P);
-    document.getElementById('si-interest').textContent = CalculatorUtils.formatCurrency(interest);
-    document.getElementById('si-total').textContent = CalculatorUtils.formatCurrency(total);
-
-    this.renderChart();
+    const interest = (P * this.rate * t) / 100;
+    const rates = CalculatorUtils.ratesInRange(this.rate, 1, 20, [6, 8, 10]);
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'si-principal-result',
+      gainId: 'si-interest',
+      canvasId: 'si-chart',
+      invested: P,
+      gained: interest,
+      centerLabel: 'Total',
+      listId: 'si-compare-list',
+      leadId: 'si-compare-lead',
+      lead: CalculatorUtils.formatCurrency(P) + ' for ' + t + ' years. Only the yearly rate changes.',
+      rows: rates.map(rate => {
+        const rowInterest = (P * rate * t) / 100;
+        const yours = Math.abs(rate - this.rate) < 0.05;
+        return {
+          primary: rate + '%',
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'Interest', value: CalculatorUtils.formatCurrency(rowInterest) },
+            { label: 'Total', value: CalculatorUtils.formatCurrency(P + rowInterest) },
+          ],
+        };
+      }),
+    });
   }
 
   renderChart() {

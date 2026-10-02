@@ -129,6 +129,21 @@ class BMRCalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'This is the energy your body uses at complete rest. Activity on top of that is listed below.',
+      tiles: [
+        { id: 'bmr-value', label: 'At rest' },
+        { id: 'bmr-moderate', label: 'Moderate day' },
+      ],
+      canvasId: 'bmr-chart',
+      legend: ['At rest', 'Activity on top'],
+      compareTitle: 'Same body, different days',
+      leadId: 'bmr-compare-lead',
+      listId: 'bmr-compare-list',
+    });
+  }
+
   bindEvents() {
     ['bmr-age', 'bmr-weight', 'bmr-height'].forEach(id => {
       document.getElementById(id).addEventListener('input', (e) => {
@@ -146,7 +161,12 @@ class BMRCalculator {
         this.calculate();
       });
     });
-    document.getElementById('bmr-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'bmr-age', display: (n) => String(n), end: (n) => n + ' yr' },
+      { id: 'bmr-weight', display: (n) => String(n), end: (n) => n + ' kg' },
+      { id: 'bmr-height', display: (n) => String(n), end: (n) => n + ' cm' },
+    ], () => this.calculate(), () => this.chart);
   }
 
   calculate() {
@@ -156,9 +176,37 @@ class BMRCalculator {
     this.gender = document.getElementById('bmr-gender').value || 'male';
 
     const bmr = CalculatorUtils.calculateBMR(this.weight, this.height, this.age, this.gender);
-
-    document.getElementById('bmr-results').style.display = 'block';
-    document.getElementById('bmr-value').textContent = Math.round(bmr);
+    const levels = [
+      ['Sedentary', 1.2],
+      ['Light', 1.375],
+      ['Moderate', 1.55],
+      ['Active', 1.725],
+      ['Very active', 1.9],
+    ];
+    document.getElementById('bmr-value').textContent = Math.round(bmr) + ' cal';
+    document.getElementById('bmr-moderate').textContent = Math.round(bmr * 1.55) + ' cal';
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'bmr-chart',
+      [Math.round(bmr), Math.round(bmr * 0.55)],
+      'Moderate',
+      Math.round(bmr * 1.55) + ' cal',
+      false
+    );
+    CalculatorUtils.fillCompare(
+      'bmr-compare-list',
+      'bmr-compare-lead',
+      'Resting burn is ' + Math.round(bmr) + ' calories. The rows add a typical day on top of that.',
+      levels.map(level => ({
+        primary: level[0],
+        tag: '',
+        yours: false,
+        figures: [
+          { label: 'A day', value: Math.round(bmr * level[1]) + ' cal' },
+          { label: 'Extra', value: Math.round(bmr * (level[1] - 1)) + ' cal' },
+        ],
+      }))
+    );
+    return;
     document.getElementById('bmr-sedentary').textContent = `${Math.round(bmr * 1.2)} cal`;
     document.getElementById('bmr-light').textContent = `${Math.round(bmr * 1.375)} cal`;
     document.getElementById('bmr-moderate').textContent = `${Math.round(bmr * 1.55)} cal`;

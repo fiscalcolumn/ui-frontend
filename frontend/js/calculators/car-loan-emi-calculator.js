@@ -86,22 +86,28 @@ class CarLoanEMICalculator {
   }
 
   bindEvents() {
-    const sliders = ['cl-price', 'cl-down', 'cl-rate', 'cl-tenure'];
-    sliders.forEach(id => {
-      document.getElementById(id).addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        const valueEl = document.getElementById(`${id}-value`);
-        if (id === 'cl-price' || id === 'cl-down') {
-          valueEl.textContent = CalculatorUtils.formatIndianNumber(val);
-        } else if (id === 'cl-rate') {
-          valueEl.textContent = val.toFixed(2);
-        } else {
-          valueEl.textContent = val;
-        }
-      });
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'cl-price', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'cl-down', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'cl-rate', display: (n) => n.toFixed(2), end: (n) => `${n}%` },
+      { id: 'cl-tenure', display: (n) => String(n), end: (n) => `${n} months` },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'Loan amount is the on-road price minus the down payment.',
+      tiles: [
+        { id: 'cl-loan-amount', label: 'Loan amount' },
+        { id: 'cl-interest', label: 'Total interest' },
+      ],
+      canvasId: 'cl-chart',
+      legend: ['Loan', 'Interest'],
+      compareTitle: 'Same loan, different rates',
+      leadId: 'cl-compare-lead',
+      listId: 'cl-compare-list',
     });
-    document.getElementById('cl-calculate').addEventListener('click', () => this.calculate());
   }
 
   calculate() {
@@ -118,13 +124,33 @@ class CarLoanEMICalculator {
     const totalPayment = emi * this.tenure;
     const totalInterest = totalPayment - loanAmount;
 
-    document.getElementById('cl-results').style.display = 'block';
-    document.getElementById('cl-loan-amount').textContent = CalculatorUtils.formatCurrency(loanAmount);
-    document.getElementById('cl-emi').textContent = CalculatorUtils.formatCurrency(emi);
-    document.getElementById('cl-interest').textContent = CalculatorUtils.formatCurrency(totalInterest);
-    document.getElementById('cl-total').textContent = CalculatorUtils.formatCurrency(totalPayment);
-
-    this.renderChart(loanAmount, totalInterest, this.downPayment);
+    document.getElementById('cl-loan-amount').textContent = CalculatorUtils.formatCurrency(Math.max(0, loanAmount));
+    document.getElementById('cl-interest').textContent = CalculatorUtils.formatCurrency(Math.max(0, totalInterest));
+    this.chart = CalculatorUtils.modernDoughnut(
+      this.chart, 'cl-chart',
+      [Math.max(0, loanAmount), Math.max(0, totalInterest)],
+      'EMI',
+      CalculatorUtils.formatCurrency(Number.isFinite(emi) ? emi : 0)
+    );
+    const rateSlider = document.getElementById('cl-rate');
+    const principal = Math.max(0, loanAmount);
+    const rates = CalculatorUtils.ratesInRange(this.interestRate, parseFloat(rateSlider.min), parseFloat(rateSlider.max), [8, 10, 12]);
+    CalculatorUtils.fillCompare('cl-compare-list', 'cl-compare-lead',
+      `${CalculatorUtils.formatCurrency(principal)} over ${this.tenure} months. Only the yearly rate changes.`,
+      rates.map(rate => {
+        const rowEmi = principal > 0 ? CalculatorUtils.calculateEMI(principal, rate / 12 / 100, this.tenure) : 0;
+        const yours = Math.abs(rate - this.interestRate) < 0.05;
+        return {
+          primary: `${Number.isInteger(rate) ? rate : rate.toFixed(2)}%`,
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'EMI', value: CalculatorUtils.formatCurrency(rowEmi) },
+            { label: 'Interest', value: CalculatorUtils.formatCurrency(rowEmi * this.tenure - principal) },
+          ],
+        };
+      })
+    );
   }
 
   renderChart(loanAmount, totalInterest, downPayment) {

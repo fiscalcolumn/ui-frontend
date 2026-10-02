@@ -135,6 +135,21 @@ class BMICalculator {
     this.calculate();
   }
 
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'BMI is your weight divided by your height in metres, squared.',
+      tiles: [
+        { id: 'bmi-score', label: 'BMI' },
+        { id: 'bmi-category', label: 'Category' },
+      ],
+      canvasId: 'bmi-chart',
+      legend: ['Your weight', 'Outside the healthy band'],
+      compareTitle: 'Weight bands for this height',
+      leadId: 'bmi-compare-lead',
+      listId: 'bmi-compare-list',
+    });
+  }
+
   bindEvents() {
     document.getElementById('bmi-weight').addEventListener('input', (e) => {
       this.weight = parseFloat(e.target.value);
@@ -144,32 +159,52 @@ class BMICalculator {
       this.height = parseFloat(e.target.value);
       document.getElementById('bmi-height-value').textContent = this.height;
     });
-    document.getElementById('bmi-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'bmi-weight', display: (n) => String(n), end: (n) => n + ' kg' },
+      { id: 'bmi-height', display: (n) => String(n), end: (n) => n + ' cm' },
+    ], () => this.calculate(), () => this.chart);
     ['bmi-weight', 'bmi-height'].forEach(id => {
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
   }
 
   calculate() {
+    this.weight = parseFloat(document.getElementById('bmi-weight').value) || 0;
+    this.height = parseFloat(document.getElementById('bmi-height').value) || 0;
     const bmi = CalculatorUtils.calculateBMI(this.weight, this.height);
     const category = CalculatorUtils.getBMICategory(bmi);
-
-    document.getElementById('bmi-results').style.display = 'block';
-    document.getElementById('bmi-score').textContent = bmi.toFixed(1);
-    document.getElementById('bmi-score').style.color = category.color;
-    document.getElementById('bmi-category').textContent = category.category;
-    document.getElementById('bmi-category').style.color = category.color;
-
-    // Position the marker (BMI 15-40 range mapped to 0-100%)
-    const markerPos = Math.min(100, Math.max(0, ((bmi - 15) / 25) * 100));
-    document.getElementById('bmi-marker').style.left = `${markerPos}%`;
-
-    // Calculate healthy weight range
     const heightM = this.height / 100;
     const minWeight = 18.5 * heightM * heightM;
     const maxWeight = 24.9 * heightM * heightM;
-    document.getElementById('bmi-healthy-range').textContent = 
-      `${minWeight.toFixed(1)} kg - ${maxWeight.toFixed(1)} kg`;
+    const above = Math.max(0, this.weight - maxWeight);
+    const below = Math.max(0, minWeight - this.weight);
+    const slices = above > 0 ? [maxWeight, above] : below > 0 ? [this.weight, below] : [this.weight, 0];
+    document.getElementById('bmi-score').textContent = bmi.toFixed(1);
+    document.getElementById('bmi-category').textContent = category.category;
+    this.chart = CalculatorUtils.modernDoughnut(this.chart, 'bmi-chart', slices, 'BMI', bmi.toFixed(1), false);
+    const kg = (score) => (score * heightM * heightM).toFixed(1) + ' kg';
+    const bands = [
+      { name: 'Underweight', from: kg(15), to: kg(18.5) },
+      { name: 'Normal', from: kg(18.5), to: kg(24.9) },
+      { name: 'Overweight', from: kg(25), to: kg(29.9) },
+      { name: 'Obese', from: kg(30), to: 'and above' },
+    ];
+    CalculatorUtils.fillCompare(
+      'bmi-compare-list',
+      'bmi-compare-lead',
+      'A healthy BMI is 18.5 to 24.9, about ' + minWeight.toFixed(1) + ' to ' + maxWeight.toFixed(1) + ' kg at this height.',
+      bands.map(band => ({
+        primary: band.name,
+        tag: band.name === category.category ? 'You' : '',
+        yours: band.name === category.category,
+        figures: [
+          { label: 'From', value: band.from },
+          { label: 'To', value: band.to },
+        ],
+      }))
+    );
+    return;
   }
 }
 

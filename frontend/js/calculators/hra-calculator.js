@@ -56,14 +56,26 @@ class HRACalculator {
               <div class="calc-result-value" id="hra-taxable" style="color:#ff5722">₹0</div>
             </div>
           </div>
-
-          <div style="margin-top:16px; background:#f9f9f9; border-radius:8px; padding:14px; font-size:0.85rem;" id="hra-breakdown">
-          </div>
         </div>
       </div>
     `;
     this.bindEvents();
     this.calculate();
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'The exemption is the smallest of the three tests. Metro cities use 50% of basic plus DA. Other cities use 40%.',
+      tiles: [
+        { id: 'hra-exempt-monthly', label: 'Exempt this month' },
+        { id: 'hra-taxable', label: 'Taxable this month' },
+      ],
+      canvasId: 'hra-chart',
+      legend: ['Exempt', 'Taxable'],
+      compareTitle: 'The three tests',
+      leadId: 'hra-compare-lead',
+      listId: 'hra-compare-list',
+    });
   }
 
   bindEvents() {
@@ -79,7 +91,13 @@ class HRACalculator {
     document.querySelectorAll('input[name="hra-city"]').forEach(r =>
       r.addEventListener('change', e => { this.city = e.target.value; this.calculate(); })
     );
-    document.getElementById('hra-calculate').addEventListener('click', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'hra-basic', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'hra-da', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'hra-received', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'hra-rent', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+    ], () => this.calculate(), () => this.chart);
     sliders.forEach(id => {
       document.getElementById(id).addEventListener('change', () => this.calculate());
     });
@@ -101,33 +119,32 @@ class HRACalculator {
     const exempt = Math.min(a, b, c);
     const taxable = hraReceived - exempt;
 
-    document.getElementById('hra-results').style.display = 'block';
-    document.getElementById('hra-exempt-monthly').textContent = CalculatorUtils.formatCurrency(exempt, 0);
-    document.getElementById('hra-exempt-yearly').textContent = CalculatorUtils.formatCurrency(exempt * 12, 0);
-    document.getElementById('hra-taxable').textContent = CalculatorUtils.formatCurrency(taxable, 0);
-
-    document.getElementById('hra-breakdown').innerHTML = `
-      <p style="font-weight:700; margin-bottom:10px;">How is HRA Exemption Calculated?</p>
-      <p>HRA Exemption = <strong>Minimum</strong> of the following 3 values:</p>
-      <table style="width:100%; border-collapse:collapse; margin-top:8px;">
-        <tr style="${a <= b && a <= c ? 'background:#e8f5e9; font-weight:700' : ''}">
-          <td style="padding:6px 0;">1. Actual HRA received</td>
-          <td style="text-align:right; padding:6px 0;">${CalculatorUtils.formatCurrency(a, 0)}</td>
-        </tr>
-        <tr style="${b <= a && b <= c ? 'background:#e8f5e9; font-weight:700' : ''}">
-          <td style="padding:6px 0;">2. ${this.city === 'metro' ? '50' : '40'}% of (Basic + DA)</td>
-          <td style="text-align:right; padding:6px 0;">${CalculatorUtils.formatCurrency(b, 0)}</td>
-        </tr>
-        <tr style="${c <= a && c <= b ? 'background:#e8f5e9; font-weight:700' : ''}">
-          <td style="padding:6px 0;">3. Rent paid − 10% of (Basic + DA)</td>
-          <td style="text-align:right; padding:6px 0;">${CalculatorUtils.formatCurrency(c, 0)}</td>
-        </tr>
-        <tr style="border-top:2px solid #4caf50; font-weight:700; color:#4caf50;">
-          <td style="padding:8px 0;">✓ HRA Exemption (Minimum)</td>
-          <td style="text-align:right; padding:8px 0;">${CalculatorUtils.formatCurrency(exempt, 0)}</td>
-        </tr>
-      </table>
-    `;
+    const tests = [
+      { primary: 'HRA received', value: a },
+      { primary: (this.city === 'metro' ? '50%' : '40%') + ' of basic + DA', value: b },
+      { primary: 'Rent minus 10%', value: c },
+    ];
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'hra-exempt-monthly',
+      gainId: 'hra-taxable',
+      canvasId: 'hra-chart',
+      invested: exempt,
+      gained: Math.max(0, taxable),
+      centerLabel: 'A year',
+      centerValue: CalculatorUtils.formatCurrency(exempt * 12, 0),
+      listId: 'hra-compare-list',
+      leadId: 'hra-compare-lead',
+      lead: 'Exemption this month is ' + CalculatorUtils.formatCurrency(exempt, 0) + ', the smallest of the three.',
+      rows: tests.map(test => ({
+        primary: test.primary,
+        tag: test.value === exempt ? 'The limit' : '',
+        yours: test.value === exempt,
+        figures: [
+          { label: 'Monthly', value: CalculatorUtils.formatCurrency(test.value, 0) },
+          { label: 'Yearly', value: CalculatorUtils.formatCurrency(test.value * 12, 0) },
+        ],
+      })),
+    });
   }
 }
 

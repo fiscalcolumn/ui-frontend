@@ -69,39 +69,74 @@ class CompoundInterestCalculator {
   }
 
   bindEvents() {
-    document.getElementById('ci-principal').addEventListener('input', (e) => {
-      this.principal = parseFloat(e.target.value);
-      document.getElementById('ci-principal-value').textContent = CalculatorUtils.formatIndianNumber(this.principal);
-    });
-    document.getElementById('ci-rate').addEventListener('input', (e) => {
-      this.rate = parseFloat(e.target.value);
-      document.getElementById('ci-rate-value').textContent = this.rate.toFixed(1);
-    });
-    document.getElementById('ci-time').addEventListener('input', (e) => {
-      this.time = parseInt(e.target.value);
-      document.getElementById('ci-time-value').textContent = this.time;
-    });
-    document.getElementById('ci-calculate').addEventListener('click', () => this.calculate());
-    ['ci-principal', 'ci-rate', 'ci-time'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'ci-principal', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'ci-rate', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'ci-time', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'This compounds every month. Simple interest on the same amount is shown beside it.',
+      tiles: [
+        { id: 'ci-principal-result', label: 'You invest' },
+        { id: 'ci-interest', label: 'Compound interest' },
+      ],
+      canvasId: 'ci-chart',
+      legend: ['You invest', 'Compound interest'],
+      compareTitle: 'Same amount, simple and compound',
+      leadId: 'ci-compare-lead',
+      listId: 'ci-compare-list',
     });
   }
 
   calculate() {
+    this.principal = parseFloat(document.getElementById('ci-principal').value) || 0;
+    this.rate = parseFloat(document.getElementById('ci-rate').value) || 0;
+    this.time = parseInt(document.getElementById('ci-time').value, 10) || 0;
     const P = this.principal;
-    const r = this.rate / 100;
     const t = this.time;
-    const n = 12; // Monthly compounding
-
-    const total = P * Math.pow(1 + r / n, n * t);
+    const n = 12;
+    const total = P * Math.pow(1 + (this.rate / 100) / n, n * t);
     const interest = total - P;
-
-    document.getElementById('ci-results').style.display = 'block';
-    document.getElementById('ci-principal-result').textContent = CalculatorUtils.formatCurrency(P);
-    document.getElementById('ci-interest').textContent = CalculatorUtils.formatCurrency(interest);
-    document.getElementById('ci-total').textContent = CalculatorUtils.formatCurrency(total);
-
-    this.renderChart();
+    const simpleInterest = (P * this.rate * t) / 100;
+    const rates = CalculatorUtils.ratesInRange(this.rate, 1, 20, [6, 8, 10]);
+    const rows = [{
+      primary: 'Simple',
+      tag: 'Same rate',
+      yours: false,
+      figures: [
+        { label: 'Interest', value: CalculatorUtils.formatCurrency(simpleInterest) },
+        { label: 'Total', value: CalculatorUtils.formatCurrency(P + simpleInterest) },
+      ],
+    }];
+    rates.forEach(rate => {
+      const rowTotal = P * Math.pow(1 + (rate / 100) / n, n * t);
+      const yours = Math.abs(rate - this.rate) < 0.05;
+      rows.push({
+        primary: rate + '%',
+        tag: yours ? 'Your rate' : '',
+        yours,
+        figures: [
+          { label: 'Interest', value: CalculatorUtils.formatCurrency(rowTotal - P) },
+          { label: 'Total', value: CalculatorUtils.formatCurrency(rowTotal) },
+        ],
+      });
+    });
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'ci-principal-result',
+      gainId: 'ci-interest',
+      canvasId: 'ci-chart',
+      invested: P,
+      gained: interest,
+      centerLabel: 'Total',
+      listId: 'ci-compare-list',
+      leadId: 'ci-compare-lead',
+      lead: CalculatorUtils.formatCurrency(P) + ' for ' + t + ' years. Compound rows use monthly compounding.',
+      rows,
+    });
   }
 
   renderChart() {

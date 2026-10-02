@@ -62,35 +62,62 @@ class LumpsumCalculator {
   }
 
   bindEvents() {
-    [['ls-amount', 'investment'], ['ls-return', 'expectedReturn'], ['ls-years', 'timePeriod']].forEach(([id, field]) => {
-      document.getElementById(id).addEventListener('input', e => {
-        this[field] = parseFloat(e.target.value) || 0;
-        document.getElementById(`${id}-value`).textContent = CalculatorUtils.formatIndianNumber(this[field]);
-        CalculatorUtils.updateSliderProgress(e.target);
-      });
-      document.getElementById(id).addEventListener('change', () => this.calculate());
+    this.mount();
+    CalculatorUtils.bindModern([
+      { id: 'ls-amount', display: (n) => CalculatorUtils.formatIndianNumber(n), end: CalculatorUtils.moneyEnd },
+      { id: 'ls-return', display: (n) => n.toFixed(1), end: (n) => n + '%' },
+      { id: 'ls-years', display: (n) => String(n), end: (n) => n + ' yr' },
+    ], () => this.calculate(), () => this.chart);
+  }
+
+  mount() {
+    CalculatorUtils.adoptModern(this.container, {
+      hint: 'A one-time amount, compounded once a year at the rate you choose.',
+      tiles: [
+        { id: 'ls-invested', label: 'You invest' },
+        { id: 'ls-returns', label: 'Estimated return' },
+      ],
+      canvasId: 'ls-chart',
+      legend: ['You invest', 'Estimated return'],
+      compareTitle: 'Same amount, different returns',
+      leadId: 'ls-compare-lead',
+      listId: 'ls-compare-list',
     });
-    document.getElementById('ls-calculate').addEventListener('click', () => this.calculate());
-    setTimeout(() => CalculatorUtils.initSliderProgress(), 50);
   }
 
   calculate() {
+    this.investment = parseFloat(document.getElementById('ls-amount').value) || 0;
+    this.expectedReturn = parseFloat(document.getElementById('ls-return').value) || 0;
+    this.timePeriod = parseFloat(document.getElementById('ls-years').value) || 0;
     const P = this.investment;
-    const r = this.expectedReturn / 100;
     const t = this.timePeriod;
-
-    const futureValue = P * Math.pow(1 + r, t);
+    const futureValue = P * Math.pow(1 + this.expectedReturn / 100, t);
     const wealthGained = futureValue - P;
-    const multiple = futureValue / P;
-
-    document.getElementById('ls-results').style.display = 'block';
-    document.getElementById('ls-invested').textContent = CalculatorUtils.formatCurrency(P);
-    document.getElementById('ls-returns').textContent = CalculatorUtils.formatCurrency(wealthGained);
-    document.getElementById('ls-total').textContent = CalculatorUtils.formatCurrency(futureValue);
-    document.getElementById('ls-cagr').textContent = `${this.expectedReturn.toFixed(1)}%`;
-    document.getElementById('ls-multiple').textContent = `${multiple.toFixed(1)}x`;
-
-    this.renderChart(P, r, t);
+    const rates = CalculatorUtils.ratesInRange(this.expectedReturn, 1, 30, [8, 10, 12]);
+    this.chart = CalculatorUtils.paintGrowth(this.chart, {
+      investedId: 'ls-invested',
+      gainId: 'ls-returns',
+      canvasId: 'ls-chart',
+      invested: P,
+      gained: wealthGained,
+      centerLabel: 'Total',
+      listId: 'ls-compare-list',
+      leadId: 'ls-compare-lead',
+      lead: CalculatorUtils.formatCurrency(P) + ' once, for ' + t + ' years. Only the yearly return changes.',
+      rows: rates.map(rate => {
+        const future = P * Math.pow(1 + rate / 100, t);
+        const yours = Math.abs(rate - this.expectedReturn) < 0.05;
+        return {
+          primary: rate + '%',
+          tag: yours ? 'Your rate' : '',
+          yours,
+          figures: [
+            { label: 'Return', value: CalculatorUtils.formatCurrency(future - P) },
+            { label: 'Total', value: CalculatorUtils.formatCurrency(future) },
+          ],
+        };
+      }),
+    });
   }
 
   renderChart(P, r, t) {
