@@ -198,9 +198,10 @@ class CalculatorPageManager {
   async renderBelowSections() {
     if (!this.belowContainer) return;
 
-    const [trendingCalcs, relatedCalcs] = await Promise.all([
+    const [trendingCalcs, relatedCalcs, catalog] = await Promise.all([
       this.fetchTrendingCalculators(),
       this.fetchRelatedCalculators(),
+      this.fetchCatalog(),
     ]);
 
     const faqsHtml = this.renderFAQs(this.calculator.faqs || []);
@@ -209,8 +210,8 @@ class CalculatorPageManager {
     const formulaHtml = this.formatMarkdown(this.calculator.formulaExplanation || '');
 
     this.belowContainer.innerHTML = `
-      ${this.buildTrendingHtml(trendingCalcs)}
-      ${this.buildRelatedHtml(relatedCalcs)}
+      <div id="calc-trending-mount"></div>
+      <div id="calc-related-mount"></div>
       ${faqsHtml ? `<div class="calc-section-card">${faqsHtml}</div>` : ''}
       ${this.calculator.disclaimer ? `
         <div class="calc-section-card calc-disclaimer-card">
@@ -236,6 +237,13 @@ class CalculatorPageManager {
         </div>
       ` : ''}
     `;
+    const categoryName = this.calculator.calculatorcategory
+      ? this.formatCategoryName(this.calculator.calculatorcategory.calculatorcategory)
+      : '';
+    if (typeof CalculatorDiscover !== 'undefined') {
+      CalculatorDiscover.mountTrending(trendingCalcs, catalog);
+      CalculatorDiscover.mountRelated(relatedCalcs, categoryName);
+    }
   }
 
   /**
@@ -244,13 +252,26 @@ class CalculatorPageManager {
   async fetchTrendingCalculators() {
     try {
       const url = getApiUrl(
-        `/calculators?filters[isTrending][$eq]=true&filters[enableCalculator][$ne]=false&pagination[limit]=6&sort=order:asc`
+        `/calculators?filters[isTrending][$eq]=true&filters[enableCalculator][$ne]=false&populate[calculatorcategory]=true&pagination[limit]=8&sort=views:desc`
       );
       const response = await fetch(url);
       const data = await response.json();
       return (data.data || []).filter(c => c.slug !== this.calculator.slug);
     } catch (e) {
       return [];
+    }
+  }
+
+  async fetchCatalog() {
+    try {
+      const catsRes = await fetch(getApiUrl('/calculator-category-types?pagination[pageSize]=50&sort=order:asc&status=published'));
+      const countRes = await fetch(getApiUrl('/calculators?filters[enableCalculator][$ne]=false&pagination[pageSize]=1'));
+      const cats = await catsRes.json();
+      const count = await countRes.json();
+      const total = count.meta && count.meta.pagination ? count.meta.pagination.total : 0;
+      return { categories: cats.data || [], total: total || 0 };
+    } catch (e) {
+      return { categories: [], total: 0 };
     }
   }
 
@@ -318,9 +339,6 @@ class CalculatorPageManager {
     `;
   }
 
-  /**
-   * Build trending calculators section HTML
-   */
   buildTrendingHtml(calcs) {
     if (!calcs.length) return '';
     const tiles = calcs.map((c, i) => this.buildTileHtml(c, this.getTileAccent(i))).join('');
@@ -333,9 +351,6 @@ class CalculatorPageManager {
     `;
   }
 
-  /**
-   * Build related calculators tile row + view-all button
-   */
   buildRelatedHtml(calcs) {
     const catName = this.formatCategoryName(
       this.calculator.calculatorcategory?.calculatorcategory || ''

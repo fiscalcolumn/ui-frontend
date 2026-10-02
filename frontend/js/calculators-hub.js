@@ -27,6 +27,7 @@ class CalculatorsHubV2 {
     this.renderCategoryPills();
     this.renderFeaturedBento();
     this.renderCategoryList();
+    this.scrollToHash();
     this.initSearch();
     this.initFilters();
   }
@@ -175,6 +176,14 @@ class CalculatorsHubV2 {
     container.innerHTML = html;
   }
 
+  scrollToHash() {
+    const hash = (window.location.hash || '').replace(/^#/, '');
+    if (!/^cat-[A-Za-z0-9]+$/.test(hash)) return;
+    const section = document.getElementById(hash);
+    if (!section) return;
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   renderCategoryList() {
     const container = document.getElementById('ch-categories-container');
     if (!container) return;
@@ -221,7 +230,7 @@ class CalculatorsHubV2 {
       const calcsHtml = group.calcs.map(calc => this.renderCalcItem(calc)).join('');
 
       return `
-        <div class="ch-category-section" data-cat-id="${catDocId}">
+        <div class="ch-category-section" id="cat-${catDocId}" data-cat-id="${catDocId}">
           <div class="ch-category-header" style="--cat-color: ${catInfo.color}">
             <div class="ch-category-icon" style="background: ${catInfo.color}18; color: ${catInfo.color}">
               <i class="fa ${catInfo.icon}"></i>
