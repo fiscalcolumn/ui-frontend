@@ -450,33 +450,25 @@ class ArticlePageManager {
   renderSidebarArticle(article, showCategory = true) {
     const thumbUrl = Utils.safeUrl(Utils.resolveImgUrl(article.image?.url));
     const titleText = Utils.escapeHtml(article.title);
-    const thumbHtml = thumbUrl
-      ? `<img loading="lazy" src="${Utils.escapeHtml(thumbUrl)}" alt="${titleText}">`
-      : '<div class="sb-article-thumb-placeholder"></div>';
     const categorySlug = encodeURIComponent(article.category?.slug || 'article');
     const articleSlug = encodeURIComponent(article.slug || '');
+    const href = '/' + categorySlug + '/' + articleSlug;
     const categoryName = Utils.escapeHtml(article.category?.name || '');
     const readTime = Number(article.minutesToRead) || Utils.calculateReadingTime(article.content) || 3;
     const date = Utils.formatDate(article.publishedDate);
-    const meta = [
-      `${readTime} min read`,
-      date
-    ].filter(Boolean).join(' • ');
+    const meta = [readTime + ' min read', date].filter(Boolean).join(' \u00b7 ');
+    const categoryHtml = (showCategory && categoryName)
+      ? '<div class="sb-article-category">' + categoryName + '</div>'
+      : '';
+    const thumbHtml = thumbUrl
+      ? '<div class="sb-article-thumb"><img loading="lazy" src="' + Utils.escapeHtml(thumbUrl) + '" alt="' + titleText + '"></div>'
+      : '';
 
-    return `
-      <div class="sb-article-item">
-        <div class="sb-article-body">
-          ${showCategory && categoryName ? `<div class="sb-article-category">${categoryName}</div>` : ''}
-          <h4 class="sb-article-title">
-            <a href="/${categorySlug}/${articleSlug}">${titleText}</a>
-          </h4>
-          <div class="sb-article-meta">${meta}</div>
-        </div>
-        <div class="sb-article-thumb">
-          <a href="/${categorySlug}/${articleSlug}">${thumbHtml}</a>
-        </div>
-      </div>
-    `;
+    return '<a class="sb-article-item" href="' + href + '">'
+      + '<div class="sb-article-body">' + categoryHtml
+      + '<h4 class="sb-article-title">' + titleText + '</h4>'
+      + '<div class="sb-article-meta">' + meta + '</div></div>'
+      + thumbHtml + '</a>';
   }
 
   /**

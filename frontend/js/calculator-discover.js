@@ -214,4 +214,106 @@ const CalculatorDiscover = {
     section.append(head, row);
     mount.replaceChildren(section);
   },
+
+  mountTaggedArticles(articles, tagSlug, calculatorTitle) {
+    const mount = document.getElementById('calc-tagged-articles-mount');
+    if (!mount || !articles || !articles.length) {
+      if (mount) mount.replaceChildren();
+      return;
+    }
+
+    const section = document.createElement('section');
+    section.className = 'calc-section-card calc-tag-articles';
+
+    const heading = document.createElement('h3');
+    heading.className = 'calc-section-title discover-title';
+    const label = calculatorTitle
+      ? 'Guides for ' + calculatorTitle.replace(/\s+Calculator$/i, '')
+      : 'Related guides';
+    heading.textContent = label;
+
+    const grid = document.createElement('div');
+    grid.className = 'calc-tag-grid';
+
+    articles.slice(0, 6).forEach(article => {
+      const catSlug = this.safeSlug(article.category && article.category.slug) || 'article';
+      const artSlug = this.safeSlug(article.slug);
+      if (!artSlug) return;
+
+      const card = document.createElement('a');
+      card.className = 'calc-tag-card';
+      card.href = '/' + catSlug + '/' + artSlug;
+
+      const media = document.createElement('div');
+      media.className = 'calc-tag-media';
+      const imgUrl = typeof Utils !== 'undefined'
+        ? Utils.safeUrl(Utils.resolveImgUrl(article.image && article.image.url))
+        : '';
+      if (imgUrl) {
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.src = imgUrl;
+        img.alt = article.title || '';
+        media.appendChild(img);
+      } else {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'calc-tag-media-empty';
+        const letter = ((article.category && article.category.name) || article.title || 'A').charAt(0);
+        placeholder.textContent = letter.toUpperCase();
+        media.appendChild(placeholder);
+      }
+
+      const body = document.createElement('div');
+      body.className = 'calc-tag-body';
+
+      if (article.category && article.category.name) {
+        const cat = document.createElement('span');
+        cat.className = 'calc-tag-cat';
+        cat.textContent = article.category.name;
+        body.appendChild(cat);
+      }
+
+      const title = document.createElement('strong');
+      title.className = 'calc-tag-title';
+      title.textContent = article.title || 'Article';
+      body.appendChild(title);
+
+      if (article.excerpt) {
+        const excerpt = document.createElement('p');
+        excerpt.className = 'calc-tag-excerpt';
+        excerpt.textContent = typeof Utils !== 'undefined'
+          ? Utils.truncateText(article.excerpt, 110)
+          : article.excerpt;
+        body.appendChild(excerpt);
+      }
+
+      const meta = document.createElement('span');
+      meta.className = 'calc-tag-meta';
+      const minutes = Number(article.minutesToRead)
+        || (typeof Utils !== 'undefined' ? Utils.getReadTime(article) : 3);
+      const date = typeof Utils !== 'undefined' ? Utils.formatDate(article.publishedDate) : '';
+      meta.textContent = [minutes + ' min read', date].filter(Boolean).join(' · ');
+      body.appendChild(meta);
+
+      card.append(media, body);
+      grid.appendChild(card);
+    });
+
+    if (!grid.childElementCount) {
+      mount.replaceChildren();
+      return;
+    }
+
+    section.append(heading, grid);
+
+    if (tagSlug && this.safeSlug(tagSlug)) {
+      const more = document.createElement('a');
+      more.className = 'calc-view-all-link calc-tag-more';
+      more.href = '/tag/' + this.safeSlug(tagSlug);
+      more.textContent = 'View all';
+      section.appendChild(more);
+    }
+
+    mount.replaceChildren(section);
+  },
 };

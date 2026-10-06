@@ -198,10 +198,11 @@ class CalculatorPageManager {
   async renderBelowSections() {
     if (!this.belowContainer) return;
 
-    const [trendingCalcs, relatedCalcs, catalog] = await Promise.all([
+    const [trendingCalcs, relatedCalcs, catalog, taggedArticles] = await Promise.all([
       this.fetchTrendingCalculators(),
       this.fetchRelatedCalculators(),
       this.fetchCatalog(),
+      this.fetchTaggedArticles(),
     ]);
 
     const faqsHtml = this.renderFAQs(this.calculator.faqs || []);
@@ -210,9 +211,10 @@ class CalculatorPageManager {
     const formulaHtml = this.formatMarkdown(this.calculator.formulaExplanation || '');
 
     this.belowContainer.innerHTML = `
+      <div id="calc-tagged-articles-mount"></div>
       <div id="calc-trending-mount"></div>
       <div id="calc-related-mount"></div>
-      ${faqsHtml ? `<div class="calc-section-card">${faqsHtml}</div>` : ''}
+      ${faqsHtml ? `<div class="calc-section-card calc-faq-section">${faqsHtml}</div>` : ''}
       ${this.calculator.disclaimer ? `
         <div class="calc-section-card calc-disclaimer-card">
           <i class="fa fa-info-circle"></i>
@@ -241,6 +243,11 @@ class CalculatorPageManager {
       ? this.formatCategoryName(this.calculator.calculatorcategory.calculatorcategory)
       : '';
     if (typeof CalculatorDiscover !== 'undefined') {
+      CalculatorDiscover.mountTaggedArticles(
+        taggedArticles,
+        this.calculator.slug,
+        this.calculator.title || ''
+      );
       CalculatorDiscover.mountTrending(trendingCalcs, catalog);
       CalculatorDiscover.mountRelated(relatedCalcs, categoryName);
     }
@@ -257,6 +264,23 @@ class CalculatorPageManager {
       const response = await fetch(url);
       const data = await response.json();
       return (data.data || []).filter(c => c.slug !== this.calculator.slug);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  async fetchTaggedArticles() {
+    const slug = this.calculator && this.calculator.slug;
+    if (!slug || !/^[a-z0-9-]+$/i.test(slug)) return [];
+    try {
+      const url = getApiUrl(
+        '/articles?filters[tags][slug][$eq]=' + encodeURIComponent(slug)
+        + '&populate[image]=true&populate[category]=true'
+        + '&pagination[limit]=6&sort=publishedDate:desc'
+      );
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.data || [];
     } catch (e) {
       return [];
     }
